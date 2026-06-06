@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary: #2196F3;
   --color-secondary: #4A90E2;
@@ -29,6 +31,15 @@
     color: var(--color-text-primary);
     font-family: var(--font-body);
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .dark body {
+    --color-background: #020617;
+    --color-bg-secondary: #0f172a;
+    --color-card: #111827;
+    --color-text-primary: #e2e8f0;
+    --color-text-secondary: #94a3b8;
   }
   
   h1, h2, h3, h4, h5, h6 {
