@@ -44,7 +44,7 @@ const CustomCursor: React.FC = () => {
       
       {/* Main tiny dot (black for high contrast on light bg) */}
       <motion.div
-        className="fixed top-0 left-0 w-3 h-3 bg-gray-950 rounded-full pointer-events-none z-[9999]"
+        className="fixed top-0 left-0 w-3 h-3 bg-gray-950 dark:bg-slate-100 rounded-full pointer-events-none z-[9999]"
         animate={{
           x: mousePosition.x - 6,
           y: mousePosition.y - 6,

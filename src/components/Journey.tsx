@@ -35,7 +35,7 @@ const Journey: React.FC = () => {
           <div className="h-[2px] w-8 bg-primary" />
           <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 uppercase">Momentum</span>
         </div>
-        <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 uppercase italic leading-none">
+        <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
           Continuous <span className="text-primary italic">Growth</span>
         </h2>
       </motion.div>
@@ -50,11 +50,11 @@ const Journey: React.FC = () => {
             transition={{ duration: 0.6, delay: idx * 0.2 }}
           >
             {/* Timeline Line */}
-            <div className="absolute left-0 top-0 bottom-[-64px] w-[1px] bg-gray-100 group-last:bg-transparent" />
+            <div className="absolute left-0 top-0 bottom-[-64px] w-[1px] bg-gray-100 dark:bg-slate-800 group-last:bg-transparent" />
             <div className="absolute left-[-5px] top-4 w-2.5 h-2.5 rounded-full bg-primary group-hover:scale-150 transition-all shadow-[0_0_10px_rgba(33,150,243,0.3)]" />
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-6">
-              <h4 className="text-3xl font-black font-heading text-gray-950 uppercase tracking-tighter">
+              <h4 className="text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tighter">
                 {item.title}
               </h4>
               <span className={`px-4 py-1.5 rounded-full text-[10px] font-mono font-black uppercase tracking-widest italic border ${
@@ -66,7 +66,7 @@ const Journey: React.FC = () => {
               </span>
             </div>
             
-            <p className="text-xl text-gray-500 leading-relaxed font-medium max-w-2xl italic">
+            <p className="text-xl text-gray-500 dark:text-slate-400 leading-relaxed font-medium max-w-2xl italic">
               {item.description}
             </p>
           </motion.div>

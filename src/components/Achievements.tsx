@@ -44,7 +44,7 @@ const Achievements: React.FC = () => {
           <div className="h-[2px] w-8 bg-primary" />
           <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 uppercase">Background</span>
         </div>
-        <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 uppercase italic leading-none">
+        <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
           Education & <br />
           <span className="text-primary italic">Academic Excellence</span>
         </h2>
@@ -54,7 +54,7 @@ const Achievements: React.FC = () => {
         {education.map((item, index) => (
           <motion.div
             key={index}
-            className="group relative bg-white border border-gray-100 p-8 md:p-12 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl overflow-hidden"
+            className="group relative bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-8 md:p-12 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl overflow-hidden"
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
             transition={{ duration: 0.8, delay: index * 0.2 }}
@@ -74,23 +74,23 @@ const Achievements: React.FC = () => {
                   </span>
                 </div>
                 <div className="space-y-1">
-                   <h3 className="text-3xl md:text-4xl font-black font-heading text-gray-950 tracking-tighter uppercase">{item.title}</h3>
-                   <p className="text-xs font-mono font-bold text-gray-400 uppercase tracking-[0.3em]">{item.category}</p>
+                   <h3 className="text-3xl md:text-4xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter uppercase">{item.title}</h3>
+                   <p className="text-xs font-mono font-bold text-gray-400 dark:text-slate-400 uppercase tracking-[0.3em]">{item.category}</p>
                 </div>
               </div>
 
               {/* Right Side: Content */}
               <div className="lg:w-2/3 space-y-8">
-                <p className="text-xl md:text-2xl text-gray-600 leading-relaxed font-medium">
+                <p className="text-xl md:text-2xl text-gray-600 dark:text-slate-300 leading-relaxed font-medium">
                   {item.description}
                 </p>
                 
-                <div className="p-6 bg-gray-50/80 border-l-4 border-primary rounded-r-xl">
+                <div className="p-6 bg-gray-50/80 dark:bg-slate-800/80 border-l-4 border-primary rounded-r-xl">
                    <h4 className="text-xs font-mono font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
                      <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                      Highlights
                    </h4>
-                   <p className="text-gray-700 font-medium leading-relaxed">
+                   <p className="text-gray-700 dark:text-slate-300 font-medium leading-relaxed">
                      {item.outcome}
                    </p>
                 </div>

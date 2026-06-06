@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, Moon, Sun, X } from 'lucide-react';
 import clsx from 'clsx';
 
 interface NavbarProps {
   activeSection: string;
+  isDarkMode: boolean;
+  onToggleTheme: () => void;
 }
 
 const navItems = [
@@ -16,7 +18,7 @@ const navItems = [
   { name: 'Contact', href: '#contact' }
 ];
 
-const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
+const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleTheme }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -41,7 +43,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
       <motion.nav
         className={clsx(
           "fixed top-0 left-0 right-0 z-[100] transition-all duration-500",
-          isScrolled ? "py-4 bg-white/80 backdrop-blur-xl border-b border-gray-200 shadow-[0_10px_30px_rgba(0,0,0,0.05)]" : "py-6 bg-transparent"
+          isScrolled ? "py-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-gray-200 dark:border-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.05)]" : "py-6 bg-transparent"
         )}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -58,7 +60,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
             }}
             className="relative group flex items-center gap-2"
           >
-            <span className="font-heading font-black text-2xl tracking-tighter text-gray-950 uppercase">HOME</span>
+            <span className="font-heading font-black text-2xl tracking-tighter text-gray-950 dark:text-slate-100 uppercase">HOME</span>
             <div className="w-2.5 h-2.5 bg-primary group-hover:scale-150 group-hover:shadow-[0_0_10px_rgba(33,150,243,0.5)] transition-all duration-300" />
           </a>
 
@@ -74,7 +76,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
                 >
                   <span className={clsx(
                     "relative z-10 transition-colors duration-300",
-                    isActive ? "text-gray-950" : "text-gray-500"
+                    isActive ? "text-gray-950 dark:text-slate-100" : "text-gray-500 dark:text-slate-400"
                   )}>
                     {item.name}
                   </span>
@@ -95,13 +97,22 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
             })}
           </div>
 
-          {/* Mobile Toggle */}
-          <button 
-            className="lg:hidden p-2 text-gray-600 hover:text-primary transition-colors cursor-none"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <Menu size={28} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onToggleTheme}
+              className="p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors cursor-none"
+              aria-label="Toggle dark mode"
+            >
+              {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
+            </button>
+            {/* Mobile Toggle */}
+            <button 
+              className="lg:hidden p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors cursor-none"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu size={28} />
+            </button>
+          </div>
         </div>
       </motion.nav>
 
@@ -109,14 +120,14 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="fixed inset-0 z-[200] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center"
+            className="fixed inset-0 z-[200] bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
           >
             <button 
-              className="absolute top-6 right-6 p-4 text-gray-500 hover:text-gray-900 transition-colors cursor-none"
+              className="absolute top-6 right-6 p-4 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors cursor-none"
               onClick={() => setMobileMenuOpen(false)}
             >
               <X size={40} />
@@ -128,7 +139,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
                   key={item.name}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-4xl font-heading font-black text-gray-800 hover:text-primary transition-colors relative group uppercase tracking-tighter"
+                  className="text-4xl font-heading font-black text-gray-800 dark:text-slate-200 hover:text-primary transition-colors relative group uppercase tracking-tighter"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + idx * 0.05 }}

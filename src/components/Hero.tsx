@@ -31,7 +31,7 @@ const Hero: React.FC = () => {
   const hoverValue = useMotionValue(0);
   const radiusSpring = useSpring(hoverValue, { damping: 20, stiffness: 100 });
   const radiusMain = useTransform(radiusSpring, [0, 1], ["0vw", "11vw"]);
-  
+
   // Update hover state and motion value
   React.useEffect(() => {
     hoverValue.set(isHovered ? 1 : 0);
@@ -40,7 +40,7 @@ const Hero: React.FC = () => {
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    
+
     // Normalize to percentage (0-100)
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -88,8 +88,8 @@ const Hero: React.FC = () => {
 
       // beta: -180 to 180 (front/back), gamma: -90 to 90 (left/right)
       // Wider mapping for more natural tilt range
-      const beta = e.beta; 
-      const gamma = e.gamma; 
+      const beta = e.beta;
+      const gamma = e.gamma;
 
       // Center around common holding angles: gamma center = 0, beta center = 45-60
       const targetX = Math.max(0, Math.min(100, ((gamma + 40) / 80) * 100));
@@ -97,7 +97,7 @@ const Hero: React.FC = () => {
 
       mouseX.set(targetX);
       mouseY.set(targetY);
-      
+
       // Ensure hover is active when sensing
       if (!hoverValue.get()) {
         setIsHovered(true);
@@ -112,9 +112,9 @@ const Hero: React.FC = () => {
   const maskCy = useTransform(maskY, (v) => v + "%");
 
   return (
-    <motion.div 
+    <motion.div
       ref={containerRef}
-      className={`relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-white ${isMobile ? '' : 'cursor-none'}`}
+      className={`relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-slate-950 ${isMobile ? '' : 'cursor-none'}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onTouchMove={(e) => {
@@ -132,15 +132,15 @@ const Hero: React.FC = () => {
         {/* Typo Background can go here if we want it to shift */}
       </motion.div>
       {/* Huge Background Typography - ENGINEER (Z-0) */}
-      <motion.div 
+      <motion.div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none px-4"
-        style={{ 
-          opacity: opacityText, 
-          x: useTransform(smoothX, [0, 100], [-30, 30]), 
-          y: useTransform(smoothY, [0, 100], [-30, 30]) 
+        style={{
+          opacity: opacityText,
+          x: useTransform(smoothX, [0, 100], [-30, 30]),
+          y: useTransform(smoothY, [0, 100], [-30, 30])
         }}
       >
-        <h1 className="text-[22vw] md:text-[24vw] font-black leading-none tracking-[-0.05em] text-gray-950/5 select-none font-heading uppercase whitespace-nowrap">
+        <h1 className="text-[22vw] md:text-[24vw] font-black leading-none tracking-[-0.05em] text-gray-950/10 dark:text-slate-100/5 select-none font-heading uppercase whitespace-nowrap">
           ENGINEER
         </h1>
       </motion.div>
@@ -153,16 +153,16 @@ const Hero: React.FC = () => {
             <mask id="fluid-mask-clean">
               <rect x="0" y="0" width="100%" height="100%" fill="black" />
               {/* Main following circle */}
-              <motion.circle 
-                cx={maskCx} 
-                cy={maskCy} 
-                r={radiusMain} 
-                fill="white" 
+              <motion.circle
+                cx={maskCx}
+                cy={maskCy}
+                r={radiusMain}
+                fill="white"
                 style={{ filter: "blur(40px)" }}
               />
               {/* Organic blobs */}
               {[...Array(3)].map((_, i) => (
-                <motion.circle 
+                <motion.circle
                   key={i}
                   cx={useTransform(maskX, (v) => v + Math.sin(i * 2) * 8 + "%")}
                   cy={useTransform(maskY, (v) => v + Math.cos(i * 2) * 8 + "%")}
@@ -176,26 +176,26 @@ const Hero: React.FC = () => {
         </svg>
 
         {/* Layer 1: Base Image */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0"
-          style={{ 
+          style={{
             scale: 1.05,
             x: useTransform(smoothX, [0, 100], [-10, 10]),
             y: useTransform(smoothY, [0, 100], [-10, 10])
           }}
         >
-          <img 
-            src="/images/main_fullscreen.png" 
-            alt="Base View" 
+          <img
+            src="/images/main_fullscreen.png"
+            alt="Base View"
             className="w-full h-full object-cover object-[50%_0%]"
           />
         </motion.div>
 
         {/* Layer 2: Reveal Image (Helmet) */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 z-20 pointer-events-none"
-          style={{ 
-            maskImage: "url(#fluid-mask-clean)", 
+          style={{
+            maskImage: "url(#fluid-mask-clean)",
             WebkitMaskImage: "url(#fluid-mask-clean)",
             mask: "url(#fluid-mask-clean)",
             scale: 1.05,
@@ -203,9 +203,9 @@ const Hero: React.FC = () => {
             y: useTransform(smoothY, [0, 100], [-10, 10])
           }}
         >
-          <img 
-            src="/images/second_fullscreen.png" 
-            alt="Helmet Reveal" 
+          <img
+            src="/images/second_fullscreen.png"
+            alt="Helmet Reveal"
             className="w-full h-full object-cover object-[50%_0%]"
           />
         </motion.div>
@@ -213,41 +213,41 @@ const Hero: React.FC = () => {
 
       {/* Interactive Racing Widgets - Z-INDEX 30 */}
       <div className="absolute inset-x-8 inset-y-12 pointer-events-none z-30">
-        <div className="absolute top-10 md:top-0 left-0 flex flex-col gap-1 border-l-2 border-primary pl-4 py-2 bg-white/10 backdrop-blur-md">
-          <div className="text-[10px] font-mono text-gray-500 uppercase tracking-widest font-bold">Status</div>
-          <div className="text-xl font-heading font-black text-gray-950 uppercase italic tracking-tighter">Live Feed</div>
+        <div className="absolute top-10 md:top-0 left-0 flex flex-col gap-1 border-l-2 border-primary pl-4 py-2 bg-white/70 dark:bg-slate-900/20 backdrop-blur-md">
+          <div className="text-[10px] font-mono text-gray-500 dark:text-slate-400 uppercase tracking-widest font-bold">Status</div>
+          <div className="text-xl font-heading font-black text-gray-950 dark:text-slate-100 uppercase italic tracking-tighter">Live Feed</div>
         </div>
 
-        <div className="absolute bottom-0 right-0 text-right flex flex-col gap-1 border-r-2 border-primary pr-4 py-2 bg-white/10 backdrop-blur-md">
-          <div className="text-[10px] font-mono text-gray-500 uppercase tracking-widest font-bold">Input Matrix</div>
-          <motion.div className="text-lg font-mono font-bold text-gray-950">
+        <div className="absolute bottom-0 right-0 text-right flex flex-col gap-1 border-r-2 border-primary pr-4 py-2 bg-white/70 dark:bg-slate-900/20 backdrop-blur-md">
+          <div className="text-[10px] font-mono text-gray-500 dark:text-slate-400 uppercase tracking-widest font-bold">Input Matrix</div>
+          <motion.div className="text-lg font-mono font-bold text-gray-950 dark:text-slate-100">
             {Math.round(maskX.get())} / {Math.round(maskY.get())}
           </motion.div>
         </div>
       </div>
 
       {/* Nameplate - Z-INDEX 40 */}
-      <motion.div 
+      <motion.div
         className="absolute bottom-8 left-8 z-40 flex flex-col items-start pointer-events-none"
         initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="bg-white/90 backdrop-blur-xl p-5 border-b-4 border-primary shadow-2xl skew-x-[-4deg]">
-          <h2 className="text-3xl md:text-5xl font-black font-heading text-gray-950 tracking-tighter leading-none uppercase italic">
+        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-5 border-b-4 border-primary shadow-2xl skew-x-[-4deg]">
+          <h2 className="text-3xl md:text-5xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter leading-none uppercase italic">
             PRANAV SANJAY <span className="text-primary italic">OSWAL</span>
           </h2>
-          
+
           <div className="mt-6 pointer-events-auto">
-            <a 
-              href="#projects" 
-              className="px-6 py-3 bg-gray-950 text-white text-[10px] font-black font-heading tracking-[0.2em] uppercase hover:bg-primary transition-all duration-300 shadow-lg inline-block"
+            <a
+              href="#projects"
+              className="px-6 py-3 bg-gray-950 dark:bg-slate-100 text-white dark:text-slate-900 text-[10px] font-black font-heading tracking-[0.2em] uppercase hover:bg-primary hover:text-white transition-all duration-300 shadow-lg inline-block"
             >
               Enter Experience
             </a>
 
             {isMobile && !hasSensorPermission && (
-              <button 
+              <button
                 onClick={requestSensorPermission}
                 className="ml-4 px-4 py-3 bg-primary text-white text-[10px] font-black font-heading tracking-[0.2em] uppercase hover:bg-gray-950 transition-all duration-300 shadow-lg inline-flex items-center gap-2"
               >
