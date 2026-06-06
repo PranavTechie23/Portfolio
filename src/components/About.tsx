@@ -1,9 +1,10 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { CountUp } from './AnimatedText';
 
 const About: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true, margin: "-10%" });
+  const isInView = useInView(containerRef, { once: false, margin: "-10%" });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -51,17 +52,26 @@ const About: React.FC = () => {
               <span className="text-primary italic">through structured approaches.</span>
             </h2>
           </motion.div>
-
+ 
           {/* Impact Stats */}
           <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="p-6 md:p-8 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl hover:border-primary/30 transition-all duration-500">
-              <div className="text-2xl md:text-4xl font-black text-gray-950 dark:text-slate-100 mb-1">9.1</div>
-              <div className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest">CGPA (Current)</div>
-            </div>
-            <div className="p-6 md:p-8 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl hover:border-primary/30 transition-all duration-500">
-              <div className="text-2xl md:text-4xl font-black text-gray-950 dark:text-slate-100 mb-1">10+</div>
-              <div className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest">Major Projects</div>
-            </div>
+            {[
+              { to: 9.1, decimals: 1, suffix: '', label: 'CGPA (Current)' },
+              { to: 10, decimals: 0, suffix: '+', label: 'Major Projects' },
+            ].map((stat) => (
+              <motion.div
+                key={stat.label}
+                className="p-6 md:p-8 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl hover:border-primary/30 transition-colors duration-500 relative overflow-hidden group"
+                whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(33,150,243,0.12)' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative text-2xl md:text-4xl font-black text-gray-950 dark:text-slate-100 mb-1">
+                  <CountUp to={stat.to} decimals={stat.decimals} suffix={stat.suffix} />
+                </div>
+                <div className="relative text-[10px] font-mono font-bold text-primary uppercase tracking-widest">{stat.label}</div>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
 

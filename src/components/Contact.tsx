@@ -1,16 +1,23 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { RevealWords } from './AnimatedText';
+import Magnetic from './motion/Magnetic';
+
 
 const Contact: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-20%' });
+  const isInView = useInView(ref, { once: false, margin: '-20%' });
 
   return (
     <div ref={ref} className="w-full flex flex-col items-center justify-center min-h-[50vh] relative pt-4 pb-20 px-4 bg-gray-50 dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 shadow-[8px_8px_0_rgba(0,0,0,0.05)]">
       
-      {/* Background glowing blob for text (Light version) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-primary/20 rounded-full blur-[100px] pointer-events-none -z-10 mix-blend-multiply" />
+      {/* Background glowing blob */}
+      <motion.div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-primary/20 rounded-full blur-[100px] pointer-events-none -z-10 mix-blend-multiply dark:mix-blend-screen"
+        animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      />
 
       <motion.div 
         className="text-center space-y-12 max-w-4xl w-full"
@@ -25,7 +32,7 @@ const Contact: React.FC = () => {
         </div>
         
         <h2 className="text-6xl md:text-8xl lg:text-[120px] font-black font-heading tracking-tighter leading-none text-gray-950 dark:text-slate-100 uppercase selection:bg-primary selection:text-white">
-          LET'S CONNECT
+          <RevealWords text="LET'S CONNECT" />
         </h2>
 
         <p className="text-xl md:text-2xl text-gray-600 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
@@ -33,9 +40,12 @@ const Contact: React.FC = () => {
         </p>
 
         <div className="pt-12 flex justify-center">
-          <a 
+          <Magnetic strength={0.25}>
+          <motion.a 
             href="mailto:pranavoswal21@gmail.com"
-            className="group relative inline-flex items-center gap-4 px-10 py-5 bg-white dark:bg-slate-950 border-2 border-gray-900 dark:border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-[8px_8px_0_rgba(33,150,243,1)] hover:-translate-y-1 block"
+            className="group relative inline-flex items-center gap-4 px-10 py-5 bg-white dark:bg-slate-950 border-2 border-gray-900 dark:border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-[8px_8px_0_rgba(33,150,243,1)] block"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
           >
             <div className="absolute inset-x-0 bottom-0 h-0 bg-primary transition-all duration-300 ease-out group-hover:h-full z-0" />
             
@@ -44,7 +54,8 @@ const Contact: React.FC = () => {
               <ArrowRight className="w-5 h-5 text-gray-900 dark:text-slate-100 group-hover:-rotate-45 transition-all" />
             </div>
             
-          </a>
+          </motion.a>
+          </Magnetic>
         </div>
       </motion.div>
     </div>

@@ -69,10 +69,12 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
             {navItems.map((item) => {
               const isActive = activeSection === item.href.replace('#', '');
               return (
-                <a
+                <motion.a
                   key={item.name}
                   href={item.href}
                   className="relative text-sm font-bold tracking-wide transition-colors duration-300 hover:text-primary group py-2 uppercase font-heading"
+                  whileHover={{ y: -2 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
                   <span className={clsx(
                     "relative z-10 transition-colors duration-300",
@@ -92,7 +94,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
-                </a>
+                </motion.a>
               );
             })}
           </div>

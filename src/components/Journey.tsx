@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 
+
 const journeyItems = [
   {
     title: 'Machine Learning Specialization',
@@ -21,7 +22,7 @@ const journeyItems = [
 
 const Journey: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-10%' });
+  const isInView = useInView(ref, { once: false, margin: '-10%' });
 
   return (
     <div ref={ref} className="w-full">
@@ -40,18 +41,30 @@ const Journey: React.FC = () => {
         </h2>
       </motion.div>
 
-      <div className="max-w-4xl space-y-16">
+      <div className="max-w-4xl space-y-16 relative">
+        <motion.div
+          className="absolute left-0 top-0 bottom-0 w-[1px] bg-gray-100 dark:bg-slate-800 origin-top"
+          initial={{ scaleY: 0 }}
+          animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+        />
+
         {journeyItems.map((item, idx) => (
           <motion.div 
             key={idx} 
             className="relative pl-12 group"
-            initial={{ opacity: 0, x: -30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
-            transition={{ duration: 0.6, delay: idx * 0.2 }}
+            initial={{ opacity: 0, x: -40 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
+            transition={{ duration: 0.7, delay: 0.2 + idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ x: 8 }}
           >
-            {/* Timeline Line */}
-            <div className="absolute left-0 top-0 bottom-[-64px] w-[1px] bg-gray-100 dark:bg-slate-800 group-last:bg-transparent" />
-            <div className="absolute left-[-5px] top-4 w-2.5 h-2.5 rounded-full bg-primary group-hover:scale-150 transition-all shadow-[0_0_10px_rgba(33,150,243,0.3)]" />
+            <motion.div
+              className="absolute left-[-5px] top-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(33,150,243,0.3)]"
+              initial={{ scale: 0 }}
+              animate={isInView ? { scale: 1 } : { scale: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.3 + idx * 0.15 }}
+              whileHover={{ scale: 1.6, boxShadow: '0 0 20px rgba(33,150,243,0.6)' }}
+            />
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-6">
               <h4 className="text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tighter">

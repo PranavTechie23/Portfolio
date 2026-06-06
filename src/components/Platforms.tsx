@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Github, Linkedin, Code2, BarChart3, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import TiltCard from './motion/TiltCard';
 
 const platforms = [
   {
@@ -47,12 +48,12 @@ const platforms = [
 
 const Platforms: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-20%' });
+  const isInView = useInView(ref, { once: false, margin: '-20%' });
 
   return (
-    <div ref={ref} className="w-full flex flex-col space-y-16 bg-gray-50/50 dark:bg-slate-900/60 p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[2rem]">
+    <div ref={ref} className="w-full flex flex-col space-y-8 bg-gray-50/50 dark:bg-slate-900/60 p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[2rem]">
       <motion.div
-        className="mb-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
+        className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -62,7 +63,9 @@ const Platforms: React.FC = () => {
             <div className="h-[2px] w-8 bg-primary" />
             <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 dark:text-slate-400 uppercase">Digital Presence</span>
           </div>
-          <h2 className="text-4xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">NETWORK.</h2>
+          <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
+            Where to <span className="text-primary italic">Find Me</span>
+          </h2>
         </div>
 
         <a
@@ -78,15 +81,19 @@ const Platforms: React.FC = () => {
         {platforms.map((platform, idx) => {
           const Icon = platform.icon;
           return (
-            <motion.a
+            <motion.div
               key={idx}
-              href={platform.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative flex flex-col p-10 md:p-12 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-primary/30 hover:shadow-2xl min-h-[360px] md:min-h-[420px]"
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
               transition={{ duration: 0.6, delay: 0.2 + idx * 0.1, ease: "easeOut" }}
+            >
+            <TiltCard
+              as="a"
+              href={platform.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative flex flex-col p-10 md:p-12 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-primary/30 hover:shadow-2xl min-h-[360px] md:min-h-[420px] h-full"
+              intensity={7}
             >
               {/* Highlight background */}
               <div className="absolute inset-x-0 bottom-0 h-1 bg-gray-50 dark:bg-slate-800 group-hover:h-full group-hover:bg-primary/5 transition-all duration-500" />
@@ -108,7 +115,8 @@ const Platforms: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </motion.a>
+            </TiltCard>
+            </motion.div>
           );
         })}
       </div>

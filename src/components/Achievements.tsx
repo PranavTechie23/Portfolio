@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { CountUp } from './AnimatedText';
 
 const education = [
   {
@@ -30,7 +31,7 @@ const education = [
 
 const Achievements: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-20%' });
+  const isInView = useInView(ref, { once: false, margin: '-20%' });
 
   return (
     <div ref={ref} className="w-full">
@@ -45,7 +46,7 @@ const Achievements: React.FC = () => {
           <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 uppercase">Background</span>
         </div>
         <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
-          Education & <br />
+          Education &amp; <br />
           <span className="text-primary italic">Academic Excellence</span>
         </h2>
       </motion.div>
@@ -55,9 +56,10 @@ const Achievements: React.FC = () => {
           <motion.div
             key={index}
             className="group relative bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-8 md:p-12 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl overflow-hidden"
-            initial={{ opacity: 0, y: 40 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-            transition={{ duration: 0.8, delay: index * 0.2 }}
+            initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50, y: 20 }}
+            animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: index % 2 === 0 ? -50 : 50, y: 20 }}
+            transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ y: -4 }}
           >
             {/* Background Accent */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl group-hover:bg-primary/10 transition-all duration-500" />
@@ -70,7 +72,9 @@ const Achievements: React.FC = () => {
                     {item.meta}
                   </span>
                   <span className="px-3 py-1 bg-emerald-500/5 border border-emerald-500/20 text-emerald-600 uppercase font-mono font-black text-[10px] tracking-widest italic font-heading">
-                    {item.prize}
+                    {index === 0 && <CountUp to={9.1} decimals={1} prefix="CGPA: " />}
+                    {index === 1 && <CountUp to={93.17} decimals={2} suffix="% | 2nd Rank" />}
+                    {index === 2 && <CountUp to={97.20} decimals={2} suffix="% | 1st Rank" />}
                   </span>
                 </div>
                 <div className="space-y-1">

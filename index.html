@@ -12,14 +12,19 @@
     <meta property="og:description" content="Explore my projects, skills, and journey in software engineering.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="/index.css">
+
+    <!-- Apply saved theme before React paints to avoid flash and ensure toggle works -->
+    <script>
+        (function () {
+            var saved = localStorage.getItem('portfolio-theme');
+            var dark = saved === 'dark'
+                ? true
+                : saved === 'light'
+                    ? false
+                    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.classList.toggle('dark', dark);
+        })();
+    </script>
 </head>
 
 <body>

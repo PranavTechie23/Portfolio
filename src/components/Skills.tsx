@@ -4,65 +4,186 @@ import { motion, useInView } from 'framer-motion';
 const skillCategories = [
   {
     title: "Programming",
-    skills: ["C", "C++", "Java", "Python"]
+    label: "Core Languages",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+      </svg>
+    ),
+    accent: "#2196F3",
+    skills: [
+      { name: "Python", level: 90 },
+      { name: "C++", level: 80 },
+      { name: "Java", level: 72 },
+      { name: "C", level: 65 },
+    ],
   },
   {
-    title: "Web Development",
-    skills: ["HTML", "CSS", "React", "TypeScript"]
+    title: "Web Dev",
+    label: "Frontend & Backend",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
+      </svg>
+    ),
+    accent: "#7C3AED",
+    skills: [
+      { name: "React", level: 85 },
+      { name: "TypeScript", level: 78 },
+      { name: "HTML / CSS", level: 92 },
+      { name: "Node.js", level: 70 },
+    ],
   },
   {
-    title: "Machine Learning / AI",
-    skills: ["scikit-learn", "Pandas", "NumPy", "LangChain"]
+    title: "ML / AI",
+    label: "Machine Learning",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2" />
+      </svg>
+    ),
+    accent: "#059669",
+    skills: [
+      { name: "scikit-learn", level: 82 },
+      { name: "Pandas", level: 88 },
+      { name: "NumPy", level: 85 },
+      { name: "LangChain", level: 65 },
+    ],
   },
   {
-    title: "Tools & Platforms",
-    skills: ["Git", "GitHub", "Data Structures", "Algorithms"]
-  }
+    title: "Tools",
+    label: "Platforms & DSA",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+    accent: "#F59E0B",
+    skills: [
+      { name: "Git & GitHub", level: 88 },
+      { name: "Data Structures", level: 80 },
+      { name: "Algorithms", level: 75 },
+      { name: "REST APIs", level: 78 },
+    ],
+  },
 ];
 
 const Skills: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-20%' });
+  const isInView = useInView(ref, { once: false, margin: '-15%' });
 
   return (
     <div ref={ref} className="w-full">
-      <motion.div 
-        className="mb-20 space-y-4"
+      {/* Header */}
+      <motion.div
+        className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="flex items-center gap-4">
-          <div className="h-[2px] w-8 bg-primary" />
-          <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 uppercase">Toolkit</span>
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="h-[2px] w-8 bg-primary" />
+            <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 dark:text-slate-400 uppercase">Toolkit</span>
+          </div>
+          <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
+            Technical <span className="text-primary italic">Arsenal</span>
+          </h2>
         </div>
-        <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
-          Technical <span className="text-primary italic">Arsenal</span>
-        </h2>
+        <p className="text-sm font-medium text-gray-500 dark:text-slate-400 max-w-xs leading-relaxed">
+          Skills forged through real projects, competitions, and relentless building.
+        </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {/* Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {skillCategories.map((category, idx) => (
           <motion.div
             key={idx}
-            className="group p-10 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl hover:border-primary/30 transition-all duration-500 hover:shadow-2xl"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.5, delay: idx * 0.1 }}
+            className="group relative flex flex-col p-7 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl cursor-default"
+            style={{ '--accent': category.accent } as React.CSSProperties}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+            transition={{ duration: 0.5, delay: idx * 0.12 }}
+            whileHover={{ y: -6, transition: { duration: 0.3 } }}
           >
-            <h3 className="text-2xl font-bold font-heading text-gray-950 dark:text-slate-100 uppercase mb-8 flex items-center gap-4">
-              <div className="w-3 h-3 bg-primary group-hover:scale-150 transition-transform" />
-              {category.title}
-            </h3>
-            
-            <ul className="space-y-4">
+            {/* Accent glow top bar */}
+            <div
+              className="absolute top-0 left-0 right-0 h-[3px] opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+              style={{ background: `linear-gradient(90deg, ${category.accent}, transparent)` }}
+            />
+
+            {/* Background glow blob */}
+            <div
+              className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none"
+              style={{ backgroundColor: category.accent }}
+            />
+
+            {/* Index number */}
+            <span className="absolute top-5 right-6 text-[11px] font-mono font-black text-gray-200 dark:text-slate-700 group-hover:text-gray-300 dark:group-hover:text-slate-600 transition-colors">
+              {String(idx + 1).padStart(2, '0')}
+            </span>
+
+            {/* Icon + label */}
+            <div className="flex items-center gap-3 mb-6">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500"
+                style={{ backgroundColor: category.accent }}
+              >
+                {category.icon}
+              </div>
+              <div>
+                <h3 className="text-base font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tight leading-none">
+                  {category.title}
+                </h3>
+                <p className="text-[10px] font-mono text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">
+                  {category.label}
+                </p>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px w-full bg-gray-100 dark:bg-slate-800 mb-5" />
+
+            {/* Skills with animated progress bars */}
+            <ul className="space-y-4 flex-grow">
               {category.skills.map((skill, sIdx) => (
-                <li key={sIdx} className="flex items-center gap-4 text-gray-400 dark:text-slate-400 group-hover:text-gray-950 dark:group-hover:text-slate-100 transition-colors duration-300 font-medium">
-                   <div className="h-[1px] w-6 bg-gray-100 dark:bg-slate-700 group-hover:bg-primary transition-colors" />
-                   <span className="font-mono text-lg tracking-wide uppercase italic">{skill}</span>
+                <li key={sIdx} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-mono font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-gray-800 dark:group-hover:text-slate-200 transition-colors duration-300">
+                      {skill.name}
+                    </span>
+                    <span
+                      className="text-[10px] font-mono font-black opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{ color: category.accent }}
+                    >
+                      {skill.level}%
+                    </span>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="h-[3px] w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: category.accent }}
+                      initial={{ width: 0 }}
+                      animate={isInView ? { width: `${skill.level}%` } : { width: 0 }}
+                      transition={{ duration: 1, delay: 0.3 + idx * 0.12 + sIdx * 0.08, ease: 'easeOut' }}
+                    />
+                  </div>
                 </li>
               ))}
             </ul>
+
+            {/* Footer badge */}
+            <div className="mt-6 pt-4 border-t border-gray-100 dark:border-slate-800">
+              <span
+                className="text-[9px] font-mono font-black uppercase tracking-[0.25em] opacity-50 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ color: category.accent }}
+              >
+                {category.skills.length} skills
+              </span>
+            </div>
           </motion.div>
         ))}
       </div>
