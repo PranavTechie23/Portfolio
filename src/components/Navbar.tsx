@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, Moon, Sun, X } from 'lucide-react';
 import clsx from 'clsx';
+import { useLenis } from 'lenis/react';
 
 interface NavbarProps {
   activeSection: string;
@@ -21,6 +22,25 @@ const navItems = [
 const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleTheme }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const lenis = useLenis();
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+
+    // Give a tiny timeout so body scroll lock releases before navigation triggers
+    setTimeout(() => {
+      const target = document.querySelector(href) as HTMLElement | null;
+      if (target) {
+        if (lenis) {
+          lenis.scrollTo(target, { offset: -96, duration: 1.2 });
+        } else {
+          const top = target.getBoundingClientRect().top + window.scrollY - 96;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      }
+    }, 50);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,6 +92,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
                 <motion.a
                   key={item.name}
                   href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
                   className="relative text-sm font-bold tracking-wide transition-colors duration-300 hover:text-primary group py-2 uppercase font-heading"
                   whileHover={{ y: -2 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
@@ -140,7 +161,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
                 <motion.a
                   key={item.name}
                   href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => handleNavClick(e, item.href)}
                   className="text-4xl font-heading font-black text-gray-800 dark:text-slate-200 hover:text-primary transition-colors relative group uppercase tracking-tighter"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}

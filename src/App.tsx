@@ -14,10 +14,24 @@ import BackgroundSystem from './components/BackgroundSystem';
 import CustomCursor from './components/CustomCursor';
 import ScrollToTop from './components/ScrollToTop';
 import TechMarquee from './components/motion/TechMarquee';
-import { motion, useScroll } from 'framer-motion';
+import { motion, useScroll, AnimatePresence } from 'framer-motion';
+import Preloader from './components/Preloader';
 
 const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState('hero');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Lock body scroll during preloader
+  useEffect(() => {
+    if (isLoading) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isLoading]);
 
   // Initialize directly from storage/system preference.
   // We also apply the class immediately inside the initializer so there's
@@ -63,8 +77,13 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <ReactLenis root options={{ smoothTouch: false }}>
-      <div className="selection:bg-blue-500/30 selection:text-blue-200 bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
+    <>
+      <AnimatePresence>
+        {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+      </AnimatePresence>
+
+      <ReactLenis root options={{ smoothTouch: false }}>
+        <div className="selection:bg-blue-500/30 selection:text-blue-200 bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
         <motion.div
           style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}
           className="fixed top-0 left-0 right-0 h-1 bg-primary z-[9999] shadow-[0_0_12px_rgba(33,150,243,0.8)]"
@@ -138,6 +157,7 @@ const App: React.FC = () => {
         </main>
       </div>
     </ReactLenis>
+    </>
   );
 };
 

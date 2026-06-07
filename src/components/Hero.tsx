@@ -67,7 +67,12 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+    const checkMobile = () => {
+      setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const requestSensorPermission = async () => {
@@ -296,50 +301,52 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
         </motion.div>
       </div>
 
-      {/* Floating Glassmorphic Telemetry Cards (z-20) - Hidden on mobile for clutter control */}
-      <div className="absolute inset-0 z-20 pointer-events-none hidden lg:block overflow-hidden">
-        {/* Compiler Terminal - Top Right */}
-        <motion.div
-          style={{
-            x: useTransform(smoothX, [0, 100], [10, -10]),
-            y: useTransform(smoothY, [0, 100], [15, -15])
-          }}
-          className="absolute right-[8%] top-[16%] pointer-events-auto"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <CompilerConsole />
-        </motion.div>
+      {/* Floating Glassmorphic Telemetry Cards (z-20) - Render only on desktop to avoid mobile background CPU load */}
+      {!isMobile && (
+        <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+          {/* Compiler Terminal - Top Right */}
+          <motion.div
+            style={{
+              x: useTransform(smoothX, [0, 100], [10, -10]),
+              y: useTransform(smoothY, [0, 100], [15, -15])
+            }}
+            className="absolute right-[8%] top-[16%] pointer-events-auto"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <CompilerConsole />
+          </motion.div>
 
-        {/* Matrix Panel - Mid Left */}
-        <motion.div
-          style={{
-            x: useTransform(smoothX, [0, 100], [-15, 15]),
-            y: useTransform(smoothY, [0, 100], [10, -10])
-          }}
-          className="absolute left-[8%] top-[25%] pointer-events-auto"
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <MatrixPanel smoothX={smoothX} smoothY={smoothY} scrollYProgress={scrollYProgress} />
-        </motion.div>
+          {/* Matrix Panel - Mid Left */}
+          <motion.div
+            style={{
+              x: useTransform(smoothX, [0, 100], [-15, 15]),
+              y: useTransform(smoothY, [0, 100], [10, -10])
+            }}
+            className="absolute left-[8%] top-[25%] pointer-events-auto"
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <MatrixPanel smoothX={smoothX} smoothY={smoothY} scrollYProgress={scrollYProgress} />
+          </motion.div>
 
-        {/* Sparkline Core activity - Bottom Right */}
-        <motion.div
-          style={{
-            x: useTransform(smoothX, [0, 100], [15, -15]),
-            y: useTransform(smoothY, [0, 100], [-10, 10])
-          }}
-          className="absolute right-[12%] bottom-[16%] pointer-events-auto"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
-          <SparklineGraph />
-        </motion.div>
-      </div>
+          {/* Sparkline Core activity - Bottom Right */}
+          <motion.div
+            style={{
+              x: useTransform(smoothX, [0, 100], [15, -15]),
+              y: useTransform(smoothY, [0, 100], [-10, 10])
+            }}
+            className="absolute right-[12%] bottom-[16%] pointer-events-auto"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <SparklineGraph />
+          </motion.div>
+        </div>
+      )}
 
       {/* Interactive Racing Widgets - Z-INDEX 30 */}
       <div className="absolute inset-x-4 sm:inset-x-8 inset-y-12 pointer-events-none z-30">

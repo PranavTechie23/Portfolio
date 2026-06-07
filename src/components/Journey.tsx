@@ -42,65 +42,110 @@ const Journey: React.FC = () => {
         </h2>
       </motion.div>
 
-      <div className="max-w-4xl space-y-16 relative">
-        <motion.div
-          className="absolute left-0 top-0 bottom-0 w-[1px] bg-gray-100 dark:bg-slate-800 origin-top"
-          initial={{ scaleY: 0 }}
-          animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start relative">
+        {/* Left column: Timeline */}
+        <div className="lg:col-span-7 space-y-16 relative">
+          <motion.div
+            className="absolute left-0 top-0 bottom-0 w-[1px] bg-gray-100 dark:bg-slate-800 origin-top"
+            initial={{ scaleY: 0 }}
+            animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          />
 
-        {journeyItems.map((item, idx) => (
-          <motion.div 
-            key={idx} 
-            className="relative pl-12 group"
-            initial={{ opacity: 0, x: -40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
-            transition={{ duration: isMobile ? 0.35 : 0.7, delay: (isMobile ? 0.1 : 0.2) + idx * (isMobile ? 0.08 : 0.15), ease: [0.16, 1, 0.3, 1] }}
+          {journeyItems.map((item, idx) => (
+            <motion.div 
+              key={idx} 
+              className="relative pl-12 group"
+              initial={{ opacity: 0, x: -40 }}
+              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
+              transition={{ duration: isMobile ? 0.35 : 0.7, delay: (isMobile ? 0.1 : 0.2) + idx * (isMobile ? 0.08 : 0.15), ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ x: 8 }}
+            >
+              <motion.div
+                className="absolute left-[-5px] top-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(33,150,243,0.3)]"
+                initial={{ scale: 0 }}
+                animate={isInView ? { scale: 1 } : { scale: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15, delay: (isMobile ? 0.15 : 0.3) + idx * (isMobile ? 0.08 : 0.15) }}
+                whileHover={{ scale: 1.6, boxShadow: '0 0 20px rgba(33,150,243,0.6)' }}
+              />
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-6">
+                <h4 className="text-xl sm:text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tighter">
+                  {item.title}
+                </h4>
+                <span className={`px-4 py-1.5 rounded-full text-[10px] font-mono font-black uppercase tracking-widest italic border ${
+                  item.status === 'Learning' ? 'bg-primary/5 border-primary/20 text-primary' :
+                  item.status === 'Exploring' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-600' :
+                  'bg-orange-500/5 border-orange-500/20 text-orange-600'
+                }`}>
+                  {item.status}
+                </span>
+              </div>
+              
+              <p className="text-base sm:text-xl text-gray-500 dark:text-slate-400 leading-relaxed font-medium max-w-2xl italic">
+                {item.description}
+              </p>
+            </motion.div>
+          ))}
+
+          {/* Bridge to contact */}
+          <motion.a
+            href="#contact"
+            className="group relative pl-12 flex items-center gap-4 pt-4"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.6, delay: 0.8 }}
             whileHover={{ x: 8 }}
           >
-            <motion.div
-              className="absolute left-[-5px] top-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(33,150,243,0.3)]"
-              initial={{ scale: 0 }}
-              animate={isInView ? { scale: 1 } : { scale: 0 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 15, delay: (isMobile ? 0.15 : 0.3) + idx * (isMobile ? 0.08 : 0.15) }}
-              whileHover={{ scale: 1.6, boxShadow: '0 0 20px rgba(33,150,243,0.6)' }}
-            />
+            <div className="absolute left-[-5px] w-2.5 h-2.5 rounded-full border-2 border-primary bg-white dark:bg-slate-950" />
+            <span className="text-sm font-black font-heading uppercase tracking-widest text-gray-500 dark:text-slate-400 group-hover:text-primary transition-colors">
+              Ready to collaborate?
+            </span>
+            <span className="h-[1px] w-0 group-hover:w-12 bg-primary transition-all duration-500" />
+          </motion.a>
+        </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-6">
-              <h4 className="text-xl sm:text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tighter">
-                {item.title}
-              </h4>
-              <span className={`px-4 py-1.5 rounded-full text-[10px] font-mono font-black uppercase tracking-widest italic border ${
-                item.status === 'Learning' ? 'bg-primary/5 border-primary/20 text-primary' :
-                item.status === 'Exploring' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-600' :
-                'bg-orange-500/5 border-orange-500/20 text-orange-600'
-              }`}>
-                {item.status}
-              </span>
-            </div>
+        {/* Right column: Resume Card */}
+        <div className="lg:col-span-5 w-full">
+          <motion.div
+            className="group relative bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-8 sm:p-10 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-primary/40 hover:shadow-2xl flex flex-col gap-6"
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            {/* Background Glow Accent */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 blur-3xl group-hover:bg-primary/10 transition-all duration-500" />
             
-            <p className="text-base sm:text-xl text-gray-500 dark:text-slate-400 leading-relaxed font-medium max-w-2xl italic">
-              {item.description}
-            </p>
-          </motion.div>
-        ))}
+            <div className="space-y-4 relative z-10">
+              <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary uppercase font-mono font-black text-[10px] tracking-widest italic font-heading">
+                Credentials // CV
+              </span>
+              <h3 className="text-3xl sm:text-4xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tighter leading-tight">
+                Curriculum <br />
+                <span className="text-primary italic">Vitae</span>
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed font-medium">
+                Detailed view of academic projects, credentials, and software engineering capabilities. Grab a PDF copy.
+              </p>
+            </div>
 
-        {/* Bridge to contact */}
-        <motion.a
-          href="#contact"
-          className="group relative pl-12 flex items-center gap-4 pt-4"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          whileHover={{ x: 8 }}
-        >
-          <div className="absolute left-[-5px] w-2.5 h-2.5 rounded-full border-2 border-primary bg-white dark:bg-slate-950" />
-          <span className="text-sm font-black font-heading uppercase tracking-widest text-gray-500 dark:text-slate-400 group-hover:text-primary transition-colors">
-            Ready to collaborate?
-          </span>
-          <span className="h-[1px] w-0 group-hover:w-12 bg-primary transition-all duration-500" />
-        </motion.a>
+            <div className="h-px bg-gray-100 dark:bg-slate-800 relative z-10" />
+
+            <div className="relative z-10 flex flex-col gap-3">
+              <a
+                href="https://drive.google.com/drive/u/0/folders/16Hda7UxTbH9JNndZKd_bfvm-vgM6a9S_"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-4 bg-gray-950 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-black font-heading tracking-[0.2em] uppercase hover:bg-primary hover:text-white transition-all duration-300 shadow-lg inline-flex items-center justify-center gap-2 rounded-xl"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Access Resume
+              </a>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
