@@ -12,6 +12,7 @@ import Journey from './components/Journey';
 import Contact from './components/Contact';
 import BackgroundSystem from './components/BackgroundSystem';
 import CustomCursor from './components/CustomCursor';
+import ScrollToTop from './components/ScrollToTop';
 import TechMarquee from './components/motion/TechMarquee';
 import { motion, useScroll } from 'framer-motion';
 
@@ -70,6 +71,7 @@ const App: React.FC = () => {
         />
         <BackgroundSystem />
         <CustomCursor />
+        <ScrollToTop />
         
         <Navbar activeSection={activeSection} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode((prev) => !prev)} />
 

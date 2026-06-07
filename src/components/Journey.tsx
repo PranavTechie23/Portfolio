@@ -84,6 +84,22 @@ const Journey: React.FC = () => {
             </p>
           </motion.div>
         ))}
+
+        {/* Bridge to contact */}
+        <motion.a
+          href="#contact"
+          className="group relative pl-12 flex items-center gap-4 pt-4"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          whileHover={{ x: 8 }}
+        >
+          <div className="absolute left-[-5px] w-2.5 h-2.5 rounded-full border-2 border-primary bg-white dark:bg-slate-950" />
+          <span className="text-sm font-black font-heading uppercase tracking-widest text-gray-500 dark:text-slate-400 group-hover:text-primary transition-colors">
+            Ready to collaborate?
+          </span>
+          <span className="h-[1px] w-0 group-hover:w-12 bg-primary transition-all duration-500" />
+        </motion.a>
       </div>
     </div>
   );

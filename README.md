@@ -99,16 +99,7 @@ Portfolio/
 [![GeeksForGeeks](https://img.shields.io/badge/GeeksForGeeks-2F8D46?style=for-the-badge&logo=geeksforgeeks&logoColor=white)](https://www.geeksforgeeks.org/user/pranavoswal23)
 
 [![Email](https://img.shields.io/badge/-pranavoswal21@gmail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:pranavoswal21@gmail.com)&nbsp;
-<div align="center">
 
-
-```
-╔══════════════════════════════════════════╗
-║         PRANAV SANJAY OSWAL              ║
-║      Full-Stack Development · AI/ML      ║
-║        Third Year CE @ PICT Pune         ║
-╚══════════════════════════════════════════╝
-```
  
 Engineered with intent. Designed to be remembered.
 
