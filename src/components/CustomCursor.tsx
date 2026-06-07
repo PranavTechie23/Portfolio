@@ -31,7 +31,7 @@ const CustomCursor: React.FC = () => {
       });
     };
 
-    window.addEventListener('mousemove', updateMousePosition);
+    window.addEventListener('mousemove', updateMousePosition, { passive: true });
     return () => {
       window.removeEventListener('mousemove', updateMousePosition);
       cancelAnimationFrame(animationFrameId);

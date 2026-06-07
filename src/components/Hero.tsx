@@ -125,16 +125,6 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
       className={`relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-slate-950 ${isMobile ? '' : 'cursor-none'}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      onTouchMove={(e) => {
-        if (!containerRef.current) return;
-        const rect = containerRef.current.getBoundingClientRect();
-        const touch = e.touches[0];
-        const x = ((touch.clientX - rect.left) / rect.width) * 100;
-        const y = ((touch.clientY - rect.top) / rect.height) * 100;
-        mouseX.set(x);
-        mouseY.set(y);
-        if (!isHovered) setIsHovered(true);
-      }}
     >
       <motion.div className="absolute inset-0 z-[-1]" style={{ y: yBg }}>
         {/* Typo Background can go here if we want it to shift */}

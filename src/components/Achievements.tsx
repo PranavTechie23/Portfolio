@@ -31,7 +31,8 @@ const education = [
 
 const Achievements: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: false, margin: '-20%' });
+  const isInView = useInView(ref, { once: true, margin: '-20%' });
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div ref={ref} className="w-full">
@@ -39,7 +40,7 @@ const Achievements: React.FC = () => {
         className="mb-20 space-y-4"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: isMobile ? 0.35 : 0.6 }}
       >
         <div className="flex items-center gap-4">
           <div className="h-[2px] w-8 bg-primary" />
@@ -58,7 +59,7 @@ const Achievements: React.FC = () => {
             className="group relative bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-6 sm:p-8 md:p-12 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl overflow-hidden"
             initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50, y: 20 }}
             animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: index % 2 === 0 ? -50 : 50, y: 20 }}
-            transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: isMobile ? 0.4 : 0.8, delay: index * (isMobile ? 0.08 : 0.15), ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ y: -4 }}
           >
             {/* Background Accent */}

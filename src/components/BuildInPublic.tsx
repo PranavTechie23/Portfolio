@@ -36,7 +36,8 @@ const ActivityBars: React.FC<{ color: string }> = ({ color }) => {
 
 const BuildInPublic: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: false, margin: '-15%' });
+  const isInView = useInView(ref, { once: true, margin: '-15%' });
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const TiltCard = ({
     title, icon: BrandLogo, type, url, handle, purpose, stats,
@@ -94,7 +95,7 @@ const BuildInPublic: React.FC = () => {
         className={`group relative flex flex-col p-6 sm:p-8 md:p-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 ${borderHover} rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-2xl`}
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: isMobile ? 0.35 : 0.6, ease: 'easeOut' }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={{
@@ -181,7 +182,7 @@ const BuildInPublic: React.FC = () => {
         className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: isMobile ? 0.35 : 0.6, ease: 'easeOut' }}
       >
         <div className="space-y-4">
           <div className="flex items-center gap-4">

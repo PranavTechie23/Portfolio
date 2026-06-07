@@ -7,7 +7,8 @@ import Magnetic from './motion/Magnetic';
 
 const Contact: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: false, margin: '-20%' });
+  const isInView = useInView(ref, { once: true, margin: '-20%' });
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div ref={ref} className="w-full flex flex-col items-center justify-center min-h-[50vh] relative pt-4 pb-16 sm:pb-20 px-4 bg-gray-50 dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 shadow-[8px_8px_0_rgba(0,0,0,0.05)]">
@@ -23,7 +24,7 @@ const Contact: React.FC = () => {
         className="text-center space-y-12 max-w-4xl w-full"
         initial={{ opacity: 0, y: 50 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: isMobile ? 0.35 : 0.8, ease: "easeOut" }}
       >
         <div className="flex items-center justify-center gap-4 mb-4">
           <div className="h-[2px] w-8 bg-primary" />

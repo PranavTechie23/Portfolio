@@ -30,6 +30,12 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
     let cols = 0;
     let rows = 0;
 
+    let isRunning = false;
+    let isIntersecting = false;
+    let consecutiveStableFrames = 0;
+    const STABILITY_THRESHOLD = 0.01;
+    const STABLE_FRAMES_REQUIRED = 30;
+
     const initGrid = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
@@ -55,24 +61,29 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
           };
         }
       }
+      wakeUp();
     };
 
-    initGrid();
-    window.addEventListener('resize', initGrid);
+    const wakeUp = () => {
+      if (!isRunning && isIntersecting) {
+        isRunning = true;
+        consecutiveStableFrames = 0;
+        animationId = requestAnimationFrame(render);
+      }
+    };
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       mouseRef.current.x = e.clientX - rect.left;
       mouseRef.current.y = e.clientY - rect.top;
       mouseRef.current.active = true;
+      wakeUp();
     };
 
     const handleMouseLeave = () => {
       mouseRef.current.active = false;
+      wakeUp();
     };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
 
     // Physics parameters
     const spring = 0.04;
@@ -81,9 +92,15 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
     const strength = 0.45; // Max attraction strength
 
     const render = () => {
+      if (!isIntersecting) {
+        isRunning = false;
+        return;
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const m = mouseRef.current;
+      let maxVelocity = 0;
 
       // 1. Update Physics
       for (let c = 0; c < cols; c++) {
@@ -113,7 +130,20 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
           node.vy *= friction;
           node.x += node.vx;
           node.y += node.vy;
+
+          const vel = Math.abs(node.vx) + Math.abs(node.vy);
+          if (vel > maxVelocity) {
+            maxVelocity = vel;
+          }
         }
+      }
+
+      // Check for stability
+      const isStable = maxVelocity < STABILITY_THRESHOLD;
+      if (isStable && !m.active) {
+        consecutiveStableFrames++;
+      } else {
+        consecutiveStableFrames = 0;
       }
 
       // 2. Draw Grid Mesh Lines
@@ -123,10 +153,10 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
         for (let r = 0; r < rows; r++) {
           const node = nodes[c][r];
 
-          // Set grid color based on mode (cleaner, softer contrast to prevent "khichdi" clutter)
+          // Set grid color based on mode
           ctx.strokeStyle = isDarkMode 
-            ? 'rgba(51, 65, 85, 0.16)' // slate-700 at 16%
-            : 'rgba(148, 163, 184, 0.16)'; // slate-400 at 16%
+            ? 'rgba(51, 65, 85, 0.16)' 
+            : 'rgba(148, 163, 184, 0.16)';
 
           // Line to right neighbor
           if (c < cols - 1) {
@@ -153,13 +183,13 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
         for (let r = 0; r < rows; r++) {
           const node = nodes[c][r];
 
-          // Draw node dots (clean and subtle)
+          // Draw node dots
           ctx.fillStyle = isDarkMode 
             ? 'rgba(100, 116, 139, 0.4)' 
             : 'rgba(148, 163, 184, 0.4)';
           
           ctx.beginPath();
-          ctx.arc(node.x, node.y, 1.5, 0, Math.PI * 2); // slightly smaller dot
+          ctx.arc(node.x, node.y, 1.5, 0, Math.PI * 2);
           ctx.fill();
 
           // Connect to mouse if active and close
@@ -169,11 +199,11 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist < 160) {
-              const alpha = (1 - dist / 160) * 0.5; // increased alpha range
+              const alpha = (1 - dist / 160) * 0.5;
               ctx.strokeStyle = isDarkMode
-                ? `rgba(33, 150, 243, ${alpha})` // primary blue
+                ? `rgba(33, 150, 243, ${alpha})`
                 : `rgba(33, 150, 243, ${alpha})`;
-              ctx.lineWidth = 0.8 + (1 - dist / 160) * 1.5; // thicker lines for visual weight
+              ctx.lineWidth = 0.8 + (1 - dist / 160) * 1.5;
 
               ctx.beginPath();
               ctx.moveTo(m.x, m.y);
@@ -184,34 +214,53 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
         }
       }
 
-      // 4. Draw Cursor Coordinates & Target HUD ticks (sleek CAD style)
+      // 4. Draw Cursor Coordinates & Target HUD ticks
       if (m.active) {
-        ctx.strokeStyle = 'rgba(33, 150, 243, 0.7)'; // more vibrant crosshair
+        ctx.strokeStyle = 'rgba(33, 150, 243, 0.7)';
         ctx.lineWidth = 1.2;
 
         // Draw crosshair axes
         ctx.beginPath();
-        // horizontal line
         ctx.moveTo(m.x - 25, m.y);
         ctx.lineTo(m.x + 25, m.y);
-        // vertical line
         ctx.moveTo(m.x, m.y - 25);
         ctx.lineTo(m.x, m.y + 25);
         ctx.stroke();
 
-        // Draw coordinate text in code font
-        ctx.font = 'bold 11px JetBrains Mono, monospace'; // larger and bold
+        ctx.font = 'bold 11px JetBrains Mono, monospace';
         ctx.fillStyle = isDarkMode ? 'rgba(33, 150, 243, 0.95)' : 'rgba(33, 150, 243, 1.0)';
         ctx.fillText(`SYS.X: ${Math.round(m.x)}px`, m.x + 18, m.y - 18);
         ctx.fillText(`SYS.Y: ${Math.round(m.y)}px`, m.x + 18, m.y - 6);
       }
 
-      animationId = requestAnimationFrame(render);
+      if (consecutiveStableFrames >= STABLE_FRAMES_REQUIRED) {
+        isRunning = false;
+      } else {
+        animationId = requestAnimationFrame(render);
+      }
     };
 
-    render();
+    // IntersectionObserver to pause/resume the loop
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      isIntersecting = entry.isIntersecting;
+      if (isIntersecting) {
+        wakeUp();
+      } else {
+        isRunning = false;
+        cancelAnimationFrame(animationId);
+      }
+    }, { threshold: 0 });
+
+    observer.observe(canvas);
+    initGrid();
+
+    window.addEventListener('resize', initGrid, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('mouseleave', handleMouseLeave, { passive: true });
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', initGrid);
       window.removeEventListener('mousemove', handleMouseMove);

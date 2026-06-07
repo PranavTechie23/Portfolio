@@ -68,7 +68,8 @@ const projects = [
 
 const Projects: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: false, margin: '-10%' });
+  const isInView = useInView(ref, { once: true, margin: '-10%' });
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const [currentPage, setCurrentPage] = useState(0);
 
   const projectsPerPage = 4;
@@ -117,7 +118,7 @@ const Projects: React.FC = () => {
         className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: isMobile ? 0.35 : 0.6 }}
       >
         <div className="space-y-4">
           <div className="flex items-center gap-4">

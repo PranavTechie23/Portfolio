@@ -58,12 +58,12 @@ const App: React.FC = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <ReactLenis root>
+    <ReactLenis root options={{ smoothTouch: false }}>
       <div className="selection:bg-blue-500/30 selection:text-blue-200 bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
         <motion.div
           style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}

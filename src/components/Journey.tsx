@@ -22,7 +22,8 @@ const journeyItems = [
 
 const Journey: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: false, margin: '-10%' });
+  const isInView = useInView(ref, { once: true, margin: '-10%' });
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div ref={ref} className="w-full">
@@ -30,7 +31,7 @@ const Journey: React.FC = () => {
         className="mb-20 space-y-4"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: isMobile ? 0.35 : 0.6 }}
       >
         <div className="flex items-center gap-4">
           <div className="h-[2px] w-8 bg-primary" />
@@ -55,14 +56,14 @@ const Journey: React.FC = () => {
             className="relative pl-12 group"
             initial={{ opacity: 0, x: -40 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
-            transition={{ duration: 0.7, delay: 0.2 + idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: isMobile ? 0.35 : 0.7, delay: (isMobile ? 0.1 : 0.2) + idx * (isMobile ? 0.08 : 0.15), ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ x: 8 }}
           >
             <motion.div
               className="absolute left-[-5px] top-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(33,150,243,0.3)]"
               initial={{ scale: 0 }}
               animate={isInView ? { scale: 1 } : { scale: 0 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.3 + idx * 0.15 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15, delay: (isMobile ? 0.15 : 0.3) + idx * (isMobile ? 0.08 : 0.15) }}
               whileHover={{ scale: 1.6, boxShadow: '0 0 20px rgba(33,150,243,0.6)' }}
             />
 

@@ -71,7 +71,8 @@ const skillCategories = [
 
 const Skills: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: false, margin: '-15%' });
+  const isInView = useInView(ref, { once: true, margin: '-15%' });
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div ref={ref} className="w-full">
@@ -80,7 +81,7 @@ const Skills: React.FC = () => {
         className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: isMobile ? 0.35 : 0.6 }}
       >
         <div className="space-y-4">
           <div className="flex items-center gap-4">
@@ -105,7 +106,7 @@ const Skills: React.FC = () => {
             style={{ '--accent': category.accent } as React.CSSProperties}
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-            transition={{ duration: 0.5, delay: idx * 0.12 }}
+            transition={{ duration: isMobile ? 0.3 : 0.5, delay: idx * (isMobile ? 0.06 : 0.12) }}
             whileHover={{ y: -6, transition: { duration: 0.3 } }}
           >
             {/* Accent glow top bar */}
@@ -168,7 +169,7 @@ const Skills: React.FC = () => {
                       style={{ backgroundColor: category.accent }}
                       initial={{ width: 0 }}
                       animate={isInView ? { width: `${skill.level}%` } : { width: 0 }}
-                      transition={{ duration: 1, delay: 0.3 + idx * 0.12 + sIdx * 0.08, ease: 'easeOut' }}
+                      transition={{ duration: isMobile ? 0.5 : 1.0, delay: (isMobile ? 0.15 : 0.3) + idx * (isMobile ? 0.06 : 0.12) + sIdx * (isMobile ? 0.04 : 0.08), ease: 'easeOut' }}
                     />
                   </div>
                 </li>

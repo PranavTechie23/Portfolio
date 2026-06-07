@@ -48,7 +48,8 @@ const platforms = [
 
 const Platforms: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: false, margin: '-20%' });
+  const isInView = useInView(ref, { once: true, margin: '-20%' });
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div ref={ref} className="w-full flex flex-col space-y-8 bg-gray-50/50 dark:bg-slate-900/60 p-6 sm:p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[2rem]">
@@ -56,7 +57,7 @@ const Platforms: React.FC = () => {
         className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: isMobile ? 0.35 : 0.6, ease: "easeOut" }}
       >
         <div className="space-y-4">
           <div className="flex items-center gap-4">
@@ -85,7 +86,7 @@ const Platforms: React.FC = () => {
               key={idx}
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-              transition={{ duration: 0.6, delay: 0.2 + idx * 0.1, ease: "easeOut" }}
+              transition={{ duration: isMobile ? 0.35 : 0.6, delay: (isMobile ? 0.1 : 0.2) + idx * (isMobile ? 0.05 : 0.1), ease: "easeOut" }}
             >
             <TiltCard
               as="a"
