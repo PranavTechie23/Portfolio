@@ -91,7 +91,7 @@ const BuildInPublic: React.FC = () => {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className={`group relative flex flex-col p-8 md:p-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 ${borderHover} rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-2xl`}
+        className={`group relative flex flex-col p-6 sm:p-8 md:p-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 ${borderHover} rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-2xl`}
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -133,7 +133,7 @@ const BuildInPublic: React.FC = () => {
 
           {/* Title + handle */}
           <div className="space-y-1">
-            <h3 className="text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tight leading-none group-hover:text-primary dark:group-hover:text-white transition-colors">
+            <h3 className="text-2xl sm:text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tight leading-none group-hover:text-primary dark:group-hover:text-white transition-colors">
               {title}
             </h3>
             <p className="text-[11px] font-mono font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.25em]">{handle}</p>
@@ -190,7 +190,7 @@ const BuildInPublic: React.FC = () => {
               Build In Public
             </span>
           </div>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
             I Ship{' '}
             <span className="text-primary italic">
               In Public

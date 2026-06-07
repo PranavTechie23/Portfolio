@@ -102,14 +102,14 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
           <div className="flex items-center gap-2">
             <button
               onClick={onToggleTheme}
-              className="p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors cursor-none"
+              className="p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors"
               aria-label="Toggle dark mode"
             >
               {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
             </button>
             {/* Mobile Toggle */}
             <button 
-              className="lg:hidden p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors cursor-none"
+              className="lg:hidden p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(true)}
             >
               <Menu size={28} />
@@ -129,7 +129,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
             transition={{ duration: 0.4 }}
           >
             <button 
-              className="absolute top-6 right-6 p-4 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors cursor-none"
+              className="absolute top-6 right-6 p-4 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               <X size={40} />

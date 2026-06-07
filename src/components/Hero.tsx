@@ -352,15 +352,15 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
       </div>
 
       {/* Interactive Racing Widgets - Z-INDEX 30 */}
-      <div className="absolute inset-x-8 inset-y-12 pointer-events-none z-30">
+      <div className="absolute inset-x-4 sm:inset-x-8 inset-y-12 pointer-events-none z-30">
         <div className="absolute top-10 md:top-0 left-0 flex flex-col gap-1 border-l-2 border-primary pl-4 py-2 bg-white/70 dark:bg-slate-900/20 backdrop-blur-md">
           <div className="text-[10px] font-mono text-gray-500 dark:text-slate-400 uppercase tracking-widest font-bold">Status</div>
-          <div className="text-xl font-heading font-black text-gray-950 dark:text-slate-100 uppercase italic tracking-tighter">Live Feed</div>
+          <div className="text-base sm:text-xl font-heading font-black text-gray-950 dark:text-slate-100 uppercase italic tracking-tighter">Live Feed</div>
         </div>
 
         <div className="absolute bottom-0 right-0 text-right flex flex-col gap-1 border-r-2 border-primary pr-4 py-2 bg-white/70 dark:bg-slate-900/20 backdrop-blur-md">
           <div className="text-[10px] font-mono text-gray-500 dark:text-slate-400 uppercase tracking-widest font-bold">Input Matrix</div>
-          <motion.div className="text-lg font-mono font-bold text-gray-950 dark:text-slate-100">
+          <motion.div className="text-sm sm:text-lg font-mono font-bold text-gray-950 dark:text-slate-100">
             {Math.round(maskX.get())} / {Math.round(maskY.get())}
           </motion.div>
         </div>
@@ -368,13 +368,13 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
 
       {/* Nameplate - Z-INDEX 40 */}
       <motion.div
-        className="absolute bottom-8 left-8 z-40 flex flex-col items-start pointer-events-none"
+        className="absolute bottom-6 left-4 sm:bottom-8 sm:left-8 z-40 flex flex-col items-start pointer-events-none"
         initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-5 border-b-4 border-primary shadow-2xl skew-x-[-4deg]">
-          <h2 className="text-3xl md:text-5xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter leading-none uppercase italic">
+        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-3 sm:p-5 border-b-4 border-primary shadow-2xl skew-x-[-4deg]">
+          <h2 className="text-xl sm:text-3xl md:text-5xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter leading-none uppercase italic">
             PRANAV SANJAY <span className="text-primary italic">OSWAL</span>
           </h2>
 

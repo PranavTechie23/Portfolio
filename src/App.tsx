@@ -82,7 +82,7 @@ const App: React.FC = () => {
 
           <TechMarquee />
 
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 space-y-32 py-32">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 lg:px-16 space-y-20 sm:space-y-28 lg:space-y-32 py-16 sm:py-24 lg:py-32">
             <section id="about" className="scroll-mt-32">
               <About />
             </section>
@@ -125,7 +125,7 @@ const App: React.FC = () => {
           >
             <div className="max-w-7xl mx-auto px-6 text-center space-y-6">
                <p className="text-gray-400 dark:text-slate-400 font-mono text-sm uppercase tracking-[0.3em]">&copy; {new Date().getFullYear()} / Built with intention</p>
-               <h3 className="text-4xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter italic uppercase">PRANAV SANJAY OSWAL</h3>
+               <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter italic uppercase">PRANAV SANJAY OSWAL</h3>
                <motion.div
                  className="h-1.5 bg-primary mx-auto"
                  initial={{ width: 0 }}

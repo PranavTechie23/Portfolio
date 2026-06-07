@@ -28,7 +28,7 @@ const ScrollToTop: React.FC = () => {
         <motion.button
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="fixed right-5 bottom-5 sm:right-6 sm:bottom-6 z-[150] group cursor-none"
+          className="fixed right-5 bottom-5 sm:right-6 sm:bottom-6 z-[150] group"
           initial={{ opacity: 0, y: 20, scale: 0.85 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.85 }}

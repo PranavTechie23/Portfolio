@@ -10,7 +10,7 @@ const Contact: React.FC = () => {
   const isInView = useInView(ref, { once: false, margin: '-20%' });
 
   return (
-    <div ref={ref} className="w-full flex flex-col items-center justify-center min-h-[50vh] relative pt-4 pb-20 px-4 bg-gray-50 dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 shadow-[8px_8px_0_rgba(0,0,0,0.05)]">
+    <div ref={ref} className="w-full flex flex-col items-center justify-center min-h-[50vh] relative pt-4 pb-16 sm:pb-20 px-4 bg-gray-50 dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 shadow-[8px_8px_0_rgba(0,0,0,0.05)]">
       
       {/* Background glowing blob */}
       <motion.div
@@ -31,11 +31,11 @@ const Contact: React.FC = () => {
           <div className="h-[2px] w-8 bg-primary" />
         </div>
         
-        <h2 className="text-6xl md:text-8xl lg:text-[120px] font-black font-heading tracking-tighter leading-none text-gray-950 dark:text-slate-100 uppercase selection:bg-primary selection:text-white">
+        <h2 className="text-4xl sm:text-6xl md:text-8xl lg:text-[120px] font-black font-heading tracking-tighter leading-none text-gray-950 dark:text-slate-100 uppercase selection:bg-primary selection:text-white">
           <RevealWords text="LET'S CONNECT" />
         </h2>
 
-        <p className="text-xl md:text-2xl text-gray-600 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-xl md:text-2xl text-gray-600 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
           Currently open to freelance and full-time opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!
         </p>
 

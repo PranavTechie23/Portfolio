@@ -51,7 +51,7 @@ const Platforms: React.FC = () => {
   const isInView = useInView(ref, { once: false, margin: '-20%' });
 
   return (
-    <div ref={ref} className="w-full flex flex-col space-y-8 bg-gray-50/50 dark:bg-slate-900/60 p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[2rem]">
+    <div ref={ref} className="w-full flex flex-col space-y-8 bg-gray-50/50 dark:bg-slate-900/60 p-6 sm:p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[2rem]">
       <motion.div
         className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
@@ -63,7 +63,7 @@ const Platforms: React.FC = () => {
             <div className="h-[2px] w-8 bg-primary" />
             <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 dark:text-slate-400 uppercase">Digital Presence</span>
           </div>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
             Where to <span className="text-primary italic">Find Me</span>
           </h2>
         </div>
@@ -92,7 +92,7 @@ const Platforms: React.FC = () => {
               href={platform.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative flex flex-col p-10 md:p-12 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-primary/30 hover:shadow-2xl min-h-[360px] md:min-h-[420px] h-full"
+              className="group relative flex flex-col p-6 sm:p-10 md:p-12 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-primary/30 hover:shadow-2xl min-h-[280px] sm:min-h-[360px] md:min-h-[420px] h-full"
               intensity={7}
             >
               {/* Highlight background */}

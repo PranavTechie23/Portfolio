@@ -47,7 +47,7 @@ const About: React.FC = () => {
               <div className="h-[2px] w-8 bg-primary" />
               <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 uppercase">About Me</span>
             </div>
-            <h2 className="text-5xl md:text-6xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter leading-none uppercase italic">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter leading-none uppercase italic">
               Solving complex problems <br />
               <span className="text-primary italic">through structured approaches.</span>
             </h2>
@@ -77,17 +77,17 @@ const About: React.FC = () => {
 
         {/* Right Column: Narrative Content */}
         <div className="lg:col-span-7 pt-4 space-y-10">
-          <motion.p variants={itemVariants} className="text-2xl md:text-3xl text-gray-700 dark:text-slate-300 leading-tight font-medium">
+          <motion.p variants={itemVariants} className="text-xl sm:text-2xl md:text-3xl text-gray-700 dark:text-slate-300 leading-tight font-medium">
             I’m a <span className="text-gray-950 dark:text-slate-100 font-bold border-b-2 border-primary/20">Computer Engineering</span> student with strong foundations in Data Structures, Algorithms, and Object-Oriented Programming.
           </motion.p>
 
-          <motion.p variants={itemVariants} className="text-xl text-gray-500 dark:text-slate-400 leading-relaxed">
+          <motion.p variants={itemVariants} className="text-base sm:text-xl text-gray-500 dark:text-slate-400 leading-relaxed">
             I specialize in building scalable full-stack and AI-driven applications. My interest lies in designing efficient backend systems and improving software quality through automation.
           </motion.p>
 
           <motion.div variants={itemVariants} className="h-[1px] w-full bg-gray-100 dark:bg-slate-800" />
 
-          <motion.p variants={itemVariants} className="text-xl text-gray-500 dark:text-slate-400 leading-relaxed italic">
+          <motion.p variants={itemVariants} className="text-base sm:text-xl text-gray-500 dark:text-slate-400 leading-relaxed italic">
             Whether it's matching candidates to opportunities or applying machine learning for clinical decision support, I enjoy tackling challenges that demand robust, well-architected solutions.
           </motion.p>
 

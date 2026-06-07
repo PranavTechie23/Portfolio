@@ -87,7 +87,7 @@ const Skills: React.FC = () => {
             <div className="h-[2px] w-8 bg-primary" />
             <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 dark:text-slate-400 uppercase">Toolkit</span>
           </div>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
             Technical <span className="text-primary italic">Arsenal</span>
           </h2>
         </div>

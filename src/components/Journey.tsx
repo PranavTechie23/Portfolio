@@ -36,7 +36,7 @@ const Journey: React.FC = () => {
           <div className="h-[2px] w-8 bg-primary" />
           <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 uppercase">Momentum</span>
         </div>
-        <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
+        <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
           Continuous <span className="text-primary italic">Growth</span>
         </h2>
       </motion.div>
@@ -67,7 +67,7 @@ const Journey: React.FC = () => {
             />
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-6">
-              <h4 className="text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tighter">
+              <h4 className="text-xl sm:text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tighter">
                 {item.title}
               </h4>
               <span className={`px-4 py-1.5 rounded-full text-[10px] font-mono font-black uppercase tracking-widest italic border ${
@@ -79,7 +79,7 @@ const Journey: React.FC = () => {
               </span>
             </div>
             
-            <p className="text-xl text-gray-500 dark:text-slate-400 leading-relaxed font-medium max-w-2xl italic">
+            <p className="text-base sm:text-xl text-gray-500 dark:text-slate-400 leading-relaxed font-medium max-w-2xl italic">
               {item.description}
             </p>
           </motion.div>

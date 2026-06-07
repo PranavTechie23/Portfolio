@@ -4,8 +4,17 @@ import { motion } from 'framer-motion';
 const CustomCursor: React.FC = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
+    // Detect touch-only devices (no fine pointer / stylus)
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    setIsTouchDevice(isTouch);
+  }, []);
+
+  useEffect(() => {
+    if (isTouchDevice) return; // Don't track mouse on touch devices
+
     let animationFrameId: number;
 
     const updateMousePosition = (e: MouseEvent) => {
@@ -27,19 +36,25 @@ const CustomCursor: React.FC = () => {
       window.removeEventListener('mousemove', updateMousePosition);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isTouchDevice]);
 
   useEffect(() => {
+    if (isTouchDevice) return;
     document.body.style.cursor = 'none';
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, []);
+  }, [isTouchDevice]);
+
+  // Don't render on touch devices
+  if (isTouchDevice) return null;
 
   return (
     <>
       <style>{`
-        body * { cursor: none !important; }
+        @media (pointer: fine) {
+          body * { cursor: none !important; }
+        }
       `}</style>
       
       {/* Main tiny dot (black for high contrast on light bg) */}

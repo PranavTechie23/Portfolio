@@ -124,7 +124,7 @@ const Projects: React.FC = () => {
             <div className="h-[2px] w-8 bg-primary" />
             <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 dark:text-slate-400 uppercase">Works</span>
           </div>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase italic leading-none">
             Selected <span className="text-primary italic">Projects</span>
           </h2>
         </div>
@@ -159,7 +159,7 @@ const Projects: React.FC = () => {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`View project: ${item.name}`}
-            className="group relative p-10 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[2rem] hover:border-primary/30 dark:hover:border-primary/30 transition-all duration-500 hover:shadow-2xl flex flex-col items-start overflow-hidden min-h-[280px]"
+            className="group relative p-6 sm:p-10 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[2rem] hover:border-primary/30 dark:hover:border-primary/30 transition-all duration-500 hover:shadow-2xl flex flex-col items-start overflow-hidden min-h-[240px] sm:min-h-[280px]"
             intensity={8}
           >
             <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 blur-3xl group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
@@ -176,7 +176,7 @@ const Projects: React.FC = () => {
               </svg>
             </div>
 
-            <h3 className="text-2xl md:text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tight mb-3 group-hover:text-primary transition-colors">
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tight mb-3 group-hover:text-primary transition-colors">
               {item.name}
             </h3>
 
