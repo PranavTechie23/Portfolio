@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+/* ============================================================
+   DARK MODE — Class-based (overrides OS/system preference)
+   @custom-variant replaces Tailwind v4's default prefers-color-scheme
+   dark behavior so the toggle button actually works.
+   ============================================================ */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -34,12 +39,17 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  .dark body {
+  html.dark {
     --color-background: #020617;
     --color-bg-secondary: #0f172a;
     --color-card: #111827;
     --color-text-primary: #e2e8f0;
     --color-text-secondary: #94a3b8;
+    color-scheme: dark;
+  }
+
+  html:not(.dark) {
+    color-scheme: light;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -56,5 +66,19 @@
   /* Glow accents for light theme */
   .glow-border {
     box-shadow: 0 0 20px rgba(33,150,243,0.15);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee-track {
+      animation: marquee-scroll 40s linear infinite;
+    }
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
   }
 }

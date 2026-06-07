@@ -1,7 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import BlueprintCanvas from './BlueprintCanvas';
+import { CompilerConsole, MatrixPanel, SparklineGraph } from './TelemetryCards';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  isDarkMode?: boolean;
+}
+
+const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -10,6 +16,8 @@ const Hero: React.FC = () => {
 
   const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const opacityText = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const hudRotateClockwise = useTransform(scrollYProgress, [0, 1], [0, 360]);
+  const hudRotateCounterClockwise = useTransform(scrollYProgress, [0, 1], [0, -360]);
 
   const [isHovered, setIsHovered] = useState(false);
 
@@ -145,69 +153,201 @@ const Hero: React.FC = () => {
         </h1>
       </motion.div>
 
-      {/* Main Full-Screen Content Wrapper - Z-INDEX 10 */}
-      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none pt-[160px]">
-        {/* SVG Definition for Clean Mask */}
-        <svg className="absolute w-full h-full pointer-events-none opacity-0" aria-hidden="true">
-          <defs>
-            <mask id="fluid-mask-clean">
-              <rect x="0" y="0" width="100%" height="100%" fill="black" />
-              {/* Main following circle */}
-              <motion.circle
-                cx={maskCx}
-                cy={maskCy}
-                r={radiusMain}
-                fill="white"
-                style={{ filter: "blur(40px)" }}
-              />
-              {/* Organic blobs */}
-              {[...Array(3)].map((_, i) => (
-                <motion.circle
-                  key={i}
-                  cx={useTransform(maskX, (v) => v + Math.sin(i * 2) * 8 + "%")}
-                  cy={useTransform(maskY, (v) => v + Math.cos(i * 2) * 8 + "%")}
-                  r={useTransform(radiusSpring, [0, 1], ["0vw", (10 + i * 4) + "vw"])}
-                  fill="white"
-                  style={{ filter: "blur(35px)" }}
-                />
-              ))}
-            </mask>
-          </defs>
-        </svg>
+      {/* Interactive 2D Blueprint Canvas (z-0) */}
+      <BlueprintCanvas isDarkMode={isDarkMode} />
 
-        {/* Layer 1: Base Image */}
+      {/* Central Rotating HUD Blueprint SVG (z-10) */}
+      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none flex items-center justify-center">
         <motion.div
-          className="absolute inset-0"
           style={{
-            scale: 1.05,
-            x: useTransform(smoothX, [0, 100], [-10, 10]),
-            y: useTransform(smoothY, [0, 100], [-10, 10])
+            x: useTransform(smoothX, [0, 100], [-15, 15]),
+            y: useTransform(smoothY, [0, 100], [-15, 15])
           }}
+          className="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[460px] md:h-[460px] relative flex items-center justify-center bg-white dark:bg-slate-950 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-slate-200 dark:border-slate-850/80 scale-90 sm:scale-100"
         >
-          <img
-            src="/images/main_fullscreen.png"
-            alt="Base View"
-            className="w-full h-full object-cover object-[50%_0%]"
-          />
+          {/* Inner circle - rotates clockwise on scroll */}
+          <motion.svg
+            style={{ rotate: hudRotateClockwise }}
+            viewBox="0 0 500 500"
+            className="w-full h-full absolute text-slate-400 dark:text-slate-700"
+          >
+            {/* Compass degree ticks */}
+            {Array.from({ length: 36 }).map((_, i) => {
+              const angle = (i * 10 * Math.PI) / 180;
+              const x1 = 250 + Math.cos(angle) * 165;
+              const y1 = 250 + Math.sin(angle) * 165;
+              const x2 = 250 + Math.cos(angle) * 178;
+              const y2 = 250 + Math.sin(angle) * 178;
+              return (
+                <line
+                  key={i}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  className="stroke-slate-300 dark:stroke-slate-800"
+                  strokeWidth="1.0"
+                />
+              );
+            })}
+
+            {/* Concentric detail rings */}
+            <circle cx="250" cy="250" r="178" fill="none" className="stroke-slate-200 dark:stroke-slate-900" strokeWidth="1.0" />
+            <circle cx="250" cy="250" r="140" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="0.8" strokeDasharray="3 9" />
+            
+            {/* Degree tags */}
+            <text x="250" y="58" textAnchor="middle" className="text-[10px] font-mono fill-slate-500 dark:fill-slate-500 font-black">000°</text>
+            <text x="440" y="253" className="text-[10px] font-mono fill-slate-500 dark:fill-slate-500 font-black">090°</text>
+            <text x="250" y="450" textAnchor="middle" className="text-[10px] font-mono fill-slate-500 dark:fill-slate-500 font-black">180°</text>
+            <text x="55" y="253" className="text-[10px] font-mono fill-slate-500 dark:fill-slate-500 font-black">270°</text>
+          </motion.svg>
+
+          {/* Outer Ring - rotates counter-clockwise on scroll */}
+          <motion.svg
+            style={{ rotate: hudRotateCounterClockwise }}
+            viewBox="0 0 500 500"
+            className="w-full h-full absolute"
+          >
+            {/* Outer dashed dashboard compass */}
+            <circle cx="250" cy="250" r="215" fill="none" className="stroke-slate-300 dark:stroke-slate-900" strokeWidth="1.5" strokeDasharray="6 14" />
+            
+            {/* Outer ticks */}
+            {Array.from({ length: 18 }).map((_, i) => {
+              const angle = (i * 20 * Math.PI) / 180;
+              const x1 = 250 + Math.cos(angle) * 215;
+              const y1 = 250 + Math.sin(angle) * 215;
+              const x2 = 250 + Math.cos(angle) * 228;
+              const y2 = 250 + Math.sin(angle) * 228;
+              return (
+                <line
+                  key={i}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  className="stroke-slate-300 dark:stroke-slate-800"
+                  strokeWidth="1.0"
+                />
+              );
+            })}
+          </motion.svg>
+
+          {/* Central Circuit Core with animated pulse data flows */}
+          <svg viewBox="0 0 500 500" className="w-full h-full absolute">
+            {/* CPU Chip core */}
+            <motion.rect
+              x="235"
+              y="235"
+              width="30"
+              height="30"
+              rx="4"
+              className="fill-white dark:fill-slate-950 stroke-primary"
+              strokeWidth="2.0"
+              animate={{
+                scale: [0.97, 1.03, 0.97],
+              }}
+              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+            />
+            <rect x="242" y="242" width="16" height="16" rx="2" className="fill-primary/15 dark:fill-primary/20 stroke-primary" strokeWidth="1.0" />
+
+            {/* Circuit Branches with flow signals */}
+            {/* Top-Left */}
+            <path d="M235,245 L200,210 L140,210" fill="none" className="stroke-slate-200 dark:stroke-slate-850" strokeWidth="1.5" />
+            <motion.path
+              d="M235,245 L200,210 L140,210"
+              fill="none"
+              className="stroke-primary"
+              strokeWidth="1.5"
+              strokeDasharray="6 20"
+              animate={{ strokeDashoffset: [0, -26] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 1.8 }}
+            />
+            <circle cx="140" cy="210" r="3.0" className="fill-white dark:fill-slate-950 stroke-primary" strokeWidth="1.5" />
+
+            {/* Bottom-Left */}
+            <path d="M235,255 L190,300 L110,300" fill="none" className="stroke-slate-200 dark:stroke-slate-850" strokeWidth="1.5" />
+            <motion.path
+              d="M235,255 L190,300 L110,300"
+              fill="none"
+              className="stroke-primary"
+              strokeWidth="1.5"
+              strokeDasharray="6 20"
+              animate={{ strokeDashoffset: [0, -26] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 2.2 }}
+            />
+            <circle cx="110" cy="300" r="3.0" className="fill-white dark:fill-slate-950 stroke-primary" strokeWidth="1.5" />
+
+            {/* Top-Right */}
+            <path d="M265,245 L300,210 L370,210 L370,170" fill="none" className="stroke-slate-200 dark:stroke-slate-850" strokeWidth="1.5" />
+            <motion.path
+              d="M265,245 L300,210 L370,210 L370,170"
+              fill="none"
+              className="stroke-primary"
+              strokeWidth="1.5"
+              strokeDasharray="6 25"
+              animate={{ strokeDashoffset: [0, -31] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 2.0 }}
+            />
+            <circle cx="370" cy="170" r="3.0" className="fill-white dark:fill-slate-950 stroke-primary" strokeWidth="1.5" />
+
+            {/* Bottom-Right */}
+            <path d="M265,255 L310,300 L390,300" fill="none" className="stroke-slate-200 dark:stroke-slate-850" strokeWidth="1.5" />
+            <motion.path
+              d="M265,255 L310,300 L390,300"
+              fill="none"
+              className="stroke-primary"
+              strokeWidth="1.5"
+              strokeDasharray="6 20"
+              animate={{ strokeDashoffset: [0, -26] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 1.5 }}
+            />
+            <circle cx="390" cy="300" r="3.0" className="fill-white dark:fill-slate-950 stroke-primary" strokeWidth="1.5" />
+          </svg>
+        </motion.div>
+      </div>
+
+      {/* Floating Glassmorphic Telemetry Cards (z-20) - Hidden on mobile for clutter control */}
+      <div className="absolute inset-0 z-20 pointer-events-none hidden lg:block overflow-hidden">
+        {/* Compiler Terminal - Top Right */}
+        <motion.div
+          style={{
+            x: useTransform(smoothX, [0, 100], [10, -10]),
+            y: useTransform(smoothY, [0, 100], [15, -15])
+          }}
+          className="absolute right-[8%] top-[16%] pointer-events-auto"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <CompilerConsole />
         </motion.div>
 
-        {/* Layer 2: Reveal Image (Helmet) */}
+        {/* Matrix Panel - Mid Left */}
         <motion.div
-          className="absolute inset-0 z-20 pointer-events-none"
           style={{
-            maskImage: "url(#fluid-mask-clean)",
-            WebkitMaskImage: "url(#fluid-mask-clean)",
-            mask: "url(#fluid-mask-clean)",
-            scale: 1.05,
-            x: useTransform(smoothX, [0, 100], [-10, 10]),
+            x: useTransform(smoothX, [0, 100], [-15, 15]),
+            y: useTransform(smoothY, [0, 100], [10, -10])
+          }}
+          className="absolute left-[8%] top-[25%] pointer-events-auto"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
+          <MatrixPanel smoothX={smoothX} smoothY={smoothY} scrollYProgress={scrollYProgress} />
+        </motion.div>
+
+        {/* Sparkline Core activity - Bottom Right */}
+        <motion.div
+          style={{
+            x: useTransform(smoothX, [0, 100], [15, -15]),
             y: useTransform(smoothY, [0, 100], [-10, 10])
           }}
+          className="absolute right-[12%] bottom-[16%] pointer-events-auto"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
         >
-          <img
-            src="/images/second_fullscreen.png"
-            alt="Helmet Reveal"
-            className="w-full h-full object-cover object-[50%_0%]"
-          />
+          <SparklineGraph />
         </motion.div>
       </div>
 
