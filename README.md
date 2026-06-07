@@ -103,11 +103,11 @@ Portfolio/
 
 
 ```
-╔══════════════════════════════════════════╗
-║         PRANAV SANJAY OSWAL              ║
-║      Full-Stack Development · AI/ML      ║
-║        Third Year CE @ PICT Pune         ║
-╚══════════════════════════════════════════╝
+     ╔══════════════════════════════════════════╗
+     ║           PRANAV SANJAY OSWAL            ║
+     ║      Full-Stack Development · AI/ML      ║
+     ║        Third Year CE @ PICT Pune         ║
+     ╚══════════════════════════════════════════╝
 ```
  
 Engineered with intent. Designed to be remembered.
@@ -116,6 +116,6 @@ Engineered with intent. Designed to be remembered.
 
 <br/>
 
-<sub>Copyright © 2026  · Built with React, TypeScript & Framer Motion</sub>
+<sub>Copyright © 2026  · Pranav Oswal
 
 </div>
