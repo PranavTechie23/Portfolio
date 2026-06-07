@@ -11,6 +11,8 @@
 
 *A high-fidelity, interactive developer portfolio — built with futuristic aesthetics, motion-driven UX, and real engineering depth.*
 
+**[🌐 Live Demo](https://pranav-portfolio-live.vercel.app)**
+
 </div>
 
 ---
@@ -22,8 +24,9 @@ This portfolio is not a static page. Every section is a live experience:
 - **Blueprint Canvas & Compass HUD** — Mathematical coordinate grids with rotating vector overlays and azimuth indicators, rendered directly on canvas.
 - **Floating Telemetry Dashboards** — Matrix-grid panels displaying live activity sparklines, pseudo-compiler output, and animated code streams.
 - **Mobile Parallax / Sensor Sync** — `DeviceOrientationEvent` integration maps gyroscope tilt to parallax depth layers — the page moves with your phone.
-- **Lenis Smooth Scroll + Topographic Parallax** — Lenis-powered inertia scrolling coupled with animated topographic background contours that shift at independent scroll rates.
-- **Decrypted Text / Motion Hooks** — Hover any key text to trigger a cryptographic character-scramble decode animation.
+- **Lenis Smooth Scroll** — Lenis-powered inertia scrolling coupled with animated topographic background contours that shift at independent scroll rates.
+- **Scroll Progress Indicator** — Glowing top-bar progress line tracks reading position in real time.
+- **Dark / Light Mode** — System-preference aware with instant toggle and zero flash on load.
 
 ---
 
@@ -32,30 +35,33 @@ This portfolio is not a static page. Every section is a live experience:
 ```
 Portfolio/
 ├── public/
-│   └── assets/                  # Static images and icons
+│   └── images/                  # Static assets
 ├── src/
-│   ├── App.tsx                  # Root layout, route structure, name branding
-│   ├── constants.tsx            # ← All customizable data lives here
+│   ├── App.tsx                  # Root layout, scroll tracking, theme management
+│   ├── constants.tsx            # ← All customizable content lives here
+│   ├── index.css                # Global styles and design tokens
+│   ├── types.ts                 # Shared TypeScript interfaces
 │   ├── components/
-│   │   ├── Hero.tsx             # Landing section — canvas HUD, parallax, decrypt text
-│   │   ├── Projects.tsx         # Project cards with live stack badges
+│   │   ├── Hero.tsx             # Landing — canvas HUD, parallax, telemetry cards
+│   │   ├── About.tsx            # About section
+│   │   ├── Achievements.tsx     # Achievements & recognition
 │   │   ├── Skills.tsx           # Animated skill grid
-│   │   ├── Journey.tsx          # Certification & milestone timeline
-│   │   └── Connect.tsx          # Social links and contact module
-│   ├── hooks/
-│   │   ├── useDeviceOrientation.ts   # Gyroscope → parallax sync
-│   │   ├── useDecryptText.ts         # Character-scramble animation hook
-│   │   └── useLenis.ts               # Smooth scroll initializer
-│   └── utils/
-│       ├── canvas.ts            # Blueprint grid & compass HUD rendering
-│       └── telemetry.ts         # Sparkline and matrix panel generators
+│   │   ├── Projects.tsx         # Project cards with stack badges
+│   │   ├── BuildInPublic.tsx    # Build-in-public log
+│   │   ├── Platforms.tsx        # Social platform links
+│   │   ├── Journey.tsx          # Certifications & learning timeline
+│   │   ├── Contact.tsx          # Contact / email CTA
+│   │   ├── Navbar.tsx           # Sticky navigation with active section tracking
+│   │   ├── BackgroundSystem.tsx # Topographic animated background
+│   │   ├── BlueprintCanvas.tsx  # Canvas-rendered blueprint grid
+│   │   ├── CustomCursor.tsx     # Custom cursor component
+│   │   ├── AnimatedText.tsx     # Decrypt / reveal text animations
+│   │   └── motion/              # Reusable motion components (Magnetic, TechMarquee)
+│   └── utils/                   # Utility helpers
 ├── index.html
-├── tailwind.config.ts
 ├── vite.config.ts
 └── package.json
 ```
-
-> **Note:** The tree above reflects the intended structure. Actual file paths may vary slightly — use your IDE's file explorer to navigate.
 
 ---
 
@@ -70,8 +76,8 @@ Portfolio/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/PranavTechie23/portfolio.git
-cd portfolio
+git clone https://github.com/PranavTechie23/Portfolio_Website.git
+cd Portfolio_Website
 
 # 2. Install dependencies
 npm install
@@ -80,7 +86,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Production Build
 
@@ -104,31 +110,29 @@ Build output is written to `dist/`. Deploy this folder to any static host (Verce
 src/constants.tsx
 ```
 
-Edit this file to update your name, bio, projects, skills, certifications, and social links — no hunting through component files required.
+Edit this file to update your projects, skills, platform links, and journey milestones — no hunting through component files required.
 
 ### What you can change
 
 | Key | What it controls |
 |---|---|
-| `HERO_NAME` | Name displayed in the Hero section and document title |
-| `HERO_TAGLINE` | Subtitle / one-liner beneath your name |
-| `PROJECTS` | Array of project objects — title, description, stack, links |
-| `SKILLS` | Skill categories and individual entries |
-| `JOURNEY` | Certification cards and learning milestones |
-| `SOCIAL_LINKS` | GitHub, LinkedIn, LeetCode, and other platform URLs |
+| `PROJECTS` | Array of project objects — name, description, stack, GitHub link |
+| `SKILL_CATEGORIES` | Skill categories and individual skill entries |
+| `PLATFORMS` | GitHub, LinkedIn, LeetCode, GeeksForGeeks URLs |
+| `JOURNEY_ITEMS` | Certification cards and learning milestones |
 
 ### Example — adding a project
 
 ```tsx
 // src/constants.tsx
 
-export const PROJECTS = [
+export const PROJECTS: Project[] = [
   {
-    title: "Your Project Name",
-    description: "What it does and why it matters.",
+    id: '4',
+    name: "Your Project Name",
+    problem: "What problem it solves and why it matters.",
     stack: ["React", "Node.js", "PostgreSQL"],
-    github: "https://github.com/PranavTechie23/your-repo",
-    live: "https://pranav-portfolio-live.vercel.app",
+    githubUrl: "https://github.com/PranavTechie23/your-repo",
   },
   // ...existing projects
 ];
@@ -141,9 +145,8 @@ export const PROJECTS = [
 | Project | Description | Stack |
 |---|---|---|
 | **Campus Career & Placement Intelligence Platform** | Automated candidate–job matching with CGPA, branch, and skill constraints | System Architecture · REST APIs · Backend |
-| **OncoAI — AI Cancer Treatment Planning** | ML-based clinical decision support with SHAP explainability for personalized oncology care | XGBoost · SHAP · Healthcare AI |
-| **SkillConnect Job Board** | Full-stack hiring platform with role-based access, skill filtering, and real-time matching | React · TypeScript · Node.js · PostgreSQL |
-| **CrediNova / ACIE** | AI-powered credit scoring platform with fairness monitoring and PSI drift detection | XGBoost · SHAP · MERN Stack |
+| **OncoAI — AI Cancer Treatment Planning** | ML-based clinical decision support with SHAP explainability for personalized oncology care | Machine Learning · SHAP · Healthcare AI |
+| **SkillConnect Job Board** | Full-stack hiring platform with skill- and location-based candidate filtering | Full-Stack · Database Design · Web Dev |
 
 ---
 
@@ -153,11 +156,20 @@ export const PROJECTS = [
 
 **Frontend:** React · TailwindCSS · Framer Motion · Lenis · HTML/CSS
 
-**Backend & DB:** Node.js · Express · PostgreSQL (NeonDB) · MongoDB
-
-**AI / ML:** scikit-learn · XGBoost · SHAP · LangChain · Pandas · NumPy
+**AI / ML:** scikit-learn · SHAP · LangChain · Pandas · NumPy
 
 **Dev Tools:** Git · GitHub · Vite · VS Code · Vercel
+
+---
+
+## 🚀 Deploying to Vercel
+
+1. Push your code to GitHub (already done ✅)
+2. Go to [vercel.com](https://vercel.com) and import `PranavTechie23/Portfolio_Website`
+3. Framework preset: **Vite** — auto-detected
+4. Click **Deploy**
+
+Every subsequent `git push` to `main` triggers an automatic redeploy.
 
 ---
 
@@ -166,9 +178,11 @@ export const PROJECTS = [
 <div align="center">
 
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PranavTechie23)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](#)
-[![LeetCode](https://img.shields.io/badge/LeetCode-FFA116?style=for-the-badge&logo=leetcode&logoColor=black)](#)
-[![GeeksForGeeks](https://img.shields.io/badge/GeeksForGeeks-2F8D46?style=for-the-badge&logo=geeksforgeeks&logoColor=white)](#)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/pranav-oswal)
+[![LeetCode](https://img.shields.io/badge/LeetCode-FFA116?style=for-the-badge&logo=leetcode&logoColor=black)](https://leetcode.com/PranavTechie23)
+[![GeeksForGeeks](https://img.shields.io/badge/GeeksForGeeks-2F8D46?style=for-the-badge&logo=geeksforgeeks&logoColor=white)](https://www.geeksforgeeks.org/user/pranavoswal)
+
+📧 [pranavoswal21@gmail.com](mailto:pranavoswal21@gmail.com)
 
 </div>
 
