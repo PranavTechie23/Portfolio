@@ -69,23 +69,25 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
         animate={{ y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-16 flex items-center justify-start gap-12">
           
           {/* Logo */}
-          <a 
-            href="#hero" 
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className="relative group flex items-center gap-2"
-          >
-            <span className="font-heading font-black text-2xl tracking-tighter text-gray-950 dark:text-slate-100 uppercase">HOME</span>
-            <div className="w-2.5 h-2.5 bg-primary group-hover:scale-150 group-hover:shadow-[0_0_10px_rgba(33,150,243,0.5)] transition-all duration-300" />
-          </a>
+          <div className="flex items-center gap-4">
+            <a 
+              href="#hero" 
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="relative group flex items-center gap-2"
+            >
+              <span className="font-heading font-black text-2xl tracking-tighter text-gray-950 dark:text-slate-100 uppercase">HOME</span>
+              <div className="w-2.5 h-2.5 bg-primary group-hover:scale-150 group-hover:shadow-[0_0_10px_rgba(33,150,243,0.5)] transition-all duration-300" />
+            </a>
+          </div>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-8">
+          {/* Desktop Nav & Toggle Group */}
+          <div className="hidden lg:flex items-center gap-8 lg:ml-36">
             {navItems.map((item) => {
               const isActive = activeSection === item.href.replace('#', '');
               return (
@@ -118,9 +120,20 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
                 </motion.a>
               );
             })}
+
+            {/* Desktop Toggle (Placed directly after the last nav item) */}
+            <button
+              onClick={onToggleTheme}
+              className="p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors ml-2"
+              aria-label="Toggle dark mode"
+            >
+              {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
+            </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Mobile Triggers Container (Pushed to the far right using ml-auto) */}
+          <div className="flex items-center gap-4 lg:hidden ml-auto">
+            {/* Mobile Toggle */}
             <button
               onClick={onToggleTheme}
               className="p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors"
@@ -128,9 +141,9 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
             >
               {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
             </button>
-            {/* Mobile Toggle */}
+            {/* Mobile Menu Toggle */}
             <button 
-              className="lg:hidden p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors"
+              className="p-2 text-gray-600 dark:text-slate-300 hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(true)}
             >
               <Menu size={28} />

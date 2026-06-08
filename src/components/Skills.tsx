@@ -13,7 +13,7 @@ const skillCategories = [
     accent: "#2196F3",
     skills: [
       { name: "Python", level: 90 },
-      { name: "C++", level: 80 },
+      { name: "C++", level: 95 },
       { name: "Java", level: 72 },
       { name: "C", level: 65 },
     ],

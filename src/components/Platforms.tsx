@@ -28,8 +28,12 @@ const platforms = [
     name: "LeetCode",
     description: "Algorithmic problem solving and technical preparation.",
     icon: () => (
-      <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.303c.467-.467 1.125-.662 1.837-.662s1.357.195 1.824.662l2.697 2.606c.514.515 1.335.515 1.849 0 .515-.515.515-1.335 0-1.849l-2.697-2.606c-1.081-1.081-2.608-1.538-4.247-1.538-1.64 0-3.166.457-4.247 1.538L3.93 11.23c-1.081 1.081-1.538 2.607-1.538 4.247s.457 3.166 1.538 4.247l4.331 4.363c1.081 1.081 2.608 1.538 4.247 1.538s3.166-.457 4.247-1.538l2.697-2.607c.515-.515.515-1.334 0-1.848a1.309 1.309 0 00-1.848 0z" />
+      <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 94 111">
+        <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+          <path d="M67.5068339,83.0664138 C70.0005384,80.5763786 74.0371402,80.5828822 76.5228362,83.0809398 C79.0085322,85.5789975 79.00204,89.6226456 76.5083355,92.1126808 L65.4351451,103.169577 C55.2192332,113.370744 38.5604663,113.518673 28.1722578,103.513204 C28.112217,103.455678 23.486583,98.9201326 8.22702585,83.9570195 C-1.92478479,74.0028895 -2.93614945,58.0748736 6.61697549,47.8463644 L24.4286944,28.7745461 C33.9100043,18.6218594 51.3874487,17.5122246 62.2279907,26.2789232 L78.4052912,39.3620235 C81.1448956,41.5776292 81.5728103,45.5984975 79.3610655,48.3428842 C77.1493207,51.0872709 73.1354592,51.5159327 70.3958548,49.300327 L54.2186634,36.2173149 C48.5492813,31.6325105 38.631911,32.2621597 33.7398535,37.5006265 L15.9279056,56.5726899 C11.2772073,61.552182 11.7865613,69.5740156 17.1461283,74.8292186 C28.3515339,85.8169393 36.9874071,94.2846214 36.9973988,94.294225 C42.3981571,99.4959838 51.130862,99.418438 56.43358,94.1233737 L67.5068339,83.0664138 Z" fill="currentColor" fillRule="nonzero" />
+          <path d="M40.6069914,72.0014117 C37.086019,72.0014117 34.2317068,69.142117 34.2317068,65.6149982 C34.2317068,62.0878794 37.086019,59.2285847 40.6069914,59.2285847 L87.6247154,59.2285847 C91.1456879,59.2285847 94,62.0878794 94,65.6149982 C94,69.142117 91.1456879,72.0014117 87.6247154,72.0014117 L40.6069914,72.0014117 Z" fill="currentColor" />
+          <path d="M49.4124315,2.02335002 C51.8178981,-0.552320454 55.852269,-0.686893945 58.4234511,1.72277172 C60.9946333,4.13243738 61.1289722,8.17385083 58.7235056,10.7495213 L15.9282277,56.5728697 C11.2773659,61.551984 11.7867168,69.5737689 17.1459309,74.8291832 L36.9094236,94.2091099 C39.4255514,96.6764051 39.4686234,100.719828 37.0056277,103.240348 C34.5426319,105.760868 30.5062548,105.804016 27.990127,103.33672 L8.22654289,83.9567041 C-1.92467414,74.0021005 -2.93603527,58.0741402 6.61751533,47.846311 L49.4124315,2.02335002 Z" fill="currentColor" />
+        </g>
       </svg>
     ),
     link: "https://leetcode.com/u/pranavoswal23/"
@@ -39,7 +43,7 @@ const platforms = [
     description: "Computer science fundamentals and coding practice.",
     icon: () => (
       <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M18.825 23.859c-.022.028-.117.141-.285.141h-4.83c-.33 0-.615-.128-.854-.383l-5.907-7.465-1.839 1.887v5.578c0 .35-.143.662-.428.93-.285.268-.597.403-.934.403H1.011c-.348 0-.663-.134-.944-.403a1.24 1.24 0 0 1-.42-.93V1.07c0-.348.14-.664.42-.944.281-.281.596-.421.944-.421h2.737c.337 0 .649.14.934.421.285.28.428.596.428.944v11.753l7.05-7.411c.218-.236.48-.354.786-.354h5.235c.18 0 .285.105.315.315.012.158-.04.285-.157.383l-7.394 7.507 7.822 9.802c.11.146.162.274.157.383a.434.434 0 0 1-.314.314z" />
+        <path d="M21.45 14.315c-.143.28-.334.532-.565.745a3.691 3.691 0 0 1-1.104.695 4.51 4.51 0 0 1-3.116-.016 3.79 3.79 0 0 1-2.135-2.078 3.571 3.571 0 0 1-.13-.353h7.418a4.26 4.26 0 0 1-.368 1.008zm-11.99-.654a3.793 3.793 0 0 1-2.134 2.078 4.51 4.51 0 0 1-3.117.016 3.7 3.7 0 0 1-1.104-.695 2.652 2.652 0 0 1-.564-.745 4.221 4.221 0 0 1-.368-1.006H9.59c-.038.12-.08.238-.13.352zm14.501-1.758a3.849 3.849 0 0 0-.082-.475l-9.634-.008a3.932 3.932 0 0 1 1.143-2.348c.363-.35.79-.625 1.26-.809a3.97 3.97 0 0 1 4.484.957l1.521-1.49a5.7 5.7 0 0 0-1.922-1.357 6.283 6.283 0 0 0-2.544-.49 6.35 6.35 0 0 0-2.405.457 6.007 6.007 0 0 0-1.963 1.276 6.142 6.142 0 0 0-1.325 1.94 5.862 5.862 0 0 0-.466 1.864h-.063a5.857 5.857 0 0 0-.467-1.865 6.13 6.13 0 0 0-1.325-1.939A6 6 0 0 0 8.21 6.34a6.698 6.698 0 0 0-4.949.031A5.708 5.708 0 0 0 1.34 7.73l1.52 1.49a4.166 4.166 0 0 1 4.484-.958c.47.184.898.46 1.26.81.368.36.66.792.859 1.268.146.344.242.708.285 1.08l-9.635.008A4.714 4.714 0 0 0 0 12.457a6.493 6.493 0 0 0 .345 2.127 4.927 4.927 0 0 0 1.08 1.783c.528.56 1.17 1 1.88 1.293a6.454 6.454 0 0 0 2.504.457c.824.005 1.64-.15 2.404-.457a5.986 5.986 0 0 0 1.964-1.277 6.116 6.116 0 0 0 1.686-3.076h.273a6.13 6.13 0 0 0 1.686 3.077 5.99 5.99 0 0 0 1.964 1.276 6.345 6.345 0 0 0 2.405.457 6.45 6.45 0 0 0 2.502-.457 5.42 5.42 0 0 0 1.882-1.293 4.928 4.928 0 0 0 1.08-1.783A6.52 6.52 0 0 0 24 12.457a4.757 4.757 0 0 0-.039-.554z" />
       </svg>
     ),
     link: "https://www.geeksforgeeks.org/user/pranavoswal23/"
@@ -87,29 +91,30 @@ const Platforms: React.FC = () => {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
               transition={{ duration: isMobile ? 0.35 : 0.6, delay: (isMobile ? 0.1 : 0.2) + idx * (isMobile ? 0.05 : 0.1), ease: "easeOut" }}
+              className="h-full"
             >
             <TiltCard
               as="a"
               href={platform.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative flex flex-col p-6 sm:p-10 md:p-12 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-primary/30 hover:shadow-2xl min-h-[280px] sm:min-h-[360px] md:min-h-[420px] h-full"
+              className="group relative flex flex-col p-6 sm:p-8 md:p-8 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[2rem] overflow-hidden transition-all duration-500 hover:border-primary/30 hover:shadow-2xl min-h-[200px] sm:min-h-[230px] md:min-h-[250px] h-full"
               intensity={7}
             >
               {/* Highlight background */}
               <div className="absolute inset-x-0 bottom-0 h-1 bg-gray-50 dark:bg-slate-800 group-hover:h-full group-hover:bg-primary/5 transition-all duration-500" />
 
-              <div className="relative z-10 flex flex-col h-full gap-5">
-                <div className="p-4 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 w-fit rounded-2xl group-hover:bg-primary group-hover:border-primary text-gray-950 dark:text-slate-100 group-hover:text-white transition-all duration-500 group-hover:rotate-6">
+              <div className="relative z-10 flex flex-col h-full gap-4">
+                <div className="p-3.5 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 w-fit rounded-2xl group-hover:bg-primary group-hover:border-primary text-gray-950 dark:text-slate-100 group-hover:text-white transition-all duration-500 group-hover:rotate-6">
                   <Icon />
                 </div>
 
-                <div className="space-y-2 flex-grow">
-                  <h3 className="text-2xl font-black font-heading text-gray-950 dark:text-slate-100 group-hover:text-primary transition-colors uppercase tracking-tight italic">{platform.name}</h3>
-                  <p className="text-sm font-medium text-gray-500 dark:text-slate-400 leading-relaxed italic">{platform.description}</p>
+                <div className="space-y-1.5 flex-grow">
+                  <h3 className="text-xl sm:text-2xl font-black font-heading text-gray-950 dark:text-slate-100 group-hover:text-primary transition-colors uppercase tracking-tight italic">{platform.name}</h3>
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-slate-400 leading-relaxed italic">{platform.description}</p>
                 </div>
 
-                <div className="pt-6 flex items-center justify-between border-t border-gray-100 dark:border-slate-800 mt-auto">
+                <div className="pt-4 flex items-center justify-between border-t border-gray-100 dark:border-slate-800 mt-auto">
                   <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 dark:text-slate-400 font-mono font-black group-hover:text-primary transition-colors">Connect</span>
                   <div className="w-8 h-8 rounded-full border border-gray-100 dark:border-slate-700 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all">
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

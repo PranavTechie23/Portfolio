@@ -44,23 +44,25 @@ const Journey: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start relative">
         {/* Left column: Timeline */}
-        <div className="lg:col-span-7 space-y-16 relative">
-          <motion.div
-            className="absolute left-0 top-0 bottom-0 w-[1px] bg-gray-100 dark:bg-slate-800 origin-top"
-            initial={{ scaleY: 0 }}
-            animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          />
-
+        <div className="lg:col-span-7 relative">
           {journeyItems.map((item, idx) => (
             <motion.div 
               key={idx} 
-              className="relative pl-12 group"
+              className={`relative pl-12 group ${idx < journeyItems.length - 1 ? 'pb-16' : 'pb-0'}`}
               initial={{ opacity: 0, x: -40 }}
               animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
               transition={{ duration: isMobile ? 0.35 : 0.7, delay: (isMobile ? 0.1 : 0.2) + idx * (isMobile ? 0.08 : 0.15), ease: [0.16, 1, 0.3, 1] }}
               whileHover={{ x: 8 }}
             >
+              {idx < journeyItems.length - 1 && (
+                <motion.div
+                  className="absolute left-0 top-7 bottom-0 w-[1px] bg-gray-200 dark:bg-slate-800 origin-top"
+                  initial={{ scaleY: 0 }}
+                  animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
+                  transition={{ duration: 0.8, delay: idx * 0.15 }}
+                />
+              )}
+
               <motion.div
                 className="absolute left-[-5px] top-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(33,150,243,0.3)]"
                 initial={{ scale: 0 }}
@@ -75,7 +77,7 @@ const Journey: React.FC = () => {
                 </h4>
                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-mono font-black uppercase tracking-widest italic border ${
                   item.status === 'Learning' ? 'bg-primary/5 border-primary/20 text-primary' :
-                  item.status === 'Exploring' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-600' :
+                  item.status === 'Exploring' ? 'bg-cyan-500/5 border-cyan-500/20 text-cyan-600' :
                   'bg-orange-500/5 border-orange-500/20 text-orange-600'
                 }`}>
                   {item.status}
@@ -87,22 +89,6 @@ const Journey: React.FC = () => {
               </p>
             </motion.div>
           ))}
-
-          {/* Bridge to contact */}
-          <motion.a
-            href="#contact"
-            className="group relative pl-12 flex items-center gap-4 pt-4"
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            whileHover={{ x: 8 }}
-          >
-            <div className="absolute left-[-5px] w-2.5 h-2.5 rounded-full border-2 border-primary bg-white dark:bg-slate-950" />
-            <span className="text-sm font-black font-heading uppercase tracking-widest text-gray-500 dark:text-slate-400 group-hover:text-primary transition-colors">
-              Ready to collaborate?
-            </span>
-            <span className="h-[1px] w-0 group-hover:w-12 bg-primary transition-all duration-500" />
-          </motion.a>
         </div>
 
         {/* Right column: Resume Card */}
