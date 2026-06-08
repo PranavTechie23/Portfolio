@@ -1,7 +1,239 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
-import BlueprintCanvas from './BlueprintCanvas';
-import { CompilerConsole, MatrixPanel, SparklineGraph } from './TelemetryCards';
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useMotionValue,
+  useMotionValueEvent,
+} from 'framer-motion';
+
+// Custom cursor component
+const CustomCursor = () => {
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
+  const [isHovering, setIsHovering] = useState(false);
+
+  useEffect(() => {
+    const moveCursor = (e: MouseEvent) => {
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
+    };
+    window.addEventListener('mousemove', moveCursor);
+
+    const interactiveElements = document.querySelectorAll(
+      'a, button, [data-interactive]'
+    );
+    const handleMouseEnter = () => setIsHovering(true);
+    const handleMouseLeave = () => setIsHovering(false);
+
+    interactiveElements.forEach((el) => {
+      el.addEventListener('mouseenter', handleMouseEnter);
+      el.addEventListener('mouseleave', handleMouseLeave);
+    });
+
+    return () => {
+      window.removeEventListener('mousemove', moveCursor);
+      interactiveElements.forEach((el) => {
+        el.removeEventListener('mouseenter', handleMouseEnter);
+        el.removeEventListener('mouseleave', handleMouseLeave);
+      });
+    };
+  }, [cursorX, cursorY]);
+
+  const cursorXSpring = useSpring(cursorX, { damping: 25, stiffness: 300 });
+  const cursorYSpring = useSpring(cursorY, { damping: 25, stiffness: 300 });
+
+  return (
+    <>
+      <motion.div
+        className="fixed top-0 left-0 w-3 h-3 rounded-full bg-cyan-400 pointer-events-none z-[100] mix-blend-difference"
+        style={{
+          x: cursorXSpring,
+          y: cursorYSpring,
+          translateX: '-50%',
+          translateY: '-50%',
+        }}
+      />
+      <motion.div
+        className="fixed top-0 left-0 w-6 h-6 rounded-full border border-cyan-400 pointer-events-none z-[100]"
+        style={{
+          x: cursorXSpring,
+          y: cursorYSpring,
+          translateX: '-50%',
+          translateY: '-50%',
+          scale: isHovering ? 1.5 : 1,
+          transition: 'scale 0.2s ease',
+        }}
+      />
+    </>
+  );
+};
+
+// Compiler Console Component
+const CompilerConsole = () => {
+  const lines = [
+    { text: 'dependencies resolved.', type: 'success' },
+    { text: 'server active on port 3000', type: 'info' },
+    { text: 'system state: fully functional', type: 'success' },
+    { text: 'synced projects count: 10+', type: 'info' },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
+      className="w-[280px] dark:bg-[#0A0C10]/95 bg-white/95 backdrop-blur-xl border dark:border-[#00ffff]/20 border-slate-200 rounded-lg overflow-hidden shadow-2xl dark:shadow-cyan-500/10 shadow-blue-500/5"
+    >
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b dark:border-[#00ffff]/15 border-slate-100 dark:bg-[#00ffff]/5 bg-slate-50">
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
+        </div>
+        <span className="text-[10px] font-mono dark:text-[#00ffff]/70 text-slate-800 ml-2 tracking-wide">
+          COMPILER.SH
+        </span>
+        <span className="ml-auto text-[8px] font-mono dark:text-[#00ffff]/40 text-slate-400">zsh</span>
+      </div>
+      <div className="p-3 space-y-1.5 font-mono text-[10px]">
+        {lines.map((line, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 + i * 0.1 }}
+            className={`flex items-start gap-2 ${
+              line.type === 'success'
+                ? 'dark:text-cyan-400 text-cyan-600 font-semibold'
+                : line.type === 'warning'
+                ? 'dark:text-amber-400 text-amber-600 font-semibold'
+                : 'dark:text-blue-400 text-blue-600'
+            }`}
+          >
+            <span className="dark:text-[#00ffff]/40 text-slate-400 select-none">$</span>
+            <span className="dark:text-slate-100 text-slate-900">{line.text}</span>
+          </motion.div>
+        ))}
+        <motion.div
+          animate={{ opacity: [1, 0.3, 1] }}
+          transition={{ duration: 1, repeat: Infinity }}
+          className="flex items-center gap-2 dark:text-[#00ffff]/40 text-slate-400 mt-2 pt-1 border-t dark:border-[#00ffff]/10 border-slate-100"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <span className="text-[8px] dark:text-cyan-400/80 text-slate-700">system_ready</span>
+          <span className="animate-blink text-[10px] dark:text-slate-100 text-slate-900">█</span>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Matrix Panel Component
+interface MatrixPanelProps {
+  coords: { x: number; y: number };
+}
+
+const MatrixPanel: React.FC<MatrixPanelProps> = ({ coords }) => {
+  const metrics = [
+    { label: 'MOUSE_INPUT', value: `${coords.x}% / ${coords.y}%` },
+    { label: 'PAGE_SCROLL', value: '0%' },
+    { label: 'ENGINE_FREQ', value: '60 FPS' },
+    { label: 'PORTFOLIO_NODE', value: 'LIVE_RUNNING' },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="w-[260px] dark:bg-[#0A0C10]/95 bg-white/95 backdrop-blur-xl border dark:border-[#00ffff]/20 border-slate-200 rounded-lg overflow-hidden shadow-2xl dark:shadow-cyan-500/10 shadow-blue-500/5"
+    >
+      <div className="px-3 py-2 border-b dark:border-[#00ffff]/15 border-slate-100 dark:bg-[#00ffff]/5 bg-slate-50">
+        <span className="text-[9px] font-mono dark:text-[#00ffff]/80 text-primary tracking-wider font-bold">
+          SYSTEM MATRIX
+        </span>
+      </div>
+      <div className="p-3 space-y-2">
+        {metrics.map((metric, i) => (
+          <div key={i} className="flex justify-between items-center font-mono text-[9px]">
+            <span className="text-gray-500 tracking-wide">{metric.label}</span>
+            <span
+              className={`${
+                metric.label === 'PORTFOLIO_NODE'
+                  ? 'dark:text-cyan-400 text-cyan-700'
+                  : 'dark:text-[#00ffff] text-primary'
+              } font-bold`}
+            >
+              {metric.value}
+            </span>
+          </div>
+        ))}
+        <div className="mt-2 pt-2 border-t dark:border-[#00ffff]/10 border-slate-100">
+          <div className="flex justify-between items-center">
+            <span className="text-[9px] font-mono text-gray-500">CORE ACTIVITY</span>
+            <span className="text-[11px] font-mono dark:text-cyan-400 text-cyan-700 font-bold">
+              32 ms
+            </span>
+          </div>
+          <div className="mt-1.5 h-1 dark:bg-gray-800 bg-slate-100 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+              initial={{ width: '0%' }}
+              animate={{ width: '68%' }}
+              transition={{ duration: 1, delay: 0.5 }}
+            />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Sparkline Graph Component
+const SparklineGraph = () => {
+  const data = [42, 38, 55, 48, 62, 58, 45, 52, 48, 44, 38, 42];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, delay: 0.3 }}
+      className="w-[220px] dark:bg-[#0A0C10]/95 bg-white/95 backdrop-blur-xl border dark:border-[#00ffff]/20 border-slate-200 rounded-lg overflow-hidden shadow-2xl dark:shadow-cyan-500/10 shadow-blue-500/5"
+    >
+      <div className="px-3 py-2 border-b dark:border-[#00ffff]/15 border-slate-100 dark:bg-[#00ffff]/5 bg-slate-50 flex justify-between items-center">
+        <span className="text-[9px] font-mono dark:text-[#00ffff]/80 text-primary tracking-wider font-bold">
+          INPUT MATRIX
+        </span>
+        <span className="text-[8px] font-mono dark:text-cyan-400 text-cyan-700">LIVE</span>
+      </div>
+      <div className="p-3">
+        <div className="h-[60px] flex items-end gap-1">
+          {data.map((h, i) => (
+            <motion.div
+              key={i}
+              initial={{ height: 0 }}
+              animate={{ height: `${h}%` }}
+              transition={{ delay: 0.5 + i * 0.03, duration: 0.5 }}
+              className="flex-1 bg-cyan-500/60 dark:hover:bg-cyan-400 hover:bg-primary rounded-sm transition-colors"
+              style={{ height: `${h}%` }}
+            />
+          ))}
+        </div>
+        <div className="flex justify-between mt-2 text-[8px] font-mono dark:text-gray-600 text-slate-400">
+          <span>48%</span>
+          <span className="dark:text-[#00ffff] text-primary">●</span>
+          <span>62%</span>
+        </div>
+        <div className="mt-2 pt-2 border-t dark:border-[#00ffff]/10 border-slate-100 flex justify-between text-[8px] font-mono">
+          <span className="text-gray-500">MEM_ALLOC:</span>
+          <span className="dark:text-cyan-400 text-cyan-700">42.8MB</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 interface HeroProps {
   isDarkMode?: boolean;
@@ -9,404 +241,330 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [matrixCoords, setMatrixCoords] = useState({ x: 48, y: 62 });
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end start"]
+    offset: ['start start', 'end start'],
   });
 
-  const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const opacityText = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const hudRotateClockwise = useTransform(scrollYProgress, [0, 1], [0, 360]);
-  const hudRotateCounterClockwise = useTransform(scrollYProgress, [0, 1], [0, -360]);
-
-  const [isHovered, setIsHovered] = useState(false);
-
-  // Motion values for raw mouse coordinates (0-100)
   const mouseX = useMotionValue(50);
   const mouseY = useMotionValue(50);
-
-  // Springs for smooth movement
-  const springConfig = { damping: 40, stiffness: 100, mass: 0.5 };
-  const smoothX = useSpring(mouseX, springConfig);
-  const smoothY = useSpring(mouseY, springConfig);
-
-  // Mask specific springs (slightly more lag for fluid feel)
-  const maskSpringConfig = { damping: 25, stiffness: 60 };
-  const maskX = useSpring(mouseX, maskSpringConfig);
-  const maskY = useSpring(mouseY, maskSpringConfig);
-
-  // Radius spring to handle isHovered transition smoothly and prevent "stuck" feeling
-  const hoverValue = useMotionValue(0);
-  const radiusSpring = useSpring(hoverValue, { damping: 20, stiffness: 100 });
-  const radiusMain = useTransform(radiusSpring, [0, 1], ["0vw", "11vw"]);
-
-  // Update hover state and motion value
-  React.useEffect(() => {
-    hoverValue.set(isHovered ? 1 : 0);
-  }, [isHovered, hoverValue]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-
-    // Normalize to percentage (0-100)
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-    mouseX.set(x);
-    mouseY.set(y);
-    if (!isHovered) setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-  };
-
-  // Mobile Orientation Logic
-  const [hasSensorPermission, setHasSensorPermission] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const smoothX = useSpring(mouseX, { damping: 40, stiffness: 100 });
+  const smoothY = useSpring(mouseY, { damping: 40, stiffness: 100 });
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 1024);
-    };
+    const checkMobile = () =>
+      setIsMobile(
+        window.innerWidth < 1024 ||
+          /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+      );
     checkMobile();
-    window.addEventListener('resize', checkMobile, { passive: true });
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+    window.addEventListener('resize', checkMobile);
 
-  const requestSensorPermission = async () => {
-    // @ts-ignore - DeviceOrientationEvent.requestPermission is specific to iOS/WebKit
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-      try {
-        // @ts-ignore
-        const permission = await DeviceOrientationEvent.requestPermission();
-        if (permission === 'granted') {
-          setHasSensorPermission(true);
-        }
-      } catch (err) {
-        console.error("Sensor permission denied:", err);
-      }
-    } else {
-      setHasSensorPermission(true);
-    }
-  };
-
-  useEffect(() => {
-    if (!hasSensorPermission) return;
-
-    // Use motion values directly to avoid dependency updates
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.beta === null || e.gamma === null) return;
-
-      // beta: -180 to 180 (front/back), gamma: -90 to 90 (left/right)
-      // Wider mapping for more natural tilt range
-      const beta = e.beta;
-      const gamma = e.gamma;
-
-      // Center around common holding angles: gamma center = 0, beta center = 45-60
-      const targetX = Math.max(0, Math.min(100, ((gamma + 40) / 80) * 100));
-      const targetY = Math.max(0, Math.min(100, ((beta - 20) / 70) * 100));
-
-      mouseX.set(targetX);
-      mouseY.set(targetY);
-
-      // Ensure hover is active when sensing
-      if (!hoverValue.get()) {
-        setIsHovered(true);
-      }
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      mouseX.set(((e.clientX - rect.left) / rect.width) * 100);
+      mouseY.set(((e.clientY - rect.top) / rect.height) * 100);
     };
 
-    window.addEventListener('deviceorientation', handleOrientation);
-    return () => window.removeEventListener('deviceorientation', handleOrientation);
-  }, [hasSensorPermission, mouseX, mouseY, hoverValue]);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [mouseX, mouseY]);
 
-  const maskCx = useTransform(maskX, (v) => v + "%");
-  const maskCy = useTransform(maskY, (v) => v + "%");
+  useMotionValueEvent(smoothX, "change", (v) => {
+    setMatrixCoords((prev) => ({ ...prev, x: Math.round(v) }));
+  });
+
+  useMotionValueEvent(smoothY, "change", (v) => {
+    setMatrixCoords((prev) => ({ ...prev, y: Math.round(v) }));
+  });
+
+  // Reactive slide animation - slides from top to bottom based on scroll
+  const reactiveY = useTransform(scrollYProgress, [0, 1], ['0%', '25%']);
+  const reactiveYSpring = useSpring(reactiveY, { damping: 35, stiffness: 90 });
+
+  // Parallax for background elements
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
+
 
   return (
-    <motion.div
+    <div
       ref={containerRef}
-      className={`relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-slate-950 ${isMobile ? '' : 'cursor-none'}`}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      className="relative w-full min-h-screen bg-gradient-to-br dark:from-[#0A0C10] dark:via-[#0F1219] dark:to-[#050608] from-[#F4F3F1] via-[#EAE9E6] to-[#E0DFDC] overflow-hidden"
     >
-      <motion.div className="absolute inset-0 z-[-1]" style={{ y: yBg }}>
-        {/* Typo Background can go here if we want it to shift */}
-      </motion.div>
-      {/* Huge Background Typography - ENGINEER (Z-0) */}
+      {/* Animated Grid Background */}
+      <div className="absolute inset-0 z-0 opacity-20 dark:block hidden">
+        <div
+          className="absolute inset-0 bg-repeat"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='%2300ffff' stroke-width='0.5' stroke-opacity='0.3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3C/svg%3E")`,
+          }}
+        />
+      </div>
+      <div className="absolute inset-0 z-0 opacity-20 dark:hidden block">
+        <div
+          className="absolute inset-0 bg-repeat"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='%232196f3' stroke-width='0.5' stroke-opacity='0.25'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3C/svg%3E")`,
+          }}
+        />
+      </div>
+
+      {/* Scanline Effect */}
+      <div className="absolute inset-0 pointer-events-none z-[60] bg-gradient-to-b from-transparent via-transparent to-transparent opacity-5">
+        <div className="w-full h-[2px] dark:bg-cyan-400/20 bg-blue-500/10 absolute animate-scan" />
+      </div>
+
+      {/* ENGINEER Watermark */}
       <motion.div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none px-4"
-        style={{
-          opacity: opacityText,
-          x: useTransform(smoothX, [0, 100], [-30, 30]),
-          y: useTransform(smoothY, [0, 100], [-30, 30])
-        }}
+        className="absolute top-[44%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none"
+        style={{ y: bgY }}
       >
-        <h1 className="text-[22vw] md:text-[24vw] font-black leading-none tracking-[-0.05em] text-gray-950/10 dark:text-slate-100/5 select-none font-heading uppercase whitespace-nowrap">
+        <h1 className="text-[20vw] md:text-[22vw] font-black leading-none tracking-[-0.05em] dark:text-cyan-500/[0.04] text-blue-500/[0.08] select-none whitespace-nowrap">
           ENGINEER
         </h1>
       </motion.div>
 
-      {/* Interactive 2D Blueprint Canvas (z-0) */}
-      <BlueprintCanvas isDarkMode={isDarkMode} />
+      {/* Telemetry Panels - Fixed HUD that fades on scroll */}
+      <motion.div
+        style={{ opacity: useTransform(scrollYProgress, [0, 0.45], [1, 0]) }}
+        className="fixed inset-0 z-20 pointer-events-none hidden md:block"
+      >
+        <div className="relative w-full max-w-[1440px] h-full mx-auto">
+          <motion.div
+            style={{
+              x: useTransform(smoothX, [0, 100], [10, -10]),
+              y: useTransform(smoothY, [0, 100], [12, -12]),
+            }}
+            className="absolute right-6 top-6 pointer-events-auto origin-top-right transition-colors duration-300 scale-75 xl:scale-90 2xl:scale-100"
+          >
+            <CompilerConsole />
+          </motion.div>
+          <motion.div
+            style={{
+              x: useTransform(smoothX, [0, 100], [-12, 12]),
+              y: useTransform(smoothY, [0, 100], [8, -8]),
+            }}
+            className="absolute left-6 bottom-6 pointer-events-auto origin-bottom-left transition-colors duration-300 scale-75 xl:scale-90 2xl:scale-100"
+          >
+            <MatrixPanel coords={matrixCoords} />
+          </motion.div>
+          <motion.div
+            style={{
+              x: useTransform(smoothX, [0, 100], [12, -12]),
+              y: useTransform(smoothY, [0, 100], [-8, 8]),
+            }}
+            className="absolute right-6 bottom-6 pointer-events-auto origin-bottom-right transition-colors duration-300 scale-75 xl:scale-90 2xl:scale-100"
+          >
+            <SparklineGraph />
+          </motion.div>
+        </div>
+      </motion.div>      {/* Top Left Status */}
+      <div className="absolute top-24 left-6 z-30 pointer-events-none">
+        <div className="flex items-center gap-2 px-3 py-1.5 dark:bg-[#0A0C10]/80 bg-white/85 dark:backdrop-blur-sm backdrop-blur-md border-l-2 dark:border-cyan-400 border-primary shadow-sm rounded-r">
+          <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+          <span className="text-[9px] font-mono dark:text-cyan-400 text-primary tracking-[0.2em] font-bold">
+            ONLINE
+          </span>
+        </div>
+        <div className="mt-2 pl-3">
+          <h3 className="text-lg sm:text-xl font-black font-mono dark:text-gray-300 text-slate-700 tracking-tighter">
+            LIVE FEED
+          </h3>
+        </div>
+      </div>
 
-      {/* Central Rotating HUD Blueprint SVG (z-10) */}
-      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none flex items-center justify-center">
+      {/* Bottom Right Input Matrix Display */}
+      <div className="absolute bottom-6 right-6 z-30 pointer-events-none text-right md:hidden">
+        <div className="px-3 py-1.5 dark:bg-[#0A0C10]/80 bg-white/85 dark:backdrop-blur-sm backdrop-blur-md border-r-2 dark:border-cyan-400 border-primary shadow-sm rounded-l">
+          <span className="text-[9px] font-mono dark:text-gray-400 text-slate-500 tracking-[0.2em]">
+            INPUT MATRIX
+          </span>
+        </div>
+        <div className="mt-2 pr-3">
+          <div className="text-sm font-mono font-bold dark:text-cyan-400 text-primary">
+            {matrixCoords.x}
+            <span className="dark:text-gray-600 text-slate-400"> / </span>
+            {matrixCoords.y}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Nameplate - REACTIVE SLIDE FROM TOP TO BOTTOM */}
+      <div className="absolute inset-0 pointer-events-none z-40 flex items-end justify-center pb-6">
         <motion.div
+          className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl px-6"
           style={{
-            x: useTransform(smoothX, [0, 100], [-15, 15]),
-            y: useTransform(smoothY, [0, 100], [-15, 15])
+            y: reactiveYSpring,
           }}
-          className="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[460px] md:h-[460px] relative flex items-center justify-center bg-white dark:bg-slate-950 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-slate-200 dark:border-slate-850/80 scale-90 sm:scale-100"
         >
-          {/* Inner circle - rotates clockwise on scroll */}
-          <motion.svg
-            style={{ rotate: hudRotateClockwise }}
-            viewBox="0 0 500 500"
-            className="w-full h-full absolute text-slate-400 dark:text-slate-700"
+          <motion.div
+            initial={{ y: -200, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Compass degree ticks */}
-            {Array.from({ length: 36 }).map((_, i) => {
-              const angle = (i * 10 * Math.PI) / 180;
-              const x1 = 250 + Math.cos(angle) * 165;
-              const y1 = 250 + Math.sin(angle) * 165;
-              const x2 = 250 + Math.cos(angle) * 178;
-              const y2 = 250 + Math.sin(angle) * 178;
-              return (
-                <line
-                  key={i}
-                  x1={x1}
-                  y1={y1}
-                  x2={x2}
-                  y2={y2}
-                  className="stroke-slate-300 dark:stroke-slate-800"
-                  strokeWidth="1.0"
-                />
-              );
-            })}
+          {/* Top sweep line */}
+          <motion.div
+            className="h-[2px] bg-gradient-to-r from-transparent dark:via-cyan-400 via-primary to-transparent"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          />
 
-            {/* Concentric detail rings */}
-            <circle cx="250" cy="250" r="178" fill="none" className="stroke-slate-200 dark:stroke-slate-900" strokeWidth="1.0" />
-            <circle cx="250" cy="250" r="140" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="0.8" strokeDasharray="3 9" />
-            
-            {/* Degree tags */}
-            <text x="250" y="58" textAnchor="middle" className="text-[10px] font-mono fill-slate-500 dark:fill-slate-500 font-black">000°</text>
-            <text x="440" y="253" className="text-[10px] font-mono fill-slate-500 dark:fill-slate-500 font-black">090°</text>
-            <text x="250" y="450" textAnchor="middle" className="text-[10px] font-mono fill-slate-500 dark:fill-slate-500 font-black">180°</text>
-            <text x="55" y="253" className="text-[10px] font-mono fill-slate-500 dark:fill-slate-500 font-black">270°</text>
-          </motion.svg>
-
-          {/* Outer Ring - rotates counter-clockwise on scroll */}
-          <motion.svg
-            style={{ rotate: hudRotateCounterClockwise }}
-            viewBox="0 0 500 500"
-            className="w-full h-full absolute"
+          {/* Main Card - Floating Animation */}
+          <motion.div
+            animate={{
+              y: [0, -6, 0],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="relative dark:bg-[#0A0C10]/90 bg-white/90 dark:backdrop-blur-2xl backdrop-blur-2xl border dark:border-cyan-500/30 border-blue-200/80 shadow-2xl dark:shadow-cyan-500/20 shadow-blue-500/5 rounded-2xl overflow-hidden"
           >
-            {/* Outer dashed dashboard compass */}
-            <circle cx="250" cy="250" r="215" fill="none" className="stroke-slate-300 dark:stroke-slate-900" strokeWidth="1.5" strokeDasharray="6 14" />
-            
-            {/* Outer ticks */}
-            {Array.from({ length: 18 }).map((_, i) => {
-              const angle = (i * 20 * Math.PI) / 180;
-              const x1 = 250 + Math.cos(angle) * 215;
-              const y1 = 250 + Math.sin(angle) * 215;
-              const x2 = 250 + Math.cos(angle) * 228;
-              const y2 = 250 + Math.sin(angle) * 228;
-              return (
-                <line
-                  key={i}
-                  x1={x1}
-                  y1={y1}
-                  x2={x2}
-                  y2={y2}
-                  className="stroke-slate-300 dark:stroke-slate-800"
-                  strokeWidth="1.0"
-                />
-              );
-            })}
-          </motion.svg>
+            {/* Corner Accents */}
+            <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 dark:border-cyan-400/60 border-primary/40 rounded-tl-2xl" />
+            <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 dark:border-cyan-400/60 border-primary/40 rounded-tr-2xl" />
+            <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 dark:border-cyan-400/60 border-primary/40 rounded-bl-2xl" />
+            <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 dark:border-cyan-400/60 border-primary/40 rounded-br-2xl" />
 
-          {/* Central Circuit Core with animated pulse data flows */}
-          <svg viewBox="0 0 500 500" className="w-full h-full absolute">
-            {/* CPU Chip core */}
-            <motion.rect
-              x="235"
-              y="235"
-              width="30"
-              height="30"
-              rx="4"
-              className="fill-white dark:fill-slate-950 stroke-primary"
-              strokeWidth="2.0"
-              animate={{
-                scale: [0.97, 1.03, 0.97],
-              }}
-              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            />
-            <rect x="242" y="242" width="16" height="16" rx="2" className="fill-primary/15 dark:fill-primary/20 stroke-primary" strokeWidth="1.0" />
+            <div className="p-4 sm:p-6 md:p-8 lg:p-10 text-center">
+              {/* Name */}
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black font-heading tracking-tighter leading-tight"
+              >
+                <span className="dark:text-gray-200 text-slate-800">PRANAV SANJAY </span>
+                <span className="dark:text-cyan-400 text-primary relative">
+                  OSWAL
+                  <span className="absolute -bottom-2 left-0 w-full h-0.5 dark:bg-cyan-400/50 bg-primary/40" />
+                </span>
+              </motion.h1>
 
-            {/* Circuit Branches with flow signals */}
-            {/* Top-Left */}
-            <path d="M235,245 L200,210 L140,210" fill="none" className="stroke-slate-200 dark:stroke-slate-850" strokeWidth="1.5" />
-            <motion.path
-              d="M235,245 L200,210 L140,210"
-              fill="none"
-              className="stroke-primary"
-              strokeWidth="1.5"
-              strokeDasharray="6 20"
-              animate={{ strokeDashoffset: [0, -26] }}
-              transition={{ repeat: Infinity, ease: "linear", duration: 1.8 }}
-            />
-            <circle cx="140" cy="210" r="3.0" className="fill-white dark:fill-slate-950 stroke-primary" strokeWidth="1.5" />
+              {/* Role Tags */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="mt-3 flex flex-wrap justify-center gap-2 sm:gap-3"
+              >
+                {['SYSTEMS ARCHITECT', 'FULL-STACK DEVELOPER', 'AI ENGINEER'].map(
+                  (role, i) => (
+                    <span
+                      key={i}
+                      className="px-3 py-1 text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.2em] dark:text-cyan-400 text-primary border dark:border-cyan-500/30 border-blue-200/80 rounded dark:bg-cyan-500/5 bg-primary/5"
+                    >
+                      {role}
+                    </span>
+                  )
+                )}
+              </motion.div>
 
-            {/* Bottom-Left */}
-            <path d="M235,255 L190,300 L110,300" fill="none" className="stroke-slate-200 dark:stroke-slate-850" strokeWidth="1.5" />
-            <motion.path
-              d="M235,255 L190,300 L110,300"
-              fill="none"
-              className="stroke-primary"
-              strokeWidth="1.5"
-              strokeDasharray="6 20"
-              animate={{ strokeDashoffset: [0, -26] }}
-              transition={{ repeat: Infinity, ease: "linear", duration: 2.2 }}
-            />
-            <circle cx="110" cy="300" r="3.0" className="fill-white dark:fill-slate-950 stroke-primary" strokeWidth="1.5" />
+              {/* Divider */}
+              <div className="my-3 flex items-center justify-center gap-3">
+                <div className="w-12 h-px bg-gradient-to-r from-transparent dark:to-cyan-500 to-primary" />
+                <div className="w-1.5 h-1.5 rounded-full dark:bg-cyan-400 bg-primary" />
+                <div className="w-12 h-px bg-gradient-to-l from-transparent dark:to-cyan-500 to-primary" />
+              </div>
 
-            {/* Top-Right */}
-            <path d="M265,245 L300,210 L370,210 L370,170" fill="none" className="stroke-slate-200 dark:stroke-slate-850" strokeWidth="1.5" />
-            <motion.path
-              d="M265,245 L300,210 L370,210 L370,170"
-              fill="none"
-              className="stroke-primary"
-              strokeWidth="1.5"
-              strokeDasharray="6 25"
-              animate={{ strokeDashoffset: [0, -31] }}
-              transition={{ repeat: Infinity, ease: "linear", duration: 2.0 }}
-            />
-            <circle cx="370" cy="170" r="3.0" className="fill-white dark:fill-slate-950 stroke-primary" strokeWidth="1.5" />
+              {/* CTA Button */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="pointer-events-auto"
+              >
+                <a
+                  href="#about"
+                  data-interactive="true"
+                  className="group relative inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[10px] sm:text-[11px] font-black font-mono tracking-[0.22em] uppercase rounded-lg overflow-hidden shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all duration-300"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <span className="relative z-10 flex items-center gap-2">
+                    ENTER EXPERIENCE
+                    <svg
+                      className="w-3 h-3 group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      viewBox="0 0 12 12"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        d="M2 6h8M6 2l4 4-4 4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </a>
+              </motion.div>
+            </div>
+          </motion.div>
 
-            {/* Bottom-Right */}
-            <path d="M265,255 L310,300 L390,300" fill="none" className="stroke-slate-200 dark:stroke-slate-850" strokeWidth="1.5" />
-            <motion.path
-              d="M265,255 L310,300 L390,300"
-              fill="none"
-              className="stroke-primary"
-              strokeWidth="1.5"
-              strokeDasharray="6 20"
-              animate={{ strokeDashoffset: [0, -26] }}
-              transition={{ repeat: Infinity, ease: "linear", duration: 1.5 }}
-            />
-            <circle cx="390" cy="300" r="3.0" className="fill-white dark:fill-slate-950 stroke-primary" strokeWidth="1.5" />
-          </svg>
+          {/* Bottom sweep line */}
+          <motion.div
+            className="h-px bg-gradient-to-r from-transparent dark:via-cyan-500/50 via-primary/30 to-transparent"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          />
+          </motion.div>
         </motion.div>
       </div>
 
-      {/* Floating Glassmorphic Telemetry Cards (z-20) - Render only on desktop to avoid mobile background CPU load */}
-      {!isMobile && (
-        <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden flex justify-center">
-          <div className="relative w-full max-w-[1400px] h-full">
-            {/* Compiler Terminal - Top Right */}
-            <motion.div
-              style={{
-                x: useTransform(smoothX, [0, 100], [10, -10]),
-                y: useTransform(smoothY, [0, 100], [15, -15])
-              }}
-              className="absolute right-6 sm:right-8 top-28 pointer-events-auto"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <CompilerConsole />
-            </motion.div>
-
-            {/* Matrix Panel - Mid Left */}
-            <motion.div
-              style={{
-                x: useTransform(smoothX, [0, 100], [-15, 15]),
-                y: useTransform(smoothY, [0, 100], [10, -10])
-              }}
-              className="absolute left-6 sm:left-8 top-72 pointer-events-auto"
-              initial={{ opacity: 0, y: -30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              <MatrixPanel smoothX={smoothX} smoothY={smoothY} scrollYProgress={scrollYProgress} />
-            </motion.div>
-
-            {/* Sparkline Core activity - Bottom Right */}
-            <motion.div
-              style={{
-                x: useTransform(smoothX, [0, 100], [15, -15]),
-                y: useTransform(smoothY, [0, 100], [-10, 10])
-              }}
-              className="absolute right-6 sm:right-8 bottom-28 pointer-events-auto"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              <SparklineGraph />
-            </motion.div>
-          </div>
-        </div>
-      )}
-
-      {/* Interactive Racing Widgets - Z-INDEX 30 */}
-      <div className="absolute inset-0 pointer-events-none z-30 flex justify-center">
-        <div className="relative w-full max-w-[1400px] h-full">
-          {/* Status Feed (Pushed down to top-28 to avoid Navbar overlap) */}
-          <div className="absolute top-28 left-6 sm:left-8 flex flex-col gap-1 border-l-2 border-primary pl-4 py-2 bg-white/70 dark:bg-slate-900/20 backdrop-blur-md">
-            <div className="text-[10px] font-mono text-gray-500 dark:text-slate-400 uppercase tracking-widest font-bold">Status</div>
-            <div className="text-base sm:text-xl font-heading font-black text-gray-950 dark:text-slate-100 uppercase italic tracking-tighter">Live Feed</div>
-          </div>
-
-          {/* Input Matrix - Bottom Right */}
-          <div className="absolute bottom-8 right-6 sm:right-8 text-right flex flex-col gap-1 border-r-2 border-primary pr-4 py-2 bg-white/70 dark:bg-slate-900/20 backdrop-blur-md">
-            <div className="text-[10px] font-mono text-gray-500 dark:text-slate-400 uppercase tracking-widest font-bold">Input Matrix</div>
-            <motion.div className="text-sm sm:text-lg font-mono font-bold text-gray-950 dark:text-slate-100">
-              {Math.round(maskX.get())} / {Math.round(maskY.get())}
-            </motion.div>
-          </div>
-        </div>
-      </div>
-
-      {/* Nameplate - Z-INDEX 40 */}
-      <div className="absolute inset-0 pointer-events-none z-40 flex justify-center">
-        <div className="relative w-full max-w-[1400px] h-full">
+      {/* Floating Particles */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        {[...Array(20)].map((_, i) => (
           <motion.div
-            className="absolute bottom-8 left-6 sm:left-8 flex flex-col items-start pointer-events-none"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-3 sm:p-5 border-b-4 border-primary shadow-2xl skew-x-[-4deg]">
-              <h2 className="text-xl sm:text-3xl md:text-5xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter leading-none uppercase italic">
-                PRANAV SANJAY <span className="text-primary italic">OSWAL</span>
-              </h2>
-
-              <div className="mt-6 pointer-events-auto">
-                <a
-                  href="#projects"
-                  className="px-6 py-3 bg-gray-950 dark:bg-slate-100 text-white dark:text-slate-900 text-[10px] font-black font-heading tracking-[0.2em] uppercase hover:bg-primary hover:text-white transition-all duration-300 shadow-lg inline-block"
-                >
-                  Enter Experience
-                </a>
-
-                {isMobile && !hasSensorPermission && (
-                  <button
-                    onClick={requestSensorPermission}
-                    className="ml-4 px-4 py-3 bg-primary text-white text-[10px] font-black font-heading tracking-[0.2em] uppercase hover:bg-gray-950 transition-all duration-300 shadow-lg inline-flex items-center gap-2"
-                  >
-                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                    Sync Sensors
-                  </button>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        </div>
+            key={i}
+            className="absolute w-0.5 h-0.5 bg-cyan-400/30 rounded-full"
+            initial={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+            }}
+            animate={{
+              y: [null, -20, -40],
+              opacity: [0.3, 0.6, 0],
+            }}
+            transition={{
+              duration: 2 + Math.random() * 3,
+              repeat: Infinity,
+              delay: Math.random() * 5,
+            }}
+          />
+        ))}
       </div>
 
-    </motion.div>
+      {/* Custom Cursor (Desktop only) */}
+      {!isMobile && <CustomCursor />}
+
+      {/* Add keyframes animation for scanline */}
+      <style>{`
+        @keyframes scan {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
+        }
+        .animate-scan {
+          animation: scan 8s linear infinite;
+        }
+        .animate-blink {
+          animation: blink 1.2s step-end infinite;
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
+    </div>
   );
 };
 

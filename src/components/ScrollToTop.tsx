@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronsUp } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { useLenis } from 'lenis/react';
 
 const ScrollToTop: React.FC = () => {
@@ -28,14 +28,15 @@ const ScrollToTop: React.FC = () => {
         <motion.button
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="fixed right-5 bottom-5 sm:right-6 sm:bottom-6 z-[150] group flex items-center justify-center w-12 h-12 rounded-full bg-slate-200/90 hover:bg-slate-300/95 text-slate-500 hover:text-slate-800 dark:bg-slate-800/80 dark:hover:bg-slate-700/95 dark:text-slate-400 dark:hover:text-slate-250 transition-all duration-300 shadow-lg"
+          className="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 z-[150] group flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white border-2 border-white/90 dark:border-slate-950/90 shadow-[0_4px_20px_rgba(33,150,243,0.45)] hover:shadow-[0_6px_28px_rgba(33,150,243,0.6)] hover:brightness-110 active:brightness-95 transition-all duration-300"
           initial={{ opacity: 0, y: 20, scale: 0.85 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.85 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          whileTap={{ scale: 0.94 }}
+          whileHover={{ y: -3 }}
+          whileTap={{ scale: 0.9 }}
         >
-          <ChevronsUp className="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-0.5" strokeWidth={2.5} />
+          <ArrowUp className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform duration-300" strokeWidth={2.5} />
         </motion.button>
       )}
     </AnimatePresence>

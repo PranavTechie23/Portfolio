@@ -128,7 +128,7 @@ const BuildInPublic: React.FC = () => {
               <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest ${badgeBg}`}>
                 Live
               </span>
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             </div>
           </div>
 
