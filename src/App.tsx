@@ -21,10 +21,19 @@ const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [isLoading, setIsLoading] = useState(true);
 
+  // Disable browser scroll restoration and force top scroll on mount
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+  }, []);
+
   // Lock body scroll during preloader
   useEffect(() => {
     if (isLoading) {
       document.body.style.overflow = 'hidden';
+      window.scrollTo(0, 0);
     } else {
       document.body.style.overflow = '';
     }

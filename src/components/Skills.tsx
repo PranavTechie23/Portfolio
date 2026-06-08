@@ -78,7 +78,7 @@ const Skills: React.FC = () => {
     <div ref={ref} className="w-full">
       {/* Header */}
       <motion.div
-        className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
+        className="mb-16"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
         transition={{ duration: isMobile ? 0.35 : 0.6 }}
@@ -92,27 +92,38 @@ const Skills: React.FC = () => {
             Technical <span className="text-primary italic">Arsenal</span>
           </h2>
         </div>
-        <p className="text-sm font-medium text-gray-500 dark:text-slate-400 max-w-xs leading-relaxed">
-          Skills forged through real projects, competitions, and relentless building.
-        </p>
       </motion.div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
+        style={{ perspective: "1000px" }}
+      >
         {skillCategories.map((category, idx) => (
           <motion.div
             key={idx}
             className="group relative flex flex-col p-7 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl cursor-default"
             style={{ '--accent': category.accent } as React.CSSProperties}
-            initial={{ opacity: 0, y: 40 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-            transition={{ duration: isMobile ? 0.3 : 0.5, delay: idx * (isMobile ? 0.06 : 0.12) }}
+            initial={{ opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
+            animate={isInView ? { opacity: 1, y: 0, scale: 1, rotateX: 0 } : { opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
+            transition={{ 
+              duration: isMobile ? 0.35 : 0.65, 
+              delay: idx * (isMobile ? 0.08 : 0.14),
+              ease: [0.16, 1, 0.3, 1]
+            }}
             whileHover={{ y: -6, transition: { duration: 0.3 } }}
           >
             {/* Accent glow top bar */}
             <div
               className="absolute top-0 left-0 right-0 h-[3px] opacity-60 group-hover:opacity-100 transition-opacity duration-500"
               style={{ background: `linear-gradient(90deg, ${category.accent}, transparent)` }}
+            />
+
+            {/* Entrance shine sweep effect */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 dark:via-white/5 to-transparent -skew-x-12 -left-full pointer-events-none"
+              animate={isInView ? { left: ["-100%", "200%"] } : {}}
+              transition={{ duration: 1.2, delay: 0.4 + idx * 0.14, ease: "easeInOut" }}
             />
 
             {/* Background glow blob */}
