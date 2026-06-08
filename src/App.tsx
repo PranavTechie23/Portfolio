@@ -83,7 +83,7 @@ const App: React.FC = () => {
       </AnimatePresence>
 
       <ReactLenis root options={{ smoothTouch: false }}>
-        <div className="selection:bg-blue-500/30 selection:text-blue-200 bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
+        <div className="relative selection:bg-blue-500/30 selection:text-blue-200 bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
         <motion.div
           style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}
           className="fixed top-0 left-0 right-0 h-1 bg-primary z-[9999] shadow-[0_0_12px_rgba(33,150,243,0.8)]"

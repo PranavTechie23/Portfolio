@@ -7,6 +7,7 @@ import {
   useMotionValue,
   useMotionValueEvent,
 } from 'framer-motion';
+import BlueprintCanvas from './BlueprintCanvas';
 
 // Custom cursor component
 const CustomCursor = () => {
@@ -71,14 +72,11 @@ const CustomCursor = () => {
 };
 
 // Compiler Console Component
-const CompilerConsole = () => {
-  const lines = [
-    { text: 'dependencies resolved.', type: 'success' },
-    { text: 'server active on port 3000', type: 'info' },
-    { text: 'system state: fully functional', type: 'success' },
-    { text: 'synced projects count: 10+', type: 'info' },
-  ];
+interface CompilerConsoleProps {
+  logs: Array<{ text: string; type: string }>;
+}
 
+const CompilerConsole: React.FC<CompilerConsoleProps> = ({ logs }) => {
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -98,12 +96,12 @@ const CompilerConsole = () => {
         <span className="ml-auto text-[8px] font-mono dark:text-[#00ffff]/40 text-slate-400">zsh</span>
       </div>
       <div className="p-3 space-y-1.5 font-mono text-[10px]">
-        {lines.map((line, i) => (
+        {logs.map((line, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 + i * 0.1 }}
+            transition={{ delay: Math.min(0.2, i * 0.05) }}
             className={`flex items-start gap-2 ${
               line.type === 'success'
                 ? 'dark:text-cyan-400 text-cyan-600 font-semibold'
@@ -113,7 +111,7 @@ const CompilerConsole = () => {
             }`}
           >
             <span className="dark:text-[#00ffff]/40 text-slate-400 select-none">$</span>
-            <span className="dark:text-slate-100 text-slate-900">{line.text}</span>
+            <span className="dark:text-slate-100 text-slate-900 break-words max-w-[240px]">{line.text}</span>
           </motion.div>
         ))}
         <motion.div
@@ -133,13 +131,16 @@ const CompilerConsole = () => {
 // Matrix Panel Component
 interface MatrixPanelProps {
   coords: { x: number; y: number };
+  scrollPercent: number;
+  fps: number;
+  coreActivity: number;
 }
 
-const MatrixPanel: React.FC<MatrixPanelProps> = ({ coords }) => {
+const MatrixPanel: React.FC<MatrixPanelProps> = ({ coords, scrollPercent, fps, coreActivity }) => {
   const metrics = [
     { label: 'MOUSE_INPUT', value: `${coords.x}% / ${coords.y}%` },
-    { label: 'PAGE_SCROLL', value: '0%' },
-    { label: 'ENGINE_FREQ', value: '60 FPS' },
+    { label: 'PAGE_SCROLL', value: `${scrollPercent}%` },
+    { label: 'ENGINE_FREQ', value: `${fps} FPS` },
     { label: 'PORTFOLIO_NODE', value: 'LIVE_RUNNING' },
   ];
 
@@ -174,15 +175,15 @@ const MatrixPanel: React.FC<MatrixPanelProps> = ({ coords }) => {
           <div className="flex justify-between items-center">
             <span className="text-[9px] font-mono text-gray-500">CORE ACTIVITY</span>
             <span className="text-[11px] font-mono dark:text-cyan-400 text-cyan-700 font-bold">
-              32 ms
+              {coreActivity} ms
             </span>
           </div>
           <div className="mt-1.5 h-1 dark:bg-gray-800 bg-slate-100 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
               initial={{ width: '0%' }}
-              animate={{ width: '68%' }}
-              transition={{ duration: 1, delay: 0.5 }}
+              animate={{ width: `${Math.min(100, (coreActivity / 80) * 100)}%` }}
+              transition={{ duration: 0.3 }}
             />
           </div>
         </div>
@@ -192,9 +193,12 @@ const MatrixPanel: React.FC<MatrixPanelProps> = ({ coords }) => {
 };
 
 // Sparkline Graph Component
-const SparklineGraph = () => {
-  const data = [42, 38, 55, 48, 62, 58, 45, 52, 48, 44, 38, 42];
+interface SparklineGraphProps {
+  data: number[];
+  memAlloc: string;
+}
 
+const SparklineGraph: React.FC<SparklineGraphProps> = ({ data, memAlloc }) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -213,11 +217,9 @@ const SparklineGraph = () => {
           {data.map((h, i) => (
             <motion.div
               key={i}
-              initial={{ height: 0 }}
+              className="flex-1 bg-cyan-500/60 dark:hover:bg-cyan-400 hover:bg-primary rounded-sm transition-all"
               animate={{ height: `${h}%` }}
-              transition={{ delay: 0.5 + i * 0.03, duration: 0.5 }}
-              className="flex-1 bg-cyan-500/60 dark:hover:bg-cyan-400 hover:bg-primary rounded-sm transition-colors"
-              style={{ height: `${h}%` }}
+              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
             />
           ))}
         </div>
@@ -228,7 +230,7 @@ const SparklineGraph = () => {
         </div>
         <div className="mt-2 pt-2 border-t dark:border-[#00ffff]/10 border-slate-100 flex justify-between text-[8px] font-mono">
           <span className="text-gray-500">MEM_ALLOC:</span>
-          <span className="dark:text-cyan-400 text-cyan-700">42.8MB</span>
+          <span className="dark:text-cyan-400 text-cyan-700">{memAlloc}</span>
         </div>
       </div>
     </motion.div>
@@ -243,6 +245,172 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [matrixCoords, setMatrixCoords] = useState({ x: 48, y: 62 });
+
+  // 1. Live page scroll tracker
+  const [scrollPercent, setScrollPercent] = useState(0);
+  useEffect(() => {
+    const handleScroll = () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight > 0) {
+        setScrollPercent(Math.round((window.scrollY / docHeight) * 100));
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 2. Real-time FPS (frame rate) tracker
+  const [fps, setFps] = useState(60);
+  useEffect(() => {
+    let lastTime = performance.now();
+    let frames = 0;
+    let frameId: number;
+    const calcFps = () => {
+      const now = performance.now();
+      frames++;
+      if (now > lastTime + 1000) {
+        setFps(Math.round((frames * 1000) / (now - lastTime)));
+        frames = 0;
+        lastTime = now;
+      }
+      frameId = requestAnimationFrame(calcFps);
+    };
+    frameId = requestAnimationFrame(calcFps);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
+  // 3. Simulated latency (Core activity) & Sparkline activity simulation
+  const [coreActivity, setCoreActivity] = useState(14);
+  const lastActivityTime = useRef(performance.now());
+  const lastHoverRef = useRef('');
+
+  const [activityData, setActivityData] = useState<number[]>([
+    24, 28, 22, 25, 20, 23, 19, 21, 18, 20, 22, 25
+  ]);
+  const [memAlloc, setMemAlloc] = useState('42.8MB');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const timeSinceLastActivity = performance.now() - lastActivityTime.current;
+      const isActive = timeSinceLastActivity < 250;
+
+      // Base CPU latency simulation (10-18ms baseline) plus active workflow spikes
+      const baseLatency = 10 + Math.floor(Math.random() * 8);
+      const activityOffset = isActive ? 15 + Math.floor(Math.random() * 25) : 0;
+      setCoreActivity(baseLatency + activityOffset);
+
+      // Fluctuate memory slightly to look alive
+      setMemAlloc((42.5 + Math.random() * 1.5).toFixed(1) + 'MB');
+
+      // Sparkline queue update
+      setActivityData((prev) => {
+        const nextVal = isActive
+          ? 55 + Math.floor(Math.random() * 35) // High activity spike (55-90%)
+          : 15 + Math.floor(Math.random() * 12); // Idle fluctuation (15-27%)
+        const newData = [...prev.slice(1), nextVal];
+        return newData;
+      });
+    }, 150);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Record user interactions for HUD spikes
+  useEffect(() => {
+    const recordActivity = () => {
+      lastActivityTime.current = performance.now();
+    };
+    window.addEventListener('mousemove', recordActivity, { passive: true });
+    window.addEventListener('scroll', recordActivity, { passive: true });
+    window.addEventListener('click', recordActivity, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', recordActivity);
+      window.removeEventListener('scroll', recordActivity);
+      window.removeEventListener('click', recordActivity);
+    };
+  }, []);
+
+  // 4. Interactive compiler shell logs state
+  const [consoleLogs, setConsoleLogs] = useState<Array<{ text: string; type: string }>>([
+    { text: 'dependencies resolved.', type: 'success' },
+    { text: 'server active on port 3000', type: 'info' },
+    { text: 'system state: fully functional', type: 'success' },
+    { text: 'synced projects count: 18+', type: 'info' },
+    { text: 'system_ready: listening...', type: 'success' }
+  ]);
+
+  const addLog = (text: string, type: 'info' | 'success' | 'warning' = 'info') => {
+    setConsoleLogs((prev) => {
+      const next = [...prev, { text, type }];
+      if (next.length > 5) {
+        next.shift();
+      }
+      return next;
+    });
+  };
+
+  // Capture actual mouse hover events over interactive items and write to terminal
+  useEffect(() => {
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const interactive = target.closest('a, button, [data-interactive], span');
+      if (interactive) {
+        const label = interactive.getAttribute('data-label') || 
+                      interactive.textContent?.trim().substring(0, 24) || 
+                      interactive.tagName.toLowerCase();
+        
+        const cleanLabel = label
+          .replace(/[^a-zA-Z0-9_\-\s]/g, '') // remove special chars
+          .trim()
+          .toLowerCase();
+        
+        if (cleanLabel && cleanLabel !== lastHoverRef.current && cleanLabel.length > 1) {
+          lastHoverRef.current = cleanLabel;
+          addLog(`hover: [${cleanLabel.substring(0, 16)}]`, 'info');
+        }
+      }
+    };
+
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const interactive = target.closest('a, button, [data-interactive]');
+      if (interactive) {
+        const label = interactive.getAttribute('data-label') || 
+                      interactive.textContent?.trim().substring(0, 20) || 
+                      interactive.tagName.toLowerCase();
+        const cleanLabel = label.replace(/[^a-zA-Z0-9_\-\s]/g, '').trim().toLowerCase();
+        addLog(`invoke: click [${cleanLabel}]`, 'success');
+      }
+    };
+
+    window.addEventListener('mouseover', handleMouseOver, { passive: true });
+    window.addEventListener('click', handleClick, { passive: true });
+    return () => {
+      window.removeEventListener('mouseover', handleMouseOver);
+      window.removeEventListener('click', handleClick);
+    };
+  }, []);
+
+  // Periodic random background messages
+  useEffect(() => {
+    const randomSystemMessages = [
+      { text: 'gc tick: memory cleanup ok', type: 'info' },
+      { text: 'db node sync: completed in 4ms', type: 'success' },
+      { text: 'toolkit cache hit: 98.4%', type: 'info' },
+      { text: 're-evaluating systems topology...', type: 'info' },
+      { text: 'network status: optimized latency', type: 'success' },
+      { text: 'watchdog: all nodes active', type: 'success' }
+    ];
+
+    const interval = setInterval(() => {
+      if (Math.random() > 0.4) {
+        const msg = randomSystemMessages[Math.floor(Math.random() * randomSystemMessages.length)];
+        addLog(msg.text, msg.type as 'info' | 'success');
+      }
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -298,22 +466,9 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
       ref={containerRef}
       className="relative w-full min-h-screen bg-gradient-to-br dark:from-[#0A0C10] dark:via-[#0F1219] dark:to-[#050608] from-[#F4F3F1] via-[#EAE9E6] to-[#E0DFDC] overflow-hidden"
     >
-      {/* Animated Grid Background */}
-      <div className="absolute inset-0 z-0 opacity-20 dark:block hidden">
-        <div
-          className="absolute inset-0 bg-repeat"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='%2300ffff' stroke-width='0.5' stroke-opacity='0.3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-      <div className="absolute inset-0 z-0 opacity-20 dark:hidden block">
-        <div
-          className="absolute inset-0 bg-repeat"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='%232196f3' stroke-width='0.5' stroke-opacity='0.25'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3C/svg%3E")`,
-          }}
-        />
+      {/* Live Interactive Physics Grid Background */}
+      <div className="absolute inset-0 z-0 opacity-40 dark:opacity-30 pointer-events-none">
+        <BlueprintCanvas isDarkMode={isDarkMode} />
       </div>
 
       {/* Scanline Effect */}
@@ -344,7 +499,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
             }}
             className="absolute right-6 top-6 pointer-events-auto origin-top-right transition-colors duration-300 scale-75 xl:scale-90 2xl:scale-100"
           >
-            <CompilerConsole />
+            <CompilerConsole logs={consoleLogs} />
           </motion.div>
           <motion.div
             style={{
@@ -353,7 +508,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
             }}
             className="absolute left-6 bottom-6 pointer-events-auto origin-bottom-left transition-colors duration-300 scale-75 xl:scale-90 2xl:scale-100"
           >
-            <MatrixPanel coords={matrixCoords} />
+            <MatrixPanel coords={matrixCoords} scrollPercent={scrollPercent} fps={fps} coreActivity={coreActivity} />
           </motion.div>
           <motion.div
             style={{
@@ -362,7 +517,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
             }}
             className="absolute right-6 bottom-6 pointer-events-auto origin-bottom-right transition-colors duration-300 scale-75 xl:scale-90 2xl:scale-100"
           >
-            <SparklineGraph />
+            <SparklineGraph data={activityData} memAlloc={memAlloc} />
           </motion.div>
         </div>
       </motion.div>      {/* Top Left Status */}
