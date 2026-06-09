@@ -68,17 +68,46 @@
     box-shadow: 0 0 20px rgba(33,150,243,0.15);
   }
 
+  /* PERFORMANCE FIX: Reduce shadow painting cost on mobile */
+  @media (max-width: 768px) {
+    .glow-border {
+      box-shadow: 0 0 10px rgba(33,150,243,0.08); 
+    }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .marquee-track {
       animation: marquee-scroll 40s linear infinite;
+      
+      /* PERFORMANCE FIXES FOR MOBILE */
+      will-change: transform;       /* Hints the browser to create a separate GPU layer */
+      backface-visibility: hidden;  /* Fixes visual flickering/glitching on iOS */
+      transform: translateZ(0);     /* Fallback to force hardware acceleration */
     }
+    
     .marquee-track:hover {
       animation-play-state: paused;
     }
   }
 
+  /* PERFORMANCE FIX: Use translate3d instead of translateX to force the GPU to handle the animation */
   @keyframes marquee-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+
+  /* Watermark Glazing and Sci-fi Grid Styles */
+  @keyframes glaze-sweep {
+    0% {
+      background-position: 0% 0%, -200% 0%, 0% 0%;
+    }
+    45%, 100% {
+      background-position: 0% 0%, 200% 0%, 0% 0%;
+    }
+  }
+
+  .text-glaze-shimmer {
+    background-size: 100% 100%, 200% 100%, 14px 14px;
+    animation: glaze-sweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 }

@@ -6,6 +6,7 @@ import {
   useSpring,
   useMotionValue,
   useMotionValueEvent,
+  useMotionTemplate,
 } from 'framer-motion';
 import BlueprintCanvas from './BlueprintCanvas';
 
@@ -501,6 +502,21 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
     h: typeof window !== 'undefined' ? window.innerHeight : 900,
   }));
 
+  // Interactive background layers for the glazed watermark
+  const watermarkBgDark = useMotionTemplate`
+    radial-gradient(circle 350px at ${smoothX}% ${smoothY}%, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0.08) 50%, transparent 100%),
+    linear-gradient(110deg, transparent 35%, rgba(34, 211, 238, 0.25) 45%, rgba(255, 255, 255, 0.6) 50%, rgba(34, 211, 238, 0.25) 55%, transparent 65%),
+    radial-gradient(rgba(34, 211, 238, 0.15) 1.5px, transparent 1.5px)
+  `;
+
+  const watermarkBgLight = useMotionTemplate`
+    radial-gradient(circle 350px at ${smoothX}% ${smoothY}%, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 100%),
+    linear-gradient(110deg, transparent 35%, rgba(59, 130, 246, 0.25) 45%, rgba(59, 130, 246, 0.5) 50%, rgba(59, 130, 246, 0.25) 55%, transparent 65%),
+    radial-gradient(rgba(59, 130, 246, 0.18) 1.5px, transparent 1.5px)
+  `;
+
+  const watermarkBg = isDarkMode ? watermarkBgDark : watermarkBgLight;
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Render
   // ─────────────────────────────────────────────────────────────────────────────
@@ -519,14 +535,40 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
         <div className="w-full h-[2px] dark:bg-cyan-400/20 bg-blue-500/10 absolute animate-scan" />
       </div>
 
-      {/* ENGINEER Watermark */}
+      {/* ENGINEER Watermark with Cyber-Glaze effect */}
       <motion.div
-        className="absolute top-[44%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none"
+        className="absolute top-[44%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden"
         style={{ y: bgY }}
       >
-        <h1 className="text-[20vw] md:text-[22vw] font-black leading-none tracking-[-0.05em] dark:text-cyan-500/[0.04] text-blue-500/[0.08] select-none whitespace-nowrap">
-          ENGINEER
-        </h1>
+        <div className="relative inline-block w-full">
+          {/* Layer 1: Under-Glow (Soft backing bloom) */}
+          <motion.h1
+            className="text-[18vw] md:text-[20vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap absolute inset-0 text-transparent opacity-60 blur-md dark:drop-shadow-[0_0_20px_rgba(34,211,238,0.25)] drop-shadow-[0_0_20px_rgba(59,130,246,0.18)]"
+            style={{
+              WebkitTextStroke: isDarkMode 
+                ? "1px rgba(34, 211, 238, 0.08)" 
+                : "1px rgba(59, 130, 246, 0.12)"
+            }}
+          >
+            ENGINEER
+          </motion.h1>
+
+          {/* Layer 2: Main Interactive Watermark text with Glaze, Grid Mesh & Shimmer Sweep */}
+          <motion.h1
+            className="relative text-[18vw] md:text-[20vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap text-transparent bg-clip-text text-glaze-shimmer"
+            style={{
+              backgroundImage: watermarkBg,
+              WebkitTextStroke: isDarkMode 
+                ? "1.5px rgba(34, 211, 238, 0.25)" 
+                : "1.5px rgba(59, 130, 246, 0.35)",
+              textShadow: isDarkMode 
+                ? "0 0 10px rgba(34, 211, 238, 0.05)" 
+                : "0 0 10px rgba(59, 130, 246, 0.04)"
+            }}
+          >
+            ENGINEER
+          </motion.h1>
+        </div>
       </motion.div>
 
       {/* Telemetry HUD — fades on scroll, hidden on mobile */}
@@ -602,7 +644,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
       {/* Main Nameplate — parallax slides down on scroll */}
       <div className="absolute inset-0 pointer-events-none z-40 flex items-end justify-center pb-6">
         <motion.div
-          className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl px-6"
+          className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-2xl px-6 scale-90 xl:scale-100 origin-bottom"
           style={{ y: reactiveYSpring }}
         >
           <motion.div
