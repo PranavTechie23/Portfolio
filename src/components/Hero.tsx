@@ -267,22 +267,24 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [matrixCoords, setMatrixCoords] = useState({ x: 48, y: 62 });
 
-  // ── Scroll percent ───────────────────────────────────────────────────────────
+  // ── Scroll percent (ref — no re-render on scroll) ──────────────────────────
+  const scrollPercentRef = useRef(0);
   const [scrollPercent, setScrollPercent] = useState(0);
   useEffect(() => {
     const handleScroll = () => {
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (docHeight > 0) {
-        setScrollPercent(Math.round((window.scrollY / docHeight) * 100));
+        scrollPercentRef.current = Math.round((window.scrollY / docHeight) * 100);
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // ── FPS tracker ──────────────────────────────────────────────────────────────
+  // ── FPS tracker (Desktop only) ───────────────────────────────────────────────
   const [fps, setFps] = useState(60);
   useEffect(() => {
+    if (isMobile) return;
     let lastTime = performance.now();
     let frames = 0;
     let frameId: number;
@@ -298,13 +300,14 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
     };
     frameId = requestAnimationFrame(calcFps);
     return () => cancelAnimationFrame(frameId);
-  }, []);
+  }, [isMobile]);
 
   // ── Shared activity timestamp ref ────────────────────────────────────────────
-  // Shared between the input-listener effect and the 150ms ticker effect.
+  // Shared between the input-listener effect and the 500ms ticker effect.
   const lastActivityTime = useRef(performance.now());
 
   useEffect(() => {
+    if (isMobile) return;
     const recordActivity = () => { lastActivityTime.current = performance.now(); };
     window.addEventListener('mousemove', recordActivity, { passive: true });
     window.addEventListener('scroll',    recordActivity, { passive: true });
@@ -314,9 +317,9 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
       window.removeEventListener('scroll',    recordActivity);
       window.removeEventListener('click',     recordActivity);
     };
-  }, []);
+  }, [isMobile]);
 
-  // ── Core activity + sparkline + memAlloc (150ms ticker) ──────────────────────
+  // ── Core activity + sparkline + memAlloc (500ms ticker, Desktop only) ─────────
   const [coreActivity, setCoreActivity] = useState(14);
   const [activityData, setActivityData] = useState<number[]>([
     24, 28, 22, 25, 20, 23, 19, 21, 18, 20, 22, 25,
@@ -324,6 +327,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
   const [memAlloc, setMemAlloc] = useState('42.8MB');
 
   useEffect(() => {
+    if (isMobile) return;
     const interval = setInterval(() => {
       const isActive = performance.now() - lastActivityTime.current < 250;
 
@@ -339,10 +343,13 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
           : 15 + Math.floor(Math.random() * 12); // idle  15-27%
         return [...prev.slice(1), nextVal];
       });
-    }, 150);
+
+      // Batch-sync the scroll percent ref into state (avoids per-scroll re-render)
+      setScrollPercent(scrollPercentRef.current);
+    }, 500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isMobile]);
 
   // ── Terminal logs ────────────────────────────────────────────────────────────
   // logIdRef lives outside the render cycle so IDs are always unique and stable.
@@ -364,9 +371,10 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
     });
   }, []);
 
-  // Hover / click → terminal
+  // Hover / click → terminal (Desktop only)
   const lastHoverRef = useRef('');
   useEffect(() => {
+    if (isMobile) return;
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const interactive = target.closest('a, button, [data-interactive], span');
@@ -415,10 +423,11 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
       window.removeEventListener('mouseover', handleMouseOver);
       window.removeEventListener('click',     handleClick);
     };
-  }, [addLog]);
+  }, [isMobile, addLog]);
 
-  // Periodic background system task messages
+  // Periodic background system task messages (Desktop only)
   useEffect(() => {
+    if (isMobile) return;
     const systemTasks: Array<{ text: string; type: ConsoleLog['type'] }> = [
       { text: 'gc tick: memory cleanup ok',         type: 'info'    },
       { text: 'db node sync: completed in 4ms',     type: 'success' },
@@ -438,7 +447,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
     }, 6000);
 
     return () => clearInterval(interval);
-  }, [addLog]);
+  }, [isMobile, addLog]);
 
   // ── Framer Motion: scroll progress + mouse tracking ──────────────────────────
   const { scrollYProgress } = useScroll({
@@ -525,9 +534,21 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
       ref={containerRef}
       className="relative w-full min-h-screen bg-gradient-to-br dark:from-[#0A0C10] dark:via-[#0F1219] dark:to-[#050608] from-[#F4F3F1] via-[#EAE9E6] to-[#E0DFDC] overflow-hidden"
     >
-      {/* Live Interactive Physics Grid Background */}
+      {/* Blueprint Grid Background: Light static CSS pattern for mobile (0% CPU), dynamic canvas for desktop */}
       <div className="absolute inset-0 z-0 opacity-40 dark:opacity-30 pointer-events-none">
-        <BlueprintCanvas isDarkMode={isDarkMode} />
+        {isMobile ? (
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: isDarkMode
+                ? 'radial-gradient(rgba(100, 116, 139, 0.4) 1.5px, transparent 1.5px), linear-gradient(to right, rgba(51, 65, 85, 0.16) 1px, transparent 1px), linear-gradient(to bottom, rgba(51, 65, 85, 0.16) 1px, transparent 1px)'
+                : 'radial-gradient(rgba(148, 163, 184, 0.4) 1.5px, transparent 1.5px), linear-gradient(to right, rgba(148, 163, 184, 0.16) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.16) 1px, transparent 1px)',
+              backgroundSize: '140px 140px, 140px 140px, 140px 140px',
+            }}
+          />
+        ) : (
+          <BlueprintCanvas isDarkMode={isDarkMode} />
+        )}
       </div>
 
       {/* Scanline Effect */}

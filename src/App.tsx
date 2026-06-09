@@ -11,7 +11,7 @@ import Platforms from './components/Platforms';
 import Journey from './components/Journey';
 import Contact from './components/Contact';
 import BackgroundSystem from './components/BackgroundSystem';
-import CustomCursor from './components/CustomCursor';
+
 import ScrollToTop from './components/ScrollToTop';
 import TechMarquee from './components/motion/TechMarquee';
 import { motion, useScroll, AnimatePresence } from 'framer-motion';
@@ -91,14 +91,13 @@ const App: React.FC = () => {
         {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
 
-      <ReactLenis root options={{ smoothTouch: false }}>
+      <ReactLenis root options={{ lerp: 0.1, duration: 1.2, smoothTouch: false, infinite: false }}>
         <div className="relative selection:bg-blue-500/30 selection:text-blue-200 bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
         <motion.div
           style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}
           className="fixed top-0 left-0 right-0 h-1 bg-primary z-[9999] shadow-[0_0_12px_rgba(33,150,243,0.8)]"
         />
         <BackgroundSystem />
-        <CustomCursor />
         <ScrollToTop />
         
         <Navbar activeSection={activeSection} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode((prev) => !prev)} />

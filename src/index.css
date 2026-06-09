@@ -37,6 +37,13 @@
     font-family: var(--font-body);
     overflow-x: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* GPU-promote sections and reduce reflow scope during scroll */
+  section {
+    contain: content;
+    will-change: auto;
   }
 
   html.dark {

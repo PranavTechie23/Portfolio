@@ -26,7 +26,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
 
     let animationId: number;
     let nodes: Node[][] = [];
-    const spacing = 95; // Larger grid cell size in pixels for a cleaner, less cluttered look
+    const spacing = window.innerWidth < 768 ? 140 : 95;
     let cols = 0;
     let rows = 0;
 
@@ -146,63 +146,61 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
         consecutiveStableFrames = 0;
       }
 
-      // 2. Draw Grid Mesh Lines
+      // 2. Draw Grid Mesh Lines — BATCHED into a single path for performance
       ctx.lineWidth = 0.75;
-      
+      ctx.strokeStyle = isDarkMode
+        ? 'rgba(51, 65, 85, 0.16)'
+        : 'rgba(148, 163, 184, 0.16)';
+
+      ctx.beginPath();
       for (let c = 0; c < cols; c++) {
         for (let r = 0; r < rows; r++) {
           const node = nodes[c][r];
 
-          // Set grid color based on mode
-          ctx.strokeStyle = isDarkMode 
-            ? 'rgba(51, 65, 85, 0.16)' 
-            : 'rgba(148, 163, 184, 0.16)';
-
           // Line to right neighbor
           if (c < cols - 1) {
             const rightNode = nodes[c + 1][r];
-            ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(rightNode.x, rightNode.y);
-            ctx.stroke();
           }
 
           // Line to bottom neighbor
           if (r < rows - 1) {
             const bottomNode = nodes[c][r + 1];
-            ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(bottomNode.x, bottomNode.y);
-            ctx.stroke();
           }
         }
       }
+      ctx.stroke();
 
-      // 3. Draw Grid Nodes & Active Cursor Connections
+      // 3. Draw Grid Nodes — BATCHED into a single fill path
+      ctx.fillStyle = isDarkMode
+        ? 'rgba(100, 116, 139, 0.4)'
+        : 'rgba(148, 163, 184, 0.4)';
+
+      ctx.beginPath();
       for (let c = 0; c < cols; c++) {
         for (let r = 0; r < rows; r++) {
           const node = nodes[c][r];
-
-          // Draw node dots
-          ctx.fillStyle = isDarkMode 
-            ? 'rgba(100, 116, 139, 0.4)' 
-            : 'rgba(148, 163, 184, 0.4)';
-          
-          ctx.beginPath();
+          ctx.moveTo(node.x + 1.5, node.y);
           ctx.arc(node.x, node.y, 1.5, 0, Math.PI * 2);
-          ctx.fill();
+        }
+      }
+      ctx.fill();
 
-          // Connect to mouse if active and close
-          if (m.active) {
+      // 4. Active Cursor Connections (per-line alpha — cannot batch)
+      if (m.active) {
+        for (let c = 0; c < cols; c++) {
+          for (let r = 0; r < rows; r++) {
+            const node = nodes[c][r];
             const dx = m.x - node.x;
             const dy = m.y - node.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist < 160) {
               const alpha = (1 - dist / 160) * 0.5;
-              ctx.strokeStyle = isDarkMode
-                ? `rgba(33, 150, 243, ${alpha})`
-                : `rgba(33, 150, 243, ${alpha})`;
+              ctx.strokeStyle = `rgba(33, 150, 243, ${alpha})`;
               ctx.lineWidth = 0.8 + (1 - dist / 160) * 1.5;
 
               ctx.beginPath();
@@ -272,6 +270,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 pointer-events-none block w-full h-full"
+      style={{ willChange: 'transform' }}
     />
   );
 };
