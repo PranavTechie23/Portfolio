@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ReactLenis } from 'lenis/react';
+import 'lenis/dist/lenis.css';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -27,6 +28,11 @@ const App: React.FC = () => {
       window.history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
+
+    // Clean hash from the URL bar on load/reload to reset to root '/'
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
   }, []);
 
   // Lock body scroll during preloader
@@ -91,7 +97,7 @@ const App: React.FC = () => {
         {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
 
-      <ReactLenis root options={{ lerp: 0.1, duration: 1.2, smoothTouch: false, infinite: false }}>
+      <ReactLenis root options={{ lerp: 0.1, duration: 1.0, syncTouch: true, touchMultiplier: 1.8, infinite: false }}>
         <div className="relative selection:bg-blue-500/30 selection:text-blue-200 bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
         <motion.div
           style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}

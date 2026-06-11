@@ -4,8 +4,16 @@ import { CountUp } from './AnimatedText';
 
 const About: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true, margin: "-10%" });
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const isInView = useInView(containerRef, { once: true, margin: isMobile ? "-4%" : "-10%" });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -24,7 +32,7 @@ const About: React.FC = () => {
       opacity: 1,
       y: 0,
       transition: {
-        duration: isMobile ? 0.35 : 0.8,
+        duration: isMobile ? 0.7 : 0.8,
         ease: [0.16, 1, 0.3, 1]
       }
     }

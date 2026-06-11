@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 
 const skillCategories = [
   {
@@ -71,8 +71,40 @@ const skillCategories = [
 
 const Skills: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-15%' });
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const isInView = useInView(ref, { once: true, margin: isMobile ? '-4%' : '-15%' });
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const cardsInView = useInView(cardsRef, { once: true, margin: isMobile ? '-8%' : '-15%' });
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start']
+  });
+
+  const prefersReducedMotion = useReducedMotion();
+
+  const yEvenTransform = useTransform(scrollYProgress, (v) => {
+    if (prefersReducedMotion) return 0;
+    const range = isMobile ? 24 : 60;
+    return (v - 0.5) * 2 * range;
+  });
+
+  const yOddTransform = useTransform(scrollYProgress, (v) => {
+    if (prefersReducedMotion) return 0;
+    const range = isMobile ? 24 : 60;
+    return (0.5 - v) * 2 * range;
+  });
+
+  const yEven = useSpring(yEvenTransform, { damping: 25, stiffness: 120 });
+  const yOdd = useSpring(yOddTransform, { damping: 25, stiffness: 120 });
 
   return (
     <div ref={ref} className="w-full">
@@ -81,7 +113,7 @@ const Skills: React.FC = () => {
         className="mb-16"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: isMobile ? 0.35 : 0.6 }}
+        transition={{ duration: isMobile ? 0.6 : 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="space-y-4">
           <div className="flex items-center gap-4">
@@ -96,108 +128,117 @@ const Skills: React.FC = () => {
 
       {/* Cards */}
       <div 
+        ref={cardsRef}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
         style={{ perspective: "1000px" }}
       >
-        {skillCategories.map((category, idx) => (
-          <motion.div
-            key={idx}
-            className="group relative flex flex-col p-7 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl cursor-default"
-            style={{ '--accent': category.accent } as React.CSSProperties}
-            initial={{ opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
-            animate={isInView ? { opacity: 1, y: 0, scale: 1, rotateX: 0 } : { opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
-            transition={{ 
-              duration: isMobile ? 0.35 : 0.65, 
-              delay: idx * (isMobile ? 0.08 : 0.14),
-              ease: [0.16, 1, 0.3, 1]
-            }}
-            whileHover={{ y: -6, transition: { duration: 0.3 } }}
-          >
-            {/* Accent glow top bar */}
-            <div
-              className="absolute top-0 left-0 right-0 h-[3px] opacity-60 group-hover:opacity-100 transition-opacity duration-500"
-              style={{ background: `linear-gradient(90deg, ${category.accent}, transparent)` }}
-            />
-
-            {/* Entrance shine sweep effect */}
+        {skillCategories.map((category, idx) => {
+          const yDrift = idx % 2 === 0 ? yEven : yOdd;
+          return (
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 dark:via-white/5 to-transparent -skew-x-12 -left-full pointer-events-none"
-              animate={isInView ? { left: ["-100%", "200%"] } : {}}
-              transition={{ duration: 1.2, delay: 0.4 + idx * 0.14, ease: "easeInOut" }}
-            />
-
-            {/* Background glow blob */}
-            <div
-              className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none"
-              style={{ backgroundColor: category.accent }}
-            />
-
-            {/* Index number */}
-            <span className="absolute top-5 right-6 text-[11px] font-mono font-black text-gray-200 dark:text-slate-700 group-hover:text-gray-300 dark:group-hover:text-slate-600 transition-colors">
-              {String(idx + 1).padStart(2, '0')}
-            </span>
-
-            {/* Icon + label */}
-            <div className="flex items-center gap-3 mb-6">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500"
-                style={{ backgroundColor: category.accent }}
+              key={idx}
+              style={{ y: yDrift, willChange: 'transform' }}
+              className="w-full"
+            >
+              <motion.div
+                className="group relative flex flex-col p-7 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl cursor-default"
+                style={{ '--accent': category.accent } as React.CSSProperties}
+                initial={{ opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
+                animate={cardsInView ? { opacity: 1, y: 0, scale: 1, rotateX: 0 } : { opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
+                transition={{ 
+                  duration: isMobile ? 0.6 : 0.65, 
+                  delay: idx * (isMobile ? 0.12 : 0.14),
+                  ease: [0.16, 1, 0.3, 1]
+                }}
+                whileHover={{ y: -6, transition: { duration: 0.3 } }}
               >
-                {category.icon}
-              </div>
-              <div>
-                <h3 className="text-base font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tight leading-none">
-                  {category.title}
-                </h3>
-                <p className="text-[10px] font-mono text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">
-                  {category.label}
-                </p>
-              </div>
-            </div>
+                {/* Accent glow top bar */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-[3px] opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{ background: `linear-gradient(90deg, ${category.accent}, transparent)` }}
+                />
 
-            {/* Divider */}
-            <div className="h-px w-full bg-gray-100 dark:bg-slate-800 mb-5" />
+                {/* Entrance shine sweep effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 dark:via-white/5 to-transparent -skew-x-12 -left-full pointer-events-none"
+                  animate={cardsInView ? { left: ["-100%", "200%"] } : {}}
+                  transition={{ duration: 1.2, delay: 0.4 + idx * 0.14, ease: "easeInOut" }}
+                />
 
-            {/* Skills with animated progress bars */}
-            <ul className="space-y-4 flex-grow">
-              {category.skills.map((skill, sIdx) => (
-                <li key={sIdx} className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-gray-800 dark:group-hover:text-slate-200 transition-colors duration-300">
-                      {skill.name}
-                    </span>
-                    <span
-                      className="text-[10px] font-mono font-black opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                      style={{ color: category.accent }}
-                    >
-                      {skill.level}%
-                    </span>
+                {/* Background glow blob */}
+                <div
+                  className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none"
+                  style={{ backgroundColor: category.accent }}
+                />
+
+                {/* Index number */}
+                <span className="absolute top-5 right-6 text-[11px] font-mono font-black text-gray-200 dark:text-slate-700 group-hover:text-gray-300 dark:group-hover:text-slate-600 transition-colors">
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+
+                {/* Icon + label */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500"
+                    style={{ backgroundColor: category.accent }}
+                  >
+                    {category.icon}
                   </div>
-                  {/* Progress bar */}
-                  <div className="h-[3px] w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: category.accent }}
-                      initial={{ width: 0 }}
-                      animate={isInView ? { width: `${skill.level}%` } : { width: 0 }}
-                      transition={{ duration: isMobile ? 0.5 : 1.0, delay: (isMobile ? 0.15 : 0.3) + idx * (isMobile ? 0.06 : 0.12) + sIdx * (isMobile ? 0.04 : 0.08), ease: 'easeOut' }}
-                    />
+                  <div>
+                    <h3 className="text-base font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tight leading-none">
+                      {category.title}
+                    </h3>
+                    <p className="text-[10px] font-mono text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">
+                      {category.label}
+                    </p>
                   </div>
-                </li>
-              ))}
-            </ul>
+                </div>
 
-            {/* Footer badge */}
-            <div className="mt-6 pt-4 border-t border-gray-100 dark:border-slate-800">
-              <span
-                className="text-[9px] font-mono font-black uppercase tracking-[0.25em] opacity-50 group-hover:opacity-100 transition-opacity duration-500"
-                style={{ color: category.accent }}
-              >
-                {category.skills.length} skills
-              </span>
-            </div>
-          </motion.div>
-        ))}
+                {/* Divider */}
+                <div className="h-px w-full bg-gray-100 dark:bg-slate-800 mb-5" />
+
+                {/* Skills with animated progress bars */}
+                <ul className="space-y-4 flex-grow">
+                  {category.skills.map((skill, sIdx) => (
+                    <li key={sIdx} className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-mono font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-gray-800 dark:group-hover:text-slate-200 transition-colors duration-300">
+                          {skill.name}
+                        </span>
+                        <span
+                          className="text-[10px] font-mono font-black opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                          style={{ color: category.accent }}
+                        >
+                          {skill.level}%
+                        </span>
+                      </div>
+                      {/* Progress bar */}
+                      <div className="h-[3px] w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: category.accent }}
+                          initial={{ width: 0 }}
+                          animate={cardsInView ? { width: `${skill.level}%` } : { width: 0 }}
+                          transition={{ duration: isMobile ? 0.8 : 1.0, delay: (isMobile ? 0.25 : 0.3) + idx * (isMobile ? 0.1 : 0.12) + sIdx * (isMobile ? 0.05 : 0.08), ease: [0.16, 1, 0.3, 1] }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Footer badge */}
+                <div className="mt-6 pt-4 border-t border-gray-100 dark:border-slate-800">
+                  <span
+                    className="text-[9px] font-mono font-black uppercase tracking-[0.25em] opacity-50 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{ color: category.accent }}
+                  >
+                    {category.skills.length} skills
+                  </span>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

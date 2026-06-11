@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useInView, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import TiltCard from './motion/TiltCard';
 
@@ -52,8 +52,40 @@ const platforms = [
 
 const Platforms: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-20%' });
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const isInView = useInView(ref, { once: true, margin: isMobile ? '-4%' : '-20%' });
+  const gridRef = useRef<HTMLDivElement>(null);
+  const gridInView = useInView(gridRef, { once: true, margin: isMobile ? '-8%' : '-15%' });
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start']
+  });
+
+  const prefersReducedMotion = useReducedMotion();
+
+  const yEvenTransform = useTransform(scrollYProgress, (v) => {
+    if (prefersReducedMotion) return 0;
+    const range = isMobile ? 20 : 45;
+    return (v - 0.5) * 2 * range;
+  });
+
+  const yOddTransform = useTransform(scrollYProgress, (v) => {
+    if (prefersReducedMotion) return 0;
+    const range = isMobile ? 20 : 45;
+    return (0.5 - v) * 2 * range;
+  });
+
+  const yEven = useSpring(yEvenTransform, { damping: 25, stiffness: 120 });
+  const yOdd = useSpring(yOddTransform, { damping: 25, stiffness: 120 });
 
   return (
     <div ref={ref} className="w-full flex flex-col space-y-8 bg-gray-50/50 dark:bg-slate-900/60 p-6 sm:p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[2rem]">
@@ -61,7 +93,7 @@ const Platforms: React.FC = () => {
         className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: isMobile ? 0.35 : 0.6, ease: "easeOut" }}
+        transition={{ duration: isMobile ? 0.6 : 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="space-y-4">
           <div className="flex items-center gap-4">
@@ -82,46 +114,52 @@ const Platforms: React.FC = () => {
         </a>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+      <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
         {platforms.map((platform, idx) => {
           const Icon = platform.icon;
+          const yDrift = idx % 2 === 0 ? yEven : yOdd;
           return (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: 40 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-              transition={{ duration: isMobile ? 0.35 : 0.6, delay: (isMobile ? 0.1 : 0.2) + idx * (isMobile ? 0.05 : 0.1), ease: "easeOut" }}
-              className="h-full"
+              style={{ y: yDrift, willChange: 'transform' }}
+              className="h-full w-full"
             >
-            <TiltCard
-              as="a"
-              href={platform.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative flex flex-col p-6 sm:p-8 md:p-8 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[2rem] overflow-hidden transition-all duration-500 hover:border-primary/30 hover:shadow-2xl min-h-[200px] sm:min-h-[230px] md:min-h-[250px] h-full"
-              intensity={7}
-            >
-              {/* Highlight background */}
-              <div className="absolute inset-x-0 bottom-0 h-1 bg-gray-50 dark:bg-slate-800 group-hover:h-full group-hover:bg-primary/5 transition-all duration-500" />
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={gridInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+                transition={{ duration: isMobile ? 0.6 : 0.6, delay: (isMobile ? 0.15 : 0.2) + idx * (isMobile ? 0.1 : 0.12), ease: [0.16, 1, 0.3, 1] }}
+                className="h-full"
+              >
+                <TiltCard
+                  as="a"
+                  href={platform.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative flex flex-col p-6 sm:p-8 md:p-8 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[2rem] overflow-hidden transition-all duration-500 hover:border-primary/30 hover:shadow-2xl min-h-[200px] sm:min-h-[230px] md:min-h-[250px] h-full"
+                  intensity={7}
+                >
+                  {/* Highlight background */}
+                  <div className="absolute inset-x-0 bottom-0 h-1 bg-gray-50 dark:bg-slate-800 group-hover:h-full group-hover:bg-primary/5 transition-all duration-500" />
 
-              <div className="relative z-10 flex flex-col h-full gap-4">
-                <div className="p-3.5 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 w-fit rounded-2xl group-hover:bg-primary group-hover:border-primary text-gray-950 dark:text-slate-100 group-hover:text-white transition-all duration-500 group-hover:rotate-6">
-                  <Icon />
-                </div>
+                  <div className="relative z-10 flex flex-col h-full gap-4">
+                    <div className="p-3.5 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 w-fit rounded-2xl group-hover:bg-primary group-hover:border-primary text-gray-950 dark:text-slate-100 group-hover:text-white transition-all duration-500 group-hover:rotate-6">
+                      <Icon />
+                    </div>
 
-                <div className="space-y-1.5 flex-grow">
-                  <h3 className="text-xl sm:text-2xl font-black font-heading text-gray-950 dark:text-slate-100 group-hover:text-primary transition-colors uppercase tracking-tight italic">{platform.name}</h3>
-                  <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-slate-400 leading-relaxed italic">{platform.description}</p>
-                </div>
+                    <div className="space-y-1.5 flex-grow">
+                      <h3 className="text-xl sm:text-2xl font-black font-heading text-gray-950 dark:text-slate-100 group-hover:text-primary transition-colors uppercase tracking-tight italic">{platform.name}</h3>
+                      <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-slate-400 leading-relaxed italic">{platform.description}</p>
+                    </div>
 
-                <div className="pt-4 flex items-center justify-between border-t border-gray-100 dark:border-slate-800 mt-auto">
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 dark:text-slate-400 font-mono font-black group-hover:text-primary transition-colors">Connect</span>
-                  <div className="w-8 h-8 rounded-full border border-gray-100 dark:border-slate-700 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all">
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    <div className="pt-4 flex items-center justify-between border-t border-gray-100 dark:border-slate-800 mt-auto">
+                      <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 dark:text-slate-400 font-mono font-black group-hover:text-primary transition-colors">Connect</span>
+                      <div className="w-8 h-8 rounded-full border border-gray-100 dark:border-slate-700 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all">
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </TiltCard>
+                </TiltCard>
+              </motion.div>
             </motion.div>
           );
         })}

@@ -7,6 +7,7 @@ import {
   useMotionValue,
   useMotionValueEvent,
   useMotionTemplate,
+  useReducedMotion,
 } from 'framer-motion';
 import BlueprintCanvas from './BlueprintCanvas';
 
@@ -492,8 +493,17 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
   // ── Derived motion values — MUST live at component top level, never in JSX ──
   // Calling useTransform() inside JSX return is a Rules-of-Hooks violation.
   const hudOpacity      = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
-  const bgY             = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
-  const reactiveY       = useTransform(scrollYProgress, [0, 1], ['0%', '25%']);
+  const prefersReducedMotion = useReducedMotion();
+  const bgY = useTransform(scrollYProgress, (v) => {
+    if (prefersReducedMotion) return '0%';
+    const shiftPercent = isMobile ? 18 : 40;
+    return `${v * shiftPercent}%`;
+  });
+  const reactiveY = useTransform(scrollYProgress, (v) => {
+    if (prefersReducedMotion) return '0%';
+    const shiftPercent = isMobile ? 10 : 25;
+    return `${v * shiftPercent}%`;
+  });
   const reactiveYSpring = useSpring(reactiveY, { damping: 35, stiffness: 90 });
 
   // HUD parallax — each panel drifts in a different direction with the mouse
@@ -557,40 +567,76 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
       </div>
 
       {/* ENGINEER Watermark with Cyber-Glaze effect */}
-      <motion.div
-        className="absolute top-[44%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden"
-        style={{ y: bgY }}
-      >
-        <div className="relative inline-block w-full">
-          {/* Layer 1: Under-Glow (Soft backing bloom) */}
-          <motion.h1
-            className="text-[18vw] md:text-[20vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap absolute inset-0 text-transparent opacity-60 blur-md dark:drop-shadow-[0_0_20px_rgba(34,211,238,0.25)] drop-shadow-[0_0_20px_rgba(59,130,246,0.18)]"
-            style={{
-              WebkitTextStroke: isDarkMode 
-                ? "1px rgba(34, 211, 238, 0.08)" 
-                : "1px rgba(59, 130, 246, 0.12)"
-            }}
-          >
-            ENGINEER
-          </motion.h1>
+      {isMobile ? (
+        <motion.div
+          className="absolute top-[44%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden"
+          style={{ y: bgY, willChange: 'transform' }}
+        >
+          <div className="relative inline-block w-full">
+            {/* Layer 1: Under-Glow */}
+            <h1
+              className="text-[18vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap absolute inset-0 text-transparent opacity-60 blur-md"
+              style={{
+                WebkitTextStroke: isDarkMode 
+                  ? "1px rgba(34, 211, 238, 0.08)" 
+                  : "1px rgba(59, 130, 246, 0.12)"
+              }}
+            >
+              ENGINEER
+            </h1>
 
-          {/* Layer 2: Main Interactive Watermark text with Glaze, Grid Mesh & Shimmer Sweep */}
-          <motion.h1
-            className="relative text-[18vw] md:text-[20vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap text-transparent bg-clip-text text-glaze-shimmer"
-            style={{
-              backgroundImage: watermarkBg,
-              WebkitTextStroke: isDarkMode 
-                ? "1.5px rgba(34, 211, 238, 0.25)" 
-                : "1.5px rgba(59, 130, 246, 0.35)",
-              textShadow: isDarkMode 
-                ? "0 0 10px rgba(34, 211, 238, 0.05)" 
-                : "0 0 10px rgba(59, 130, 246, 0.04)"
-            }}
-          >
-            ENGINEER
-          </motion.h1>
-        </div>
-      </motion.div>
+            {/* Layer 2: Main text with static background for performance */}
+            <h1
+              className="relative text-[18vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap text-transparent bg-clip-text text-glaze-shimmer"
+              style={{
+                backgroundImage: isDarkMode
+                  ? 'radial-gradient(circle 350px at 50% 50%, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0.08) 50%, transparent 100%), radial-gradient(rgba(34, 211, 238, 0.15) 1.5px, transparent 1.5px)'
+                  : 'radial-gradient(circle 350px at 50% 50%, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 100%), radial-gradient(rgba(59, 130, 246, 0.18) 1.5px, transparent 1.5px)',
+                WebkitTextStroke: isDarkMode 
+                  ? "1.5px rgba(34, 211, 238, 0.25)" 
+                  : "1.5px rgba(59, 130, 246, 0.35)"
+              }}
+            >
+              ENGINEER
+            </h1>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          className="absolute top-[44%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden"
+          style={{ y: bgY }}
+        >
+          <div className="relative inline-block w-full">
+            {/* Layer 1: Under-Glow (Soft backing bloom) */}
+            <motion.h1
+              className="text-[18vw] md:text-[20vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap absolute inset-0 text-transparent opacity-60 blur-md dark:drop-shadow-[0_0_20px_rgba(34,211,238,0.25)] drop-shadow-[0_0_20px_rgba(59,130,246,0.18)]"
+              style={{
+                WebkitTextStroke: isDarkMode 
+                  ? "1px rgba(34, 211, 238, 0.08)" 
+                  : "1px rgba(59, 130, 246, 0.12)"
+              }}
+            >
+              ENGINEER
+            </motion.h1>
+
+            {/* Layer 2: Main Interactive Watermark text with Glaze, Grid Mesh & Shimmer Sweep */}
+            <motion.h1
+              className="relative text-[18vw] md:text-[20vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap text-transparent bg-clip-text text-glaze-shimmer"
+              style={{
+                backgroundImage: watermarkBg,
+                WebkitTextStroke: isDarkMode 
+                  ? "1.5px rgba(34, 211, 238, 0.25)" 
+                  : "1.5px rgba(59, 130, 246, 0.35)",
+                textShadow: isDarkMode 
+                  ? "0 0 10px rgba(34, 211, 238, 0.05)" 
+                  : "0 0 10px rgba(59, 130, 246, 0.04)"
+              }}
+            >
+              ENGINEER
+            </motion.h1>
+          </div>
+        </motion.div>
+      )}
 
       {/* Telemetry HUD — fades on scroll, hidden on mobile */}
       <motion.div
@@ -801,7 +847,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
 
       {/* Floating Particles */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(isMobile ? 6 : 20)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-0.5 h-0.5 bg-cyan-400/30 rounded-full"

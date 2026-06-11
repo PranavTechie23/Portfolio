@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useInView, useScroll, useSpring, useReducedMotion } from 'framer-motion';
 
 
 const journeyItems = [
@@ -22,8 +22,27 @@ const journeyItems = [
 
 const Journey: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-10%' });
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const isInView = useInView(ref, { once: true, margin: isMobile ? '-4%' : '-10%' });
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const timelineInView = useInView(timelineRef, { once: true, margin: isMobile ? '-8%' : '-15%' });
+  const resumeRef = useRef<HTMLDivElement>(null);
+  const resumeInView = useInView(resumeRef, { once: true, margin: isMobile ? '-8%' : '-15%' });
+  const { scrollYProgress: lineProgress } = useScroll({
+    target: timelineRef,
+    offset: ['start center', 'end center'],
+  });
+  const scrollLineProgress = useSpring(lineProgress, { damping: 25, stiffness: 120 });
+  const prefersReducedMotion = useReducedMotion();
+  const scaleY = prefersReducedMotion ? 1 : scrollLineProgress;
 
   return (
     <div ref={ref} className="w-full">
@@ -31,7 +50,7 @@ const Journey: React.FC = () => {
         className="mb-20 space-y-4"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: isMobile ? 0.35 : 0.6 }}
+        transition={{ duration: isMobile ? 0.6 : 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="flex items-center gap-4">
           <div className="h-[2px] w-8 bg-primary" />
@@ -44,29 +63,32 @@ const Journey: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start relative">
         {/* Left column: Timeline */}
-        <div className="lg:col-span-7 relative">
+        <div ref={timelineRef} className="lg:col-span-7 relative">
+          {/* Background track vertical line */}
+          <div className="absolute left-0 top-6 bottom-6 w-px bg-gray-200 dark:bg-slate-800" />
+          {/* Animated scroll progress vertical line */}
+          <motion.div
+            style={{
+              scaleY,
+              transformOrigin: 'top',
+            }}
+            className="absolute left-0 top-6 bottom-6 w-0.5 bg-primary"
+          />
           {journeyItems.map((item, idx) => (
             <motion.div 
               key={idx} 
               className={`relative pl-12 group ${idx < journeyItems.length - 1 ? 'pb-16' : 'pb-0'}`}
               initial={{ opacity: 0, x: -40 }}
-              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
-              transition={{ duration: isMobile ? 0.35 : 0.7, delay: (isMobile ? 0.1 : 0.2) + idx * (isMobile ? 0.08 : 0.15), ease: [0.16, 1, 0.3, 1] }}
+              animate={timelineInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
+              transition={{ duration: isMobile ? 0.65 : 0.7, delay: (isMobile ? 0.15 : 0.2) + idx * (isMobile ? 0.1 : 0.15), ease: [0.16, 1, 0.3, 1] }}
               whileHover={{ x: 8 }}
             >
-              {idx < journeyItems.length - 1 && (
-                <motion.div
-                  className="absolute left-0 top-7 bottom-0 w-[1px] bg-gray-200 dark:bg-slate-800 origin-top"
-                  initial={{ scaleY: 0 }}
-                  animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
-                  transition={{ duration: 0.8, delay: idx * 0.15 }}
-                />
-              )}
+
 
               <motion.div
                 className="absolute left-[-5px] top-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(33,150,243,0.3)]"
                 initial={{ scale: 0 }}
-                animate={isInView ? { scale: 1 } : { scale: 0 }}
+                animate={timelineInView ? { scale: 1 } : { scale: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 15, delay: (isMobile ? 0.15 : 0.3) + idx * (isMobile ? 0.08 : 0.15) }}
                 whileHover={{ scale: 1.6, boxShadow: '0 0 20px rgba(33,150,243,0.6)' }}
               />
@@ -92,12 +114,12 @@ const Journey: React.FC = () => {
         </div>
 
         {/* Right column: Resume Card */}
-        <div className="lg:col-span-5 w-full">
+        <div ref={resumeRef} className="lg:col-span-5 w-full">
           <motion.div
             className="group relative bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-8 sm:p-10 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-primary/40 hover:shadow-2xl flex flex-col gap-6"
             initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            animate={resumeInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Background Glow Accent */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 blur-3xl group-hover:bg-primary/10 transition-all duration-500" />

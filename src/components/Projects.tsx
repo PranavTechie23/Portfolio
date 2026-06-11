@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, ExternalLink, Building2, HeartPulse, Briefcase, CreditCard, CheckSquare, Train, Car, Grid2X2, BarChart2, Stethoscope } from 'lucide-react';
 import TiltCard from './motion/TiltCard';
 
@@ -7,22 +7,30 @@ const colorMap = [
   {
     accent: 'from-[#534AB7] to-[#7F77DD]',
     iconBg: 'bg-[#EEEDFE] text-[#534AB7] dark:bg-[#26215C] dark:text-[#CECBF6]',
-    tagHover: 'group-hover:border-[#AFA9EC]/60 group-hover:text-[#534AB7] dark:group-hover:text-[#CECBF6]',
+    textHover: 'group-hover:text-[#534AB7] dark:group-hover:text-[#CECBF6]',
+    borderHover: 'hover:border-[#534AB7]/40 dark:hover:border-[#CECBF6]/30',
+    tagHover: 'hover:border-[#534AB7]/30 dark:hover:border-[#CECBF6]/20 hover:text-[#534AB7] dark:hover:text-[#CECBF6]',
   },
   {
     accent: 'from-[#0F6E56] to-[#1D9E75]',
     iconBg: 'bg-[#E1F5EE] text-[#0F6E56] dark:bg-[#04342C] dark:text-[#9FE1CB]',
-    tagHover: 'group-hover:border-[#5DCAA5]/60 group-hover:text-[#0F6E56] dark:group-hover:text-[#9FE1CB]',
+    textHover: 'group-hover:text-[#0F6E56] dark:group-hover:text-[#9FE1CB]',
+    borderHover: 'hover:border-[#0F6E56]/40 dark:hover:border-[#9FE1CB]/30',
+    tagHover: 'hover:border-[#0F6E56]/30 dark:hover:border-[#9FE1CB]/20 hover:text-[#0F6E56] dark:hover:text-[#9FE1CB]',
   },
   {
     accent: 'from-[#993C1D] to-[#D85A30]',
     iconBg: 'bg-[#FAECE7] text-[#993C1D] dark:bg-[#4A1B0C] dark:text-[#F0997B]',
-    tagHover: 'group-hover:border-[#F0997B]/60 group-hover:text-[#993C1D] dark:group-hover:text-[#F0997B]',
+    textHover: 'group-hover:text-[#993C1D] dark:group-hover:text-[#F0997B]',
+    borderHover: 'hover:border-[#993C1D]/40 dark:hover:border-[#F0997B]/30',
+    tagHover: 'hover:border-[#993C1D]/30 dark:hover:border-[#F0997B]/20 hover:text-[#993C1D] dark:hover:text-[#F0997B]',
   },
   {
     accent: 'from-[#993556] to-[#D4537E]',
     iconBg: 'bg-[#FBEAF0] text-[#993556] dark:bg-[#4B1528] dark:text-[#ED93B1]',
-    tagHover: 'group-hover:border-[#ED93B1]/60 group-hover:text-[#993556] dark:group-hover:text-[#ED93B1]',
+    textHover: 'group-hover:text-[#993556] dark:group-hover:text-[#ED93B1]',
+    borderHover: 'hover:border-[#993556]/40 dark:hover:border-[#ED93B1]/30',
+    tagHover: 'hover:border-[#993556]/30 dark:hover:border-[#ED93B1]/20 hover:text-[#993556] dark:hover:text-[#ED93B1]',
   },
 ];
 
@@ -92,7 +100,7 @@ const projects = [
     colorIdx: 3,
   },
   {
-    name: "Loan Approval Intelligence",
+    name: "Loan Approval Prediction",
     description: "Intelligent system for loan approval prediction using advanced machine learning models and data analytics to streamline financial decisions.",
     stack: ["Machine Learning", "Data Analytics", "Python"],
     url: "https://github.com/PranavTechie23/Loan-Approval-Intelligence",
@@ -100,9 +108,9 @@ const projects = [
     colorIdx: 0,
   },
   {
-    name: "Multi-Clinic Management System",
+    name: "Multi-Clinic Management",
     description: "Comprehensive software solution for managing multiple clinics, streamlining patient records, scheduling, and medical workflows.",
-    stack: ["Software Dev", "Management System", "Healthcare"],
+    stack: ["Software Dev", "Management", "Healthcare"],
     url: "https://github.com/PranavTechie23/multi-clinic-system",
     icon: Stethoscope,
     colorIdx: 1,
@@ -113,7 +121,6 @@ const PROJECTS_PER_PAGE = 4;
 
 const Projects: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-10%' });
   const [currentPage, setCurrentPage] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -124,6 +131,32 @@ const Projects: React.FC = () => {
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, []);
+
+  const isInView = useInView(ref, { once: true, margin: isMobile ? '-4%' : '-10%' });
+  const gridRef = useRef<HTMLDivElement>(null);
+  const gridInView = useInView(gridRef, { once: true, margin: isMobile ? '-8%' : '-12%' });
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start']
+  });
+
+  const prefersReducedMotion = useReducedMotion();
+
+  const yEvenTransform = useTransform(scrollYProgress, (v) => {
+    if (prefersReducedMotion) return 0;
+    const range = isMobile ? 20 : 50;
+    return (v - 0.5) * 2 * range;
+  });
+
+  const yOddTransform = useTransform(scrollYProgress, (v) => {
+    if (prefersReducedMotion) return 0;
+    const range = isMobile ? 20 : 50;
+    return (0.5 - v) * 2 * range;
+  });
+
+  const yEven = useSpring(yEvenTransform, { damping: 25, stiffness: 120 });
+  const yOdd = useSpring(yOddTransform, { damping: 25, stiffness: 120 });
 
   const totalPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
   const currentProjects = projects.slice(
@@ -160,7 +193,7 @@ const Projects: React.FC = () => {
     scrollToSection();
   };
 
-  const dur = isMobile ? 0.35 : 0.6;
+  const dur = isMobile ? 0.6 : 0.6;
 
   return (
     <div ref={ref} className="w-full">
@@ -169,7 +202,7 @@ const Projects: React.FC = () => {
         className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: dur }}
+        transition={{ duration: dur, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="space-y-4">
           <div className="flex items-center gap-4">
@@ -199,65 +232,120 @@ const Projects: React.FC = () => {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentPage}
-          className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          ref={gridRef}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-10"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: isMobile ? 0.1 : 0.12,
+              }
+            }
+          }}
+          initial="hidden"
+          animate={gridInView ? "visible" : "hidden"}
+          exit="hidden"
         >
-          {currentProjects.map((item) => {
+          {currentProjects.map((item, idx) => {
             const color = colorMap[item.colorIdx];
             const Icon = item.icon;
+            const yDrift = idx % 2 === 0 ? yEven : yOdd;
 
             return (
-              <TiltCard
+              <motion.div
                 key={item.name}
-                as="a"
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`View project: ${item.name}`}
-                className="group relative bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl overflow-hidden flex flex-col min-h-[240px] sm:min-h-[260px] h-full hover:border-gray-200 dark:hover:border-slate-700 transition-all duration-300 hover:-translate-y-1"
-                intensity={6}
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { 
+                    opacity: 1, 
+                    transition: { 
+                      duration: 0.4,
+                      staggerChildren: 0.05
+                    } 
+                  }
+                }}
+                style={{ y: yDrift, willChange: 'transform' }}
+                className="h-full w-full"
               >
-                {/* Colored accent bar */}
-                <div className={`h-[3px] w-full bg-gradient-to-r ${color.accent} flex-shrink-0`} />
+                <motion.div
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+                  }}
+                  className="h-full"
+                >
+                  <TiltCard
+                    key={item.name}
+                    as="a"
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`View project: ${item.name}`}
+                    className={`group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-150 dark:border-slate-800/80 rounded-3xl overflow-hidden flex flex-col min-h-[280px] h-full transition-all duration-500 hover:shadow-2xl ${color.borderHover}`}
+                    intensity={6}
+                  >
+                    {/* Glowing outer backdrop border glow on hover */}
+                    <div className={`absolute -inset-px bg-gradient-to-r ${color.accent} rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none -z-10`} />
 
-                <div className="flex flex-col flex-1 p-6 sm:p-8">
-                  {/* Icon row */}
-                  <div className="flex items-start justify-between mb-5">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color.iconBg} transition-transform duration-300 group-hover:scale-110`}>
-                      <Icon className="w-5 h-5" strokeWidth={1.75} />
+                    {/* Mechanical dot mesh grid overlay */}
+                    <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#1e293b_1.5px,transparent_1.5px)] [background-size:20px_20px] opacity-25 pointer-events-none" />
+
+                    {/* Colored accent top bar */}
+                    <div className={`h-[4px] w-full bg-gradient-to-r ${color.accent} flex-shrink-0`} />
+
+                    <div className="flex flex-col flex-grow p-7 sm:p-8 relative z-10">
+                      {/* Icon & Index Row */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${color.iconBg} border border-black/5 dark:border-white/5 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6`}>
+                          <Icon className="w-6 h-6" strokeWidth={1.5} />
+                        </div>
+                        <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-lg bg-gray-50 dark:bg-slate-800/80 text-gray-400 dark:text-slate-500 border border-gray-100 dark:border-slate-800 uppercase tracking-widest transition-colors duration-300">
+                          Project #{String(idx + 1 + currentPage * PROJECTS_PER_PAGE).padStart(2, '0')}
+                        </span>
+                      </div>
+
+                      {/* Title & External Link Icon */}
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <h3 className={`text-lg sm:text-xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tight leading-snug ${color.textHover} transition-colors duration-300`}>
+                          {item.name}
+                        </h3>
+                        <ExternalLink
+                          className="w-4.5 h-4.5 text-gray-400 dark:text-slate-500 opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all duration-300 mt-1 flex-shrink-0"
+                          strokeWidth={1.5}
+                        />
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed mb-6 line-clamp-3">
+                        {item.description}
+                      </p>
+
+                      {/* Stack Tags */}
+                      <div className="flex flex-wrap gap-2 mb-6 mt-auto">
+                        {item.stack.map((tech) => (
+                          <span
+                            key={tech}
+                            className={`px-3 py-1 bg-gray-50 dark:bg-slate-800/40 border border-gray-100 dark:border-slate-800 rounded-lg text-[9px] font-mono font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider transition-all duration-300 ${color.tagHover}`}
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Explore Action Button */}
+                      <div className="pt-5 mt-auto flex items-center justify-between border-t border-gray-100 dark:border-slate-800/60">
+                        <span className={`text-[10px] font-mono font-black uppercase tracking-[0.25em] text-gray-400 dark:text-slate-500 ${color.textHover} transition-colors duration-300`}>
+                          Explore Project
+                        </span>
+                        <div className={`w-8 h-8 rounded-full border border-gray-200 dark:border-slate-700 flex items-center justify-center text-gray-400 dark:text-slate-500 group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5`}>
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
+                      </div>
                     </div>
-                    <ExternalLink
-                      className="w-4 h-4 text-gray-300 dark:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      strokeWidth={1.75}
-                    />
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-lg sm:text-xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tight mb-3 leading-snug group-hover:text-primary transition-colors duration-200">
-                    {item.name}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed mb-6 flex-1 line-clamp-3">
-                    {item.description}
-                  </p>
-
-                  {/* Stack tags */}
-                  <div className="mt-auto flex flex-wrap gap-2">
-                    {item.stack.map((tech) => (
-                      <span
-                        key={tech}
-                        className={`px-2.5 py-1 bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-full text-[10px] font-mono font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest transition-all duration-200 ${color.tagHover}`}
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </TiltCard>
+                  </TiltCard>
+                </motion.div>
+              </motion.div>
             );
           })}
         </motion.div>
@@ -265,51 +353,53 @@ const Projects: React.FC = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 pt-2">
-          <button
-            onClick={handlePrev}
-            disabled={currentPage === 0}
-            aria-label="Previous projects"
-            className={`w-10 h-10 flex items-center justify-center rounded-full border transition-all duration-200 ${
-              currentPage === 0
-                ? 'border-gray-100 dark:border-slate-800 text-gray-300 dark:text-slate-600 cursor-not-allowed'
-                : 'border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-primary hover:text-primary hover:bg-primary/5'
-            }`}
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
+        <div className="flex justify-center pt-8">
+          <div className="bg-gray-50/60 dark:bg-slate-900/40 backdrop-blur-md border border-gray-150 dark:border-slate-800/60 px-4 py-2 rounded-full flex items-center gap-4 shadow-sm">
+            <button
+              onClick={handlePrev}
+              disabled={currentPage === 0}
+              aria-label="Previous projects"
+              className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-300 ${
+                currentPage === 0
+                  ? 'border-transparent text-gray-300 dark:text-slate-700 cursor-not-allowed'
+                  : 'border-gray-200/60 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary hover:border-primary/30 shadow-sm'
+              }`}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
 
-          <div className="flex items-center gap-2">
-            {Array.from({ length: totalPages }).map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => goToPage(idx)}
-                aria-label={`Go to page ${idx + 1}`}
-                className={`rounded-full transition-all duration-300 ${
-                  currentPage === idx
-                    ? 'bg-primary w-5 h-2'
-                    : 'bg-gray-200 dark:bg-slate-700 hover:bg-gray-400 dark:hover:bg-slate-500 w-2 h-2'
-                }`}
-              />
-            ))}
+            <div className="flex items-center gap-2">
+              {Array.from({ length: totalPages }).map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => goToPage(idx)}
+                  aria-label={`Go to page ${idx + 1}`}
+                  className={`rounded-full transition-all duration-300 ${
+                    currentPage === idx
+                      ? 'bg-primary w-5 h-2.5 shadow-[0_0_8px_rgba(33,150,243,0.5)]'
+                      : 'bg-gray-200 dark:bg-slate-800 hover:bg-gray-300 dark:hover:bg-slate-700 w-2.5 h-2.5'
+                  }`}
+                />
+              ))}
+            </div>
+
+            <span className="text-[10px] font-mono font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest min-w-[36px] text-center">
+              {currentPage + 1} / {totalPages}
+            </span>
+
+            <button
+              onClick={handleNext}
+              disabled={currentPage === totalPages - 1}
+              aria-label="Next projects"
+              className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-300 ${
+                currentPage === totalPages - 1
+                  ? 'border-transparent text-gray-300 dark:text-slate-700 cursor-not-allowed'
+                  : 'border-gray-200/60 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary hover:border-primary/30 shadow-sm'
+              }`}
+            >
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
-
-          <span className="text-[11px] font-mono font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest min-w-[36px] text-center">
-            {currentPage + 1} / {totalPages}
-          </span>
-
-          <button
-            onClick={handleNext}
-            disabled={currentPage === totalPages - 1}
-            aria-label="Next projects"
-            className={`w-10 h-10 flex items-center justify-center rounded-full border transition-all duration-200 ${
-              currentPage === totalPages - 1
-                ? 'border-gray-100 dark:border-slate-800 text-gray-300 dark:text-slate-600 cursor-not-allowed'
-                : 'border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-primary hover:text-primary hover:bg-primary/5'
-            }`}
-          >
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
       )}
     </div>

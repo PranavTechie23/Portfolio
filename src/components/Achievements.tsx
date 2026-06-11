@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useScroll, useSpring, useReducedMotion } from 'framer-motion';
 import { CountUp } from './AnimatedText';
 
 const education = [
@@ -43,7 +43,6 @@ const education = [
 
 const Achievements: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-10%' });
 
   // Reactive mobile check instead of a one-shot at render
   const [isMobile, setIsMobile] = React.useState(false);
@@ -55,7 +54,18 @@ const Achievements: React.FC = () => {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  const dur = isMobile ? 0.35 : 0.7;
+  const isInView = useInView(ref, { once: true, margin: isMobile ? '-4%' : '-10%' });
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const timelineInView = useInView(timelineRef, { once: true, margin: isMobile ? '-8%' : '-15%' });
+  const { scrollYProgress: lineProgress } = useScroll({
+    target: timelineRef,
+    offset: ['start center', 'end center'],
+  });
+  const scrollLineProgress = useSpring(lineProgress, { damping: 25, stiffness: 120 });
+  const prefersReducedMotion = useReducedMotion();
+  const scaleY = prefersReducedMotion ? 1 : scrollLineProgress;
+
+  const dur = isMobile ? 0.65 : 0.7;
 
   return (
     <div ref={ref} className="w-full">
@@ -64,7 +74,7 @@ const Achievements: React.FC = () => {
         className="mb-16 space-y-3"
         initial={{ opacity: 0, y: 24 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: dur }}
+        transition={{ duration: dur, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="flex items-center gap-4">
           <div className="h-[2px] w-8 bg-primary" />
@@ -77,20 +87,28 @@ const Achievements: React.FC = () => {
           <span className="italic">Excellence</span>
         </h2>
       </motion.div>
-
+ 
       {/* Timeline */}
-      <div className="relative">
-        {/* Vertical line */}
+      <div ref={timelineRef} className="relative">
+        {/* Background track vertical line */}
         <div className="absolute left-[11px] top-8 bottom-8 w-px bg-gray-200 dark:bg-slate-700" />
-
+        {/* Animated scroll progress vertical line */}
+        <motion.div
+          style={{
+            scaleY,
+            transformOrigin: 'top',
+          }}
+          className="absolute left-[11px] top-8 bottom-8 w-0.5 bg-primary"
+        />
+ 
         <div className="flex flex-col gap-0">
           {education.map((item, i) => (
             <motion.div
               key={i}
               className="relative flex gap-6"
               initial={{ opacity: 0, x: -32 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: dur, delay: i * (isMobile ? 0.07 : 0.12), ease: [0.16, 1, 0.3, 1] }}
+              animate={timelineInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: dur, delay: i * (isMobile ? 0.1 : 0.15), ease: [0.16, 1, 0.3, 1] }}
             >
               {/* Dot */}
               <div className="flex flex-col items-center pt-7 flex-shrink-0">

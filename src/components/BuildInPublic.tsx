@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView, useSpring } from 'framer-motion';
 
 import { ArrowUpRight } from 'lucide-react';
@@ -36,8 +36,18 @@ const ActivityBars: React.FC<{ color: string }> = ({ color }) => {
 
 const BuildInPublic: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-15%' });
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const isInView = useInView(ref, { once: true, margin: isMobile ? '-4%' : '-15%' });
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const cardsInView = useInView(cardsRef, { once: true, margin: isMobile ? '-8%' : '-15%' });
 
   const TiltCard = ({
     title, icon: BrandLogo, type, url, handle, purpose, stats,
@@ -73,7 +83,7 @@ const BuildInPublic: React.FC = () => {
       : 'text-[#0A66C2] dark:text-[#5ba4f5]';
 
     const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
-      if (!cardRef.current) return;
+      if (isMobile || !cardRef.current) return;
       const rect = cardRef.current.getBoundingClientRect();
       const x = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 8;
       const y = -((e.clientY - rect.top - rect.height / 2) / (rect.height / 2)) * 8;
@@ -82,6 +92,7 @@ const BuildInPublic: React.FC = () => {
     };
 
     const handleMouseLeave = () => {
+      if (isMobile) return;
       setRotateX(0);
       setRotateY(0);
     };
@@ -94,11 +105,12 @@ const BuildInPublic: React.FC = () => {
         rel="noopener noreferrer"
         className={`group relative flex flex-col p-6 sm:p-8 md:p-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 ${borderHover} rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-2xl`}
         initial={{ opacity: 0, y: 40 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: isMobile ? 0.35 : 0.6, ease: 'easeOut' }}
+        animate={cardsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+        transition={{ duration: isMobile ? 0.6 : 0.6, ease: [0.16, 1, 0.3, 1] }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        style={{
+        whileTap={{ scale: 0.97 }}
+        style={isMobile ? {} : {
           rotateX: smoothRotateX,
           rotateY: smoothRotateY,
           transformStyle: 'preserve-3d',
@@ -118,7 +130,7 @@ const BuildInPublic: React.FC = () => {
           }}
         />
 
-        <div className="relative z-10 flex flex-col h-full gap-6" style={{ transform: 'translateZ(30px)' }}>
+        <div className="relative z-10 flex flex-col h-full gap-6" style={isMobile ? {} : { transform: 'translateZ(30px)' }}>
           {/* Header row */}
           <div className="flex items-start justify-between">
             <div className={`w-14 h-14 p-3.5 rounded-2xl ${iconBg} text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
@@ -182,7 +194,7 @@ const BuildInPublic: React.FC = () => {
         className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: isMobile ? 0.35 : 0.6, ease: 'easeOut' }}
+        transition={{ duration: isMobile ? 0.6 : 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="space-y-4">
           <div className="flex items-center gap-4">
@@ -205,7 +217,7 @@ const BuildInPublic: React.FC = () => {
       </motion.div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+      <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
         <TiltCard
           title="GitHub"
           handle="@PranavTechie23"

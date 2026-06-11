@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface MagneticProps {
@@ -10,16 +10,24 @@ interface MagneticProps {
 const Magnetic: React.FC<MagneticProps> = ({ children, className = '', strength = 0.35 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.matchMedia('(max-width: 767px), (pointer: coarse)').matches);
+  }, []);
 
   const handleMove = (e: React.MouseEvent) => {
-    if (!ref.current) return;
+    if (isMobile || !ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     const x = (e.clientX - rect.left - rect.width / 2) * strength;
     const y = (e.clientY - rect.top - rect.height / 2) * strength;
     setOffset({ x, y });
   };
 
-  const handleLeave = () => setOffset({ x: 0, y: 0 });
+  const handleLeave = () => {
+    if (isMobile) return;
+    setOffset({ x: 0, y: 0 });
+  };
 
   return (
     <motion.div
@@ -27,7 +35,7 @@ const Magnetic: React.FC<MagneticProps> = ({ children, className = '', strength 
       className={className}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      animate={{ x: offset.x, y: offset.y }}
+      animate={isMobile ? {} : { x: offset.x, y: offset.y }}
       transition={{ type: 'spring', stiffness: 150, damping: 15, mass: 0.1 }}
     >
       {children}

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { RevealWords } from './AnimatedText';
@@ -7,8 +7,16 @@ import Magnetic from './motion/Magnetic';
 
 const Contact: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-20%' });
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const isInView = useInView(ref, { once: true, margin: isMobile ? '-4%' : '-20%' });
 
   return (
     <div ref={ref} className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center relative py-16 sm:py-20 px-8 sm:px-12 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl border border-gray-200/60 dark:border-slate-800/60 shadow-2xl rounded-[2.5rem]">
@@ -24,7 +32,7 @@ const Contact: React.FC = () => {
         className="text-center space-y-6 max-w-2xl w-full"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: isMobile ? 0.35 : 0.6, ease: "easeOut" }}
+        transition={{ duration: isMobile ? 0.6 : 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="flex items-center justify-center gap-4 mb-2">
           <div className="h-[2px] w-6 bg-primary" />
