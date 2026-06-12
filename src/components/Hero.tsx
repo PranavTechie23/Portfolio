@@ -566,39 +566,26 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
 
       {/* ENGINEER Watermark with Cyber-Glaze effect */}
       {isMobile ? (
-        <motion.div
+        <div
           className="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden"
-          style={{ y: bgY, willChange: 'transform' }}
         >
+          {/* Mobile: static ENGINEER watermark — no JS parallax, pure CSS */}
           <div className="relative inline-block w-full">
-            {/* Layer 1: Under-Glow */}
-            <h1
-              className="text-[18vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap absolute inset-0 text-transparent opacity-60 blur-md"
-              style={{
-                WebkitTextStroke: isDarkMode
-                  ? "1px rgba(34, 211, 238, 0.08)"
-                  : "1px rgba(59, 130, 246, 0.12)"
-              }}
-            >
-              ENGINEER
-            </h1>
-
-            {/* Layer 2: Main text with static background for performance */}
-            <h1
-              className="relative text-[18vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap text-transparent bg-clip-text text-glaze-shimmer"
+            <span
+              className="relative text-[22vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap text-transparent bg-clip-text block"
               style={{
                 backgroundImage: isDarkMode
-                  ? 'radial-gradient(circle 350px at 50% 50%, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0.08) 50%, transparent 100%), radial-gradient(rgba(34, 211, 238, 0.15) 1.5px, transparent 1.5px)'
-                  : 'radial-gradient(circle 350px at 50% 50%, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 100%), radial-gradient(rgba(59, 130, 246, 0.18) 1.5px, transparent 1.5px)',
+                  ? 'linear-gradient(135deg, rgba(34,211,238,0.55) 0%, rgba(34,211,238,0.15) 40%, rgba(99,102,241,0.25) 70%, rgba(34,211,238,0.4) 100%)'
+                  : 'linear-gradient(135deg, rgba(59,130,246,0.6) 0%, rgba(59,130,246,0.2) 40%, rgba(99,102,241,0.3) 70%, rgba(59,130,246,0.5) 100%)',
                 WebkitTextStroke: isDarkMode
-                  ? "1.5px rgba(34, 211, 238, 0.25)"
-                  : "1.5px rgba(59, 130, 246, 0.35)"
+                  ? "1.5px rgba(34,211,238,0.3)"
+                  : "1.5px rgba(59,130,246,0.4)"
               }}
             >
               ENGINEER
-            </h1>
+            </span>
           </div>
-        </motion.div>
+        </div>
       ) : (
         <motion.div
           className="absolute top-[44%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden"
@@ -675,6 +662,26 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
         </div>
       </motion.div>
 
+      {/* Mobile-only: a single static ambient glow + CSS corner brackets — zero JS overhead */}
+      {isMobile && (
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          {/* Ambient glow orb — pure CSS, no animation */}
+          <div
+            className="absolute top-[32%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full"
+            style={{
+              background: isDarkMode
+                ? 'radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)',
+            }}
+          />
+          {/* CSS-only corner brackets */}
+          <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2" style={{ borderColor: isDarkMode ? 'rgba(34,211,238,0.25)' : 'rgba(59,130,246,0.25)' }} />
+          <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2" style={{ borderColor: isDarkMode ? 'rgba(34,211,238,0.25)' : 'rgba(59,130,246,0.25)' }} />
+          <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2" style={{ borderColor: isDarkMode ? 'rgba(34,211,238,0.25)' : 'rgba(59,130,246,0.25)' }} />
+          <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2" style={{ borderColor: isDarkMode ? 'rgba(34,211,238,0.25)' : 'rgba(59,130,246,0.25)' }} />
+        </div>
+      )}
+
       {/* Top Left Status */}
       <div className="absolute top-20 sm:top-24 left-4 sm:left-6 z-30 pointer-events-none">
         <div className="flex items-center gap-2 px-2.5 py-1 dark:bg-[#0A0C10]/80 bg-white/85 dark:backdrop-blur-sm backdrop-blur-md border-l-2 dark:border-cyan-400 border-primary shadow-sm rounded-r">
@@ -690,29 +697,18 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
         </div>
       </div>
 
-      {/* Mobile: Bottom Right Input Matrix — compact version */}
-      <div className="absolute bottom-4 right-4 z-30 pointer-events-none text-right md:hidden">
-        <div className="px-2.5 py-1 dark:bg-[#0A0C10]/80 bg-white/85 dark:backdrop-blur-sm backdrop-blur-md border-r-2 dark:border-cyan-400 border-primary shadow-sm rounded-l inline-flex items-center gap-2">
-          <span className="text-[7px] font-mono dark:text-gray-400 text-slate-500 tracking-[0.15em]">
-            INPUT
-          </span>
-          <div className="w-1 h-1 rounded-full dark:bg-cyan-400 bg-primary" />
-          <span className="text-[8px] font-mono font-bold dark:text-cyan-400 text-primary">
-            {matrixCoords.x}<span className="opacity-40">/</span>{matrixCoords.y}
-          </span>
-        </div>
-      </div>
 
-      {/* Main Nameplate — parallax slides down on scroll */}
-      <div className="absolute inset-0 pointer-events-none z-40 flex items-end justify-center pb-4 sm:pb-6">
+
+      {/* Main Nameplate */}
+      <div className="absolute inset-0 pointer-events-none z-40 flex items-end justify-center pb-2 sm:pb-6">
         <motion.div
-          className="w-full max-w-[88vw] sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-2xl px-3 sm:px-6 origin-bottom"
-          style={{ y: reactiveYSpring }}
+          className="w-full max-w-[92vw] sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-2xl px-0 sm:px-6 origin-bottom"
+          style={isMobile ? {} : { y: reactiveYSpring }}
         >
           <motion.div
-            initial={{ y: -200, opacity: 0 }}
+            initial={{ y: isMobile ? 40 : -200, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, delay: isMobile ? 0.3 : 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Top sweep line */}
             <motion.div
@@ -722,10 +718,8 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
               transition={{ duration: 0.6, delay: 0.3 }}
             />
 
-            {/* Main Card — subtle float, reduced on mobile */}
-            <motion.div
-              animate={{ y: [0, isMobile ? -3 : -6, 0] }}
-              transition={{ duration: isMobile ? 6 : 5, repeat: Infinity, ease: 'easeInOut' }}
+            {/* Main Card — no float animation on mobile (saves CPU) */}
+            <div
               className="relative dark:bg-[#0A0C10]/90 bg-white/90 dark:backdrop-blur-2xl backdrop-blur-2xl border dark:border-cyan-500/30 border-blue-200/80 shadow-2xl dark:shadow-cyan-500/20 shadow-blue-500/5 rounded-2xl overflow-hidden"
             >
               {/* Premium Corner Slider / Sweep Effect */}
@@ -752,13 +746,13 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
               <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 dark:border-cyan-400/60 border-primary/40 rounded-bl-2xl" />
               <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 dark:border-cyan-400/60 border-primary/40 rounded-br-2xl" />
 
-              <div className="p-3 sm:p-6 md:p-8 lg:p-10 text-center">
+              <div className="p-4 sm:p-6 md:p-8 lg:p-10 text-center">
                 {/* Name */}
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
-                  className="text-base sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black font-heading tracking-tighter leading-tight"
+                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black font-heading tracking-tighter leading-tight"
                 >
                   <span className="dark:text-gray-200 text-slate-800">PRANAV SANJAY </span>
                   <span className="dark:text-cyan-400 text-primary relative">
@@ -827,7 +821,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
                   </a>
                 </motion.div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Bottom sweep line */}
             <motion.div
@@ -840,27 +834,33 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
         </motion.div>
       </div>
 
-      {/* Floating Particles */}
+      {/* Floating particles — CSS-only on mobile, JS-animated on desktop */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        {[...Array(isMobile ? 6 : 20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-0.5 h-0.5 bg-cyan-400/30 rounded-full"
-            initial={{
-              x: Math.random() * viewportSize.w,
-              y: Math.random() * viewportSize.h,
-            }}
-            animate={{
-              y: [null, -20, -40],
-              opacity: [0.3, 0.6, 0],
-            }}
-            transition={{
-              duration: 2 + Math.random() * 3,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
+        {isMobile ? (
+          // 4 static dots with CSS animation — zero JS overhead
+          [{ x: '20%', y: '25%', size: 4, delay: '0s' }, { x: '75%', y: '60%', size: 3, delay: '1.5s' }, { x: '50%', y: '15%', size: 5, delay: '3s' }, { x: '85%', y: '35%', size: 3, delay: '0.8s' }].map((p, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full hero-particle"
+              style={{
+                left: p.x, top: p.y,
+                width: p.size, height: p.size,
+                backgroundColor: i % 2 === 0 ? 'rgba(34,211,238,0.55)' : 'rgba(99,102,241,0.45)',
+                animationDelay: p.delay,
+              }}
+            />
+          ))
+        ) : (
+          [...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-0.5 h-0.5 bg-cyan-400/30 rounded-full"
+              initial={{ x: Math.random() * viewportSize.w, y: Math.random() * viewportSize.h }}
+              animate={{ y: [null, -(40 + Math.random() * 60)], opacity: [0, 0.8, 0] }}
+              transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 6, ease: 'easeOut' }}
+            />
+          ))
+        )}
       </div>
 
       {/* Custom Cursor (desktop only) */}

@@ -50,12 +50,11 @@ export const viewportOnce = { once: true, margin: '-12%' as const };
 
 /** Cards pop in with scale + blur — best for grid items */
 export const mobileCardReveal = {
-  hidden: { opacity: 0, y: 44, scale: 0.93, filter: 'blur(6px)' },
+  hidden: { opacity: 0, y: 44, scale: 0.93 },
   visible: (i = 0) => ({
     opacity: 1,
     y: 0,
     scale: 1,
-    filter: 'blur(0px)',
     transition: {
       duration: 0.65,
       delay: i * 0.1,
@@ -66,11 +65,10 @@ export const mobileCardReveal = {
 
 /** Timeline entries slide in from left edge */
 export const mobileTimelineItem = {
-  hidden: { opacity: 0, x: -36, filter: 'blur(3px)' },
+  hidden: { opacity: 0, x: -36 },
   visible: (i = 0) => ({
     opacity: 1,
     x: 0,
-    filter: 'blur(0px)',
     transition: {
       duration: 0.7,
       delay: 0.1 + i * 0.12,

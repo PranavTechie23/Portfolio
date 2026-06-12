@@ -30,8 +30,8 @@ const getVariants = (variant: AnimationVariant) => {
   switch (variant) {
     case 'fadeUp':
       return {
-        hidden: { opacity: 0, y: 48, filter: 'blur(4px)' },
-        visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
+        hidden: { opacity: 0, y: 48 },
+        visible: { opacity: 1, y: 0 },
         ease,
       };
     case 'fadeDown':
@@ -42,14 +42,14 @@ const getVariants = (variant: AnimationVariant) => {
       };
     case 'fadeLeft':
       return {
-        hidden: { opacity: 0, x: -40, filter: 'blur(2px)' },
-        visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
+        hidden: { opacity: 0, x: -40 },
+        visible: { opacity: 1, x: 0 },
         ease,
       };
     case 'fadeRight':
       return {
-        hidden: { opacity: 0, x: 40, filter: 'blur(2px)' },
-        visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
+        hidden: { opacity: 0, x: 40 },
+        visible: { opacity: 1, x: 0 },
         ease,
       };
     case 'scaleFade':
@@ -66,8 +66,8 @@ const getVariants = (variant: AnimationVariant) => {
       };
     case 'blur':
       return {
-        hidden: { opacity: 0, filter: 'blur(12px)', scale: 0.98 },
-        visible: { opacity: 1, filter: 'blur(0px)', scale: 1 },
+        hidden: { opacity: 0, scale: 0.98 },
+        visible: { opacity: 1, scale: 1 },
         ease,
       };
     default:
@@ -87,7 +87,7 @@ const getVariants = (variant: AnimationVariant) => {
 export const MobileScrollReveal: React.FC<MobileScrollRevealProps> = ({
   children,
   className = '',
-  variant = 'fadeUp',
+  variant = 'fadeUp' as AnimationVariant,
   delay = 0,
   duration = 0.65,
   alwaysAnimate = false,

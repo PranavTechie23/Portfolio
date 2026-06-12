@@ -125,12 +125,10 @@
     from {
       opacity: 0;
       transform: translate3d(0, 40px, 0);
-      filter: blur(4px);
     }
     to {
       opacity: 1;
       transform: translate3d(0, 0, 0);
-      filter: blur(0px);
     }
   }
 
@@ -166,6 +164,29 @@
   @keyframes mobileRipple {
     0%   { transform: scale(1);   opacity: 0.6; }
     100% { transform: scale(2.4); opacity: 0; }
+  }
+
+  /* Mobile hero particles — CSS-only, GPU composited */
+  @keyframes heroParticleFade {
+    0%   { opacity: 0;   transform: translate3d(0, 0, 0); }
+    30%  { opacity: 0.7; }
+    70%  { opacity: 0.5; }
+    100% { opacity: 0;   transform: translate3d(0, -40px, 0); }
+  }
+
+  .hero-particle {
+    animation: heroParticleFade 4s ease-out infinite;
+    will-change: transform, opacity;
+  }
+
+  /* Disable expensive animations on mobile */
+  @media (max-width: 768px) {
+    .text-glaze-shimmer {
+      animation: none;
+    }
+    .animate-scan {
+      display: none;
+    }
   }
 
   /* Watermark Glazing and Sci-fi Grid Styles */
