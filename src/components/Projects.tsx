@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView, AnimatePresence, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, ExternalLink, Building2, HeartPulse, Briefcase, CreditCard, CheckSquare, Train, Car, Grid2X2, BarChart2, Stethoscope } from 'lucide-react';
 import TiltCard from './motion/TiltCard';
+import { easeOutExpo } from '../utils/motion';
 
 const colorMap = [
   {
@@ -145,18 +146,18 @@ const Projects: React.FC = () => {
 
   const yEvenTransform = useTransform(scrollYProgress, (v) => {
     if (prefersReducedMotion) return 0;
-    const range = isMobile ? 20 : 50;
+    const range = isMobile ? 28 : 50;
     return (v - 0.5) * 2 * range;
   });
 
   const yOddTransform = useTransform(scrollYProgress, (v) => {
     if (prefersReducedMotion) return 0;
-    const range = isMobile ? 20 : 50;
+    const range = isMobile ? 28 : 50;
     return (0.5 - v) * 2 * range;
   });
 
-  const yEven = useSpring(yEvenTransform, { damping: 25, stiffness: 120 });
-  const yOdd = useSpring(yOddTransform, { damping: 25, stiffness: 120 });
+  const yEven = useSpring(yEvenTransform, { damping: 22, stiffness: 100 });
+  const yOdd  = useSpring(yOddTransform,  { damping: 22, stiffness: 100 });
 
   const totalPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
   const currentProjects = projects.slice(
@@ -196,7 +197,7 @@ const Projects: React.FC = () => {
   const dur = isMobile ? 0.6 : 0.6;
 
   return (
-    <div ref={ref} className="w-full">
+    <div ref={ref} className="relative w-full">
       {/* Header */}
       <motion.div
         className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
@@ -268,12 +269,17 @@ const Projects: React.FC = () => {
                 style={{ y: yDrift, willChange: 'transform' }}
                 className="h-full w-full"
               >
-                <motion.div
+              <motion.div
                   variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+                    hidden: isMobile
+                      ? { opacity: 0, y: 36, scale: 0.91, filter: 'blur(8px)' }
+                      : { opacity: 0, y: 20 },
+                    visible: {
+                      opacity: 1, y: 0, scale: 1, filter: 'blur(0px)',
+                      transition: { duration: isMobile ? 0.7 : 0.6, ease: easeOutExpo },
+                    }
                   }}
-                  className="h-full"
+                  className="h-full w-full"
                 >
                   <TiltCard
                     key={item.name}
@@ -282,7 +288,7 @@ const Projects: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`View project: ${item.name}`}
-                    className={`group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-150 dark:border-slate-800/80 rounded-3xl overflow-hidden flex flex-col min-h-[280px] h-full transition-all duration-500 hover:shadow-2xl ${color.borderHover}`}
+                    className={`group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-150 dark:border-slate-800/80 rounded-3xl overflow-hidden flex flex-col min-h-[280px] h-full w-full transition-all duration-500 hover:shadow-2xl ${color.borderHover}`}
                     intensity={6}
                   >
                     {/* Glowing outer backdrop border glow on hover */}

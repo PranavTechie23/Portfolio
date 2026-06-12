@@ -38,12 +38,29 @@
     overflow-x: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
     -webkit-overflow-scrolling: touch;
+    /* Smooth tap feedback on mobile */
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* GPU-promote sections and reduce reflow scope during scroll */
   section {
-    contain: content;
+    contain: layout style;
     will-change: auto;
+  }
+
+  /* ── Mobile scroll momentum & GPU acceleration ── */
+  @media (max-width: 768px) {
+    html {
+      /* Enables native-quality momentum on iOS */
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* GPU-layer composited animations */
+    [data-scroll-reveal] {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      will-change: transform, opacity;
+    }
   }
 
   html.dark {
@@ -101,6 +118,54 @@
   @keyframes marquee-scroll {
     from { transform: translate3d(0, 0, 0); }
     to { transform: translate3d(-50%, 0, 0); }
+  }
+
+  /* ── Mobile scroll entrance animations ── */
+  @keyframes mobileSlideUp {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 40px, 0);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+      filter: blur(0px);
+    }
+  }
+
+  @keyframes mobileSlideLeft {
+    from {
+      opacity: 0;
+      transform: translate3d(-32px, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes mobileScaleFade {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 20px, 0) scale3d(0.93, 0.93, 1);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    }
+  }
+
+  /* Float shimmer for mobile cards on scroll-in */
+  @keyframes cardFloat {
+    0%, 100% { transform: translate3d(0, 0px, 0); }
+    50%       { transform: translate3d(0, -6px, 0); }
+  }
+
+  /* Mobile-specific pulse ring for active elements */
+  @keyframes mobileRipple {
+    0%   { transform: scale(1);   opacity: 0.6; }
+    100% { transform: scale(2.4); opacity: 0; }
   }
 
   /* Watermark Glazing and Sci-fi Grid Styles */

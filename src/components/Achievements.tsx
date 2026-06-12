@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView, useScroll, useSpring, useReducedMotion } from 'framer-motion';
 import { CountUp } from './AnimatedText';
+import { easeOutExpo } from '../utils/motion';
 
 const education = [
   {
@@ -61,14 +62,14 @@ const Achievements: React.FC = () => {
     target: timelineRef,
     offset: ['start center', 'end center'],
   });
-  const scrollLineProgress = useSpring(lineProgress, { damping: 25, stiffness: 120 });
+  const scrollLineProgress = useSpring(lineProgress, { damping: 20, stiffness: 100 });
   const prefersReducedMotion = useReducedMotion();
   const scaleY = prefersReducedMotion ? 1 : scrollLineProgress;
 
   const dur = isMobile ? 0.65 : 0.7;
 
   return (
-    <div ref={ref} className="w-full">
+    <div ref={ref} className="relative w-full">
       {/* Header */}
       <motion.div
         className="mb-16 space-y-3"
@@ -106,9 +107,15 @@ const Achievements: React.FC = () => {
             <motion.div
               key={i}
               className="relative flex gap-6"
-              initial={{ opacity: 0, x: -32 }}
-              animate={timelineInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: dur, delay: i * (isMobile ? 0.1 : 0.15), ease: [0.16, 1, 0.3, 1] }}
+              initial={isMobile
+                ? { opacity: 0, x: -40, filter: 'blur(6px)' }
+                : { opacity: 0, x: -32 }
+              }
+              animate={timelineInView
+                ? { opacity: 1, x: 0, filter: 'blur(0px)' }
+                : {}
+              }
+              transition={{ duration: dur, delay: i * (isMobile ? 0.1 : 0.15), ease: easeOutExpo }}
             >
               {/* Dot */}
               <div className="flex flex-col items-center pt-7 flex-shrink-0">

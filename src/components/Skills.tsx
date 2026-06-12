@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { motion, useInView, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
+import { mobileStaggerContainer, mobileViewport, desktopViewport, easeOutExpo } from '../utils/motion';
 
 const skillCategories = [
   {
@@ -93,21 +94,21 @@ const Skills: React.FC = () => {
 
   const yEvenTransform = useTransform(scrollYProgress, (v) => {
     if (prefersReducedMotion) return 0;
-    const range = isMobile ? 24 : 60;
+    const range = isMobile ? 32 : 60;
     return (v - 0.5) * 2 * range;
   });
 
   const yOddTransform = useTransform(scrollYProgress, (v) => {
     if (prefersReducedMotion) return 0;
-    const range = isMobile ? 24 : 60;
+    const range = isMobile ? 32 : 60;
     return (0.5 - v) * 2 * range;
   });
 
-  const yEven = useSpring(yEvenTransform, { damping: 25, stiffness: 120 });
-  const yOdd = useSpring(yOddTransform, { damping: 25, stiffness: 120 });
+  const yEven = useSpring(yEvenTransform, { damping: 22, stiffness: 100 });
+  const yOdd  = useSpring(yOddTransform,  { damping: 22, stiffness: 100 });
 
   return (
-    <div ref={ref} className="w-full">
+    <div ref={ref} className="relative w-full">
       {/* Header */}
       <motion.div
         className="mb-16"
@@ -143,14 +144,23 @@ const Skills: React.FC = () => {
               <motion.div
                 className="group relative flex flex-col p-7 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl cursor-default"
                 style={{ '--accent': category.accent } as React.CSSProperties}
-                initial={{ opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
-                animate={cardsInView ? { opacity: 1, y: 0, scale: 1, rotateX: 0 } : { opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
-                transition={{ 
-                  duration: isMobile ? 0.6 : 0.65, 
-                  delay: idx * (isMobile ? 0.12 : 0.14),
-                  ease: [0.16, 1, 0.3, 1]
+                initial={isMobile
+                  ? { opacity: 0, y: 50, scale: 0.92, filter: 'blur(8px)' }
+                  : { opacity: 0, y: 55, scale: 0.96, rotateX: 8 }
+                }
+                animate={cardsInView
+                  ? { opacity: 1, y: 0, scale: 1, rotateX: 0, filter: 'blur(0px)' }
+                  : isMobile
+                    ? { opacity: 0, y: 50, scale: 0.92, filter: 'blur(8px)' }
+                    : { opacity: 0, y: 55, scale: 0.96, rotateX: 8 }
+                }
+                transition={{
+                  duration: isMobile ? 0.7 : 0.65,
+                  delay: idx * (isMobile ? 0.1 : 0.14),
+                  ease: easeOutExpo,
                 }}
                 whileHover={{ y: -6, transition: { duration: 0.3 } }}
+                whileTap={isMobile ? { scale: 0.97, transition: { duration: 0.15 } } : {}}
               >
                 {/* Accent glow top bar */}
                 <div

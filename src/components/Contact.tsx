@@ -3,6 +3,7 @@ import { motion, useInView } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { RevealWords } from './AnimatedText';
 import Magnetic from './motion/Magnetic';
+import { easeOutExpo } from '../utils/motion';
 
 
 const Contact: React.FC = () => {
@@ -30,9 +31,17 @@ const Contact: React.FC = () => {
 
       <motion.div 
         className="text-center space-y-6 max-w-2xl w-full"
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: isMobile ? 0.6 : 0.6, ease: [0.16, 1, 0.3, 1] }}
+        initial={isMobile
+          ? { opacity: 0, y: 44, scale: 0.92, filter: 'blur(10px)' }
+          : { opacity: 0, y: 30 }
+        }
+        animate={isInView
+          ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
+          : isMobile
+            ? { opacity: 0, y: 44, scale: 0.92, filter: 'blur(10px)' }
+            : { opacity: 0, y: 30 }
+        }
+        transition={{ duration: isMobile ? 0.8 : 0.6, ease: easeOutExpo }}
       >
         <div className="flex items-center justify-center gap-4 mb-2">
           <div className="h-[2px] w-6 bg-primary" />

@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView, useSpring } from 'framer-motion';
+import { easeOutExpo } from '../utils/motion';
 
 import { ArrowUpRight } from 'lucide-react';
 
@@ -104,9 +105,17 @@ const BuildInPublic: React.FC = () => {
         target="_blank"
         rel="noopener noreferrer"
         className={`group relative flex flex-col p-6 sm:p-8 md:p-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 ${borderHover} rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-2xl`}
-        initial={{ opacity: 0, y: 40 }}
-        animate={cardsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: isMobile ? 0.6 : 0.6, ease: [0.16, 1, 0.3, 1] }}
+        initial={isMobile
+          ? { opacity: 0, y: 44, scale: 0.90, filter: 'blur(8px)' }
+          : { opacity: 0, y: 40 }
+        }
+        animate={cardsInView
+          ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
+          : isMobile
+            ? { opacity: 0, y: 44, scale: 0.90, filter: 'blur(8px)' }
+            : { opacity: 0, y: 40 }
+        }
+        transition={{ duration: isMobile ? 0.72 : 0.6, ease: easeOutExpo }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         whileTap={{ scale: 0.97 }}

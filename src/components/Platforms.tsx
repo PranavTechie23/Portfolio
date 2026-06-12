@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import TiltCard from './motion/TiltCard';
+import { easeOutExpo } from '../utils/motion';
 
 const platforms = [
   {
@@ -74,21 +75,21 @@ const Platforms: React.FC = () => {
 
   const yEvenTransform = useTransform(scrollYProgress, (v) => {
     if (prefersReducedMotion) return 0;
-    const range = isMobile ? 20 : 45;
+    const range = isMobile ? 28 : 45;
     return (v - 0.5) * 2 * range;
   });
 
   const yOddTransform = useTransform(scrollYProgress, (v) => {
     if (prefersReducedMotion) return 0;
-    const range = isMobile ? 20 : 45;
+    const range = isMobile ? 28 : 45;
     return (0.5 - v) * 2 * range;
   });
 
-  const yEven = useSpring(yEvenTransform, { damping: 25, stiffness: 120 });
-  const yOdd = useSpring(yOddTransform, { damping: 25, stiffness: 120 });
+  const yEven = useSpring(yEvenTransform, { damping: 22, stiffness: 100 });
+  const yOdd  = useSpring(yOddTransform,  { damping: 22, stiffness: 100 });
 
   return (
-    <div ref={ref} className="w-full flex flex-col space-y-8 bg-gray-50/50 dark:bg-slate-900/60 p-6 sm:p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[2rem]">
+    <div ref={ref} className="relative w-full flex flex-col space-y-8 bg-gray-50/50 dark:bg-slate-900/60 p-6 sm:p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[2rem]">
       <motion.div
         className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}
@@ -125,9 +126,17 @@ const Platforms: React.FC = () => {
               className="h-full w-full"
             >
               <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                animate={gridInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-                transition={{ duration: isMobile ? 0.6 : 0.6, delay: (isMobile ? 0.15 : 0.2) + idx * (isMobile ? 0.1 : 0.12), ease: [0.16, 1, 0.3, 1] }}
+                initial={isMobile
+                  ? { opacity: 0, y: 44, scale: 0.90, filter: 'blur(8px)' }
+                  : { opacity: 0, y: 40 }
+                }
+                animate={gridInView
+                  ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
+                  : isMobile
+                    ? { opacity: 0, y: 44, scale: 0.90, filter: 'blur(8px)' }
+                    : { opacity: 0, y: 40 }
+                }
+                transition={{ duration: isMobile ? 0.7 : 0.6, delay: (isMobile ? 0.12 : 0.2) + idx * (isMobile ? 0.1 : 0.12), ease: easeOutExpo }}
                 className="h-full"
               >
                 <TiltCard

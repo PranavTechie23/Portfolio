@@ -56,7 +56,7 @@ const TiltCard: React.FC<TiltCardProps> = ({
   const linkProps = as === 'a' ? { href, target, rel } : {};
 
   return (
-    <div style={isMobile ? {} : { perspective: 1200 }} className="h-full">
+    <div style={isMobile ? {} : { perspective: 1200 }} className="h-full w-full">
       <MotionTag
         ref={ref as React.Ref<HTMLDivElement & HTMLAnchorElement>}
         {...linkProps}

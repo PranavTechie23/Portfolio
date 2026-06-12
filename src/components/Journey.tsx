@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView, useScroll, useSpring, useReducedMotion } from 'framer-motion';
+import { easeOutExpo } from '../utils/motion';
 
 
 const journeyItems = [
@@ -40,12 +41,12 @@ const Journey: React.FC = () => {
     target: timelineRef,
     offset: ['start center', 'end center'],
   });
-  const scrollLineProgress = useSpring(lineProgress, { damping: 25, stiffness: 120 });
+  const scrollLineProgress = useSpring(lineProgress, { damping: 20, stiffness: 100 });
   const prefersReducedMotion = useReducedMotion();
   const scaleY = prefersReducedMotion ? 1 : scrollLineProgress;
 
   return (
-    <div ref={ref} className="w-full">
+    <div ref={ref} className="relative w-full">
       <motion.div 
         className="mb-20 space-y-4"
         initial={{ opacity: 0, y: 30 }}
@@ -78,10 +79,19 @@ const Journey: React.FC = () => {
             <motion.div 
               key={idx} 
               className={`relative pl-12 group ${idx < journeyItems.length - 1 ? 'pb-16' : 'pb-0'}`}
-              initial={{ opacity: 0, x: -40 }}
-              animate={timelineInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
-              transition={{ duration: isMobile ? 0.65 : 0.7, delay: (isMobile ? 0.15 : 0.2) + idx * (isMobile ? 0.1 : 0.15), ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ x: 8 }}
+              initial={isMobile
+                ? { opacity: 0, x: -44, filter: 'blur(6px)' }
+                : { opacity: 0, x: -40 }
+              }
+              animate={timelineInView
+                ? { opacity: 1, x: 0, filter: 'blur(0px)' }
+                : isMobile
+                  ? { opacity: 0, x: -44, filter: 'blur(6px)' }
+                  : { opacity: 0, x: -40 }
+              }
+              transition={{ duration: isMobile ? 0.7 : 0.7, delay: (isMobile ? 0.12 : 0.2) + idx * (isMobile ? 0.1 : 0.15), ease: easeOutExpo }}
+              whileHover={isMobile ? {} : { x: 8 }}
+              whileTap={isMobile ? { scale: 0.98, transition: { duration: 0.15 } } : {}}
             >
 
 
@@ -117,9 +127,18 @@ const Journey: React.FC = () => {
         <div ref={resumeRef} className="lg:col-span-5 w-full">
           <motion.div
             className="group relative bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-8 sm:p-10 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-primary/40 hover:shadow-2xl flex flex-col gap-6"
-            initial={{ opacity: 0, y: 30 }}
-            animate={resumeInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            initial={isMobile
+              ? { opacity: 0, y: 36, scale: 0.92, filter: 'blur(8px)' }
+              : { opacity: 0, y: 30 }
+            }
+            animate={resumeInView
+              ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
+              : isMobile
+                ? { opacity: 0, y: 36, scale: 0.92, filter: 'blur(8px)' }
+                : { opacity: 0, y: 30 }
+            }
+            transition={{ duration: 0.7, delay: isMobile ? 0.1 : 0.3, ease: easeOutExpo }}
+            whileTap={isMobile ? { scale: 0.98, transition: { duration: 0.15 } } : {}}
           >
             {/* Background Glow Accent */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 blur-3xl group-hover:bg-primary/10 transition-all duration-500" />

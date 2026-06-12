@@ -97,7 +97,7 @@ const App: React.FC = () => {
         {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
 
-      <ReactLenis root options={{ lerp: 0.1, duration: 1.0, syncTouch: true, touchMultiplier: 1.8, infinite: false }}>
+      <ReactLenis root options={{ lerp: 0.08, duration: 1.2, syncTouch: true, touchMultiplier: 2.2, infinite: false, smoothWheel: true }}>
         <div className="relative selection:bg-blue-500/30 selection:text-blue-200 bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
         <motion.div
           style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}

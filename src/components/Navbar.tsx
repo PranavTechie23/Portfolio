@@ -33,10 +33,9 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
       const target = document.querySelector(href) as HTMLElement | null;
       if (target) {
         if (lenis) {
-          // Compensate for main navbar (64px) + sub-nav (40px) + margin
-          lenis.scrollTo(target, { offset: -112, duration: 1.2 });
+          lenis.scrollTo(target, { offset: -96, duration: 1.2 });
         } else {
-          const top = target.getBoundingClientRect().top + window.scrollY - 112;
+          const top = target.getBoundingClientRect().top + window.scrollY - 96;
           window.scrollTo({ top, behavior: 'smooth' });
         }
       }
@@ -64,9 +63,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
       <motion.nav
         className={clsx(
           "fixed top-0 left-0 right-0 z-[100] transition-all duration-500",
-          isScrolled 
-            ? "py-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-gray-200 dark:border-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.05)]" 
-            : "py-6 bg-transparent lg:py-6 lg:bg-transparent py-4 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-gray-200/50 dark:border-slate-800/50 lg:border-b-0 lg:shadow-none"
+          isScrolled ? "py-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-gray-200 dark:border-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.05)]" : "py-6 bg-transparent"
         )}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -74,7 +71,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-16 flex items-center justify-start gap-12">
           
-          {/* Logo with dynamic breadcrumb locator */}
+          {/* Logo */}
           <div className="flex items-center gap-4">
             <a 
               href="#hero" 
@@ -84,26 +81,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
               }}
               className="relative group flex items-center gap-2"
             >
-              <span className="font-heading font-black text-2xl tracking-tighter text-gray-950 dark:text-slate-100 uppercase flex items-center gap-1.5">
-                <span>HOME</span>
-                <AnimatePresence mode="wait">
-                  {activeSection !== 'hero' && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -8 }}
-                      transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="text-primary text-[10px] font-mono font-black tracking-widest hidden sm:inline"
-                    >
-                      // {activeSection === 'achievements' ? 'EDUCATION' :
-                          activeSection === 'skills' ? 'TOOLKIT' :
-                          activeSection === 'build' ? 'PUBLIC' :
-                          activeSection === 'journey' ? 'JOURNEY' :
-                          activeSection.toUpperCase()}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </span>
+              <span className="font-heading font-black text-2xl tracking-tighter text-gray-950 dark:text-slate-100 uppercase">HOME</span>
               <div className="w-2.5 h-2.5 bg-primary group-hover:scale-150 group-hover:shadow-[0_0_10px_rgba(33,150,243,0.5)] transition-all duration-300" />
             </a>
           </div>
@@ -153,7 +131,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
             </button>
           </div>
 
-          {/* Mobile Triggers Container */}
+          {/* Mobile Triggers Container (Pushed to the far right using ml-auto) */}
           <div className="flex items-center gap-4 lg:hidden ml-auto">
             {/* Mobile Toggle */}
             <button
@@ -174,35 +152,6 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
         </div>
       </motion.nav>
 
-      {/* Mobile Sub-Navigation Bar (Horizontal Scrolling Tabs) */}
-      <div className="lg:hidden fixed top-[64px] left-0 right-0 z-50 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-gray-200/50 dark:border-slate-800/50 py-2.5 overflow-x-auto scrollbar-none transition-all duration-300">
-        <div className="flex gap-6 px-6 min-w-max">
-          {navItems.map((item) => {
-            const isActive = activeSection === item.href.replace('#', '');
-            return (
-              <a
-                key={item.name}
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
-                className={clsx(
-                  "relative text-xs font-mono font-black uppercase tracking-wider transition-colors duration-300 py-1",
-                  isActive ? "text-primary" : "text-gray-400 dark:text-slate-500 hover:text-primary"
-                )}
-              >
-                {item.name}
-                {isActive && (
-                  <motion.span
-                    layoutId="activeSubNavMobile"
-                    className="absolute bottom-0 left-0 w-full h-[2px] bg-primary"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-              </a>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Mobile Fullscreen Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
@@ -221,32 +170,20 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection, isDarkMode, onToggleThem
             </button>
 
             <div className="flex flex-col items-center gap-8 w-full max-w-sm px-6">
-              {navItems.map((item, idx) => {
-                const isActive = activeSection === item.href.replace('#', '');
-                return (
-                  <motion.a
-                    key={item.name}
-                    href={item.href}
-                    onClick={(e) => handleNavClick(e, item.href)}
-                    className={clsx(
-                      "text-4xl font-heading font-black transition-colors relative group uppercase tracking-tighter",
-                      isActive ? "text-primary" : "text-gray-800 dark:text-slate-200 hover:text-primary"
-                    )}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + idx * 0.05 }}
-                  >
-                    {item.name}
-                    {isActive && (
-                      <motion.span 
-                        layoutId="activeNavMobile"
-                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-[4px] bg-primary rounded-full"
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                      />
-                    )}
-                  </motion.a>
-                );
-              })}
+              {navItems.map((item, idx) => (
+                <motion.a
+                  key={item.name}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  className="text-4xl font-heading font-black text-gray-800 dark:text-slate-200 hover:text-primary transition-colors relative group uppercase tracking-tighter"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + idx * 0.05 }}
+                >
+                  {item.name}
+                  <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-[4px] bg-primary group-hover:w-full transition-all duration-300" />
+                </motion.a>
+              ))}
             </div>
           </motion.div>
         )}
