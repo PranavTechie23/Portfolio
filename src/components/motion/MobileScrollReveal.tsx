@@ -251,3 +251,54 @@ export const useScrollRevealVariant = (
     transition: { duration, delay, ease },
   };
 };
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ScrollProgressReveal – dynamic scroll-linked animation.
+   Opacity and scale are tied directly to the scroll progress of the element.
+   ────────────────────────────────────────────────────────────────────────── */
+interface ScrollProgressRevealProps {
+  children: React.ReactNode;
+  className?: string;
+  offset?: any; // e.g., ["start end", "center center"]
+}
+
+export const ScrollProgressReveal: React.FC<ScrollProgressRevealProps> = ({
+  children,
+  className = '',
+  offset = ['start 90%', 'center center']
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: offset as any,
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.9, 1]);
+  const y = useTransform(scrollYProgress, [0, 1], [40, 0]);
+
+  const smoothOpacity = useSpring(opacity, { damping: 25, stiffness: 120 });
+  const smoothScale = useSpring(scale, { damping: 25, stiffness: 120 });
+  const smoothY = useSpring(y, { damping: 25, stiffness: 120 });
+
+  if (prefersReducedMotion) {
+    return <div ref={ref} className={className}>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{
+        opacity: smoothOpacity,
+        scale: smoothScale,
+        y: smoothY,
+        willChange: 'transform, opacity',
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};

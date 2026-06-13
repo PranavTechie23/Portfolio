@@ -16,15 +16,34 @@ const LINKEDIN_LOGO = (
   </svg>
 );
 
-// Simulated activity bars for visual interest
+// Live activity bars reflecting the current progression of the year
 const ActivityBars: React.FC<{ color: string }> = ({ color }) => {
-  const bars = [4, 7, 3, 9, 5, 8, 2, 6, 10, 4, 7, 5, 9, 3, 8, 6, 4, 7, 5, 8];
+  const bars = React.useMemo(() => {
+    const numBars = 40;
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1);
+    const end = new Date(now.getFullYear() + 1, 0, 1);
+    
+    // Calculate how much of the year has passed
+    const percentPassed = (now.getTime() - start.getTime()) / (end.getTime() - start.getTime());
+    const activeBarsCount = Math.ceil(percentPassed * numBars);
+    
+    return Array.from({ length: numBars }).map((_, i) => {
+      if (i < activeBarsCount) {
+        // Active past/present days get varied heights (3 to 10)
+        return Math.floor(Math.random() * 8) + 3;
+      }
+      // Future days get a flat minimal height
+      return 1;
+    });
+  }, []);
+
   return (
-    <div className="flex items-end gap-[3px] h-10">
+    <div className="flex items-end gap-[2px] h-10 w-full mt-2">
       {bars.map((h, i) => (
         <motion.div
           key={i}
-          className="w-[5px] rounded-sm opacity-60"
+          className={`flex-1 rounded-sm ${h > 1 ? 'opacity-70' : 'opacity-20'}`}
           style={{ backgroundColor: color, height: `${h * 4}px` }}
           initial={{ scaleY: 0 }}
           animate={{ scaleY: 1 }}

@@ -3,6 +3,7 @@ import { motion, useInView, AnimatePresence, useScroll, useTransform, useSpring,
 import { ArrowLeft, ArrowRight, ExternalLink, Building2, HeartPulse, Briefcase, CreditCard, CheckSquare, Train, Car, Grid2X2, BarChart2, Stethoscope } from 'lucide-react';
 import TiltCard from './motion/TiltCard';
 import { easeOutExpo } from '../utils/motion';
+import { ScrollProgressReveal } from './motion/MobileScrollReveal';
 
 const colorMap = [
   {
@@ -253,34 +254,7 @@ const Projects: React.FC = () => {
             const Icon = item.icon;
             const yDrift = idx % 2 === 0 ? yEven : yOdd;
 
-            return (
-              <motion.div
-                key={item.name}
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { 
-                    opacity: 1, 
-                    transition: { 
-                      duration: 0.4,
-                      staggerChildren: 0.05
-                    } 
-                  }
-                }}
-                style={{ y: yDrift, willChange: 'transform' }}
-                className="h-full w-full"
-              >
-              <motion.div
-                  variants={{
-                    hidden: isMobile
-                      ? { opacity: 0, y: 36, scale: 0.91, filter: 'blur(8px)' }
-                      : { opacity: 0, y: 20 },
-                    visible: {
-                      opacity: 1, y: 0, scale: 1, filter: 'blur(0px)',
-                      transition: { duration: isMobile ? 0.7 : 0.6, ease: easeOutExpo },
-                    }
-                  }}
-                  className="h-full w-full"
-                >
+            const cardContent = (
                   <TiltCard
                     key={item.name}
                     as="a"
@@ -350,6 +324,49 @@ const Projects: React.FC = () => {
                       </div>
                     </div>
                   </TiltCard>
+            );
+
+            if (isMobile) {
+              return (
+                <motion.div
+                  key={`${item.name}-mobile`}
+                  style={{ y: yDrift, willChange: 'transform' }}
+                  className="h-full w-full"
+                >
+                  <ScrollProgressReveal className="h-full w-full" offset={["start end", "center center"]}>
+                    {cardContent}
+                  </ScrollProgressReveal>
+                </motion.div>
+              );
+            }
+
+            return (
+              <motion.div
+                key={item.name}
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { 
+                    opacity: 1, 
+                    transition: { 
+                      duration: 0.4,
+                      staggerChildren: 0.05
+                    } 
+                  }
+                }}
+                style={{ y: yDrift, willChange: 'transform' }}
+                className="h-full w-full"
+              >
+              <motion.div
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: {
+                      opacity: 1, y: 0, scale: 1, filter: 'blur(0px)',
+                      transition: { duration: 0.6, ease: easeOutExpo },
+                    }
+                  }}
+                  className="h-full w-full"
+                >
+                  {cardContent}
                 </motion.div>
               </motion.div>
             );
@@ -365,28 +382,38 @@ const Projects: React.FC = () => {
               onClick={handlePrev}
               disabled={currentPage === 0}
               aria-label="Previous projects"
-              className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-300 ${
+              className={`group w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-300 ${
                 currentPage === 0
                   ? 'border-transparent text-gray-300 dark:text-slate-700 cursor-not-allowed'
-                  : 'border-gray-200/60 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary hover:border-primary/30 shadow-sm'
+                  : 'border-gray-200/60 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary hover:border-primary/30 shadow-sm hover:scale-105 active:scale-95'
               }`}
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className={`w-4 h-4 transition-transform duration-300 ${currentPage !== 0 ? 'group-hover:-translate-x-0.5' : ''}`} />
             </button>
 
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalPages }).map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => goToPage(idx)}
-                  aria-label={`Go to page ${idx + 1}`}
-                  className={`rounded-full transition-all duration-300 ${
-                    currentPage === idx
-                      ? 'bg-primary w-5 h-2.5 shadow-[0_0_8px_rgba(33,150,243,0.5)]'
-                      : 'bg-gray-200 dark:bg-slate-800 hover:bg-gray-300 dark:hover:bg-slate-700 w-2.5 h-2.5'
-                  }`}
-                />
-              ))}
+            <div className="flex items-center gap-1.5 px-2">
+              {Array.from({ length: totalPages }).map((_, idx) => {
+                const isActive = currentPage === idx;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => goToPage(idx)}
+                    aria-label={`Go to page ${idx + 1}`}
+                    className="relative flex items-center justify-center h-6 rounded-full group transition-all duration-300"
+                    style={{ width: isActive ? '24px' : '16px' }}
+                  >
+                    <div className={`h-2.5 rounded-full transition-all duration-300 ${isActive ? 'w-6 bg-transparent' : 'w-2.5 bg-gray-200 dark:bg-slate-800 group-hover:bg-gray-300 dark:group-hover:bg-slate-700 group-hover:scale-110'}`} />
+                    
+                    {isActive && (
+                      <motion.div
+                        layoutId="activePagePill"
+                        className="absolute inset-0 m-auto h-2.5 w-full bg-primary rounded-full shadow-[0_0_12px_rgba(33,150,243,0.5)]"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             <span className="text-[10px] font-mono font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest min-w-[36px] text-center">
@@ -397,13 +424,13 @@ const Projects: React.FC = () => {
               onClick={handleNext}
               disabled={currentPage === totalPages - 1}
               aria-label="Next projects"
-              className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-300 ${
+              className={`group w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-300 ${
                 currentPage === totalPages - 1
                   ? 'border-transparent text-gray-300 dark:text-slate-700 cursor-not-allowed'
-                  : 'border-gray-200/60 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary hover:border-primary/30 shadow-sm'
+                  : 'border-gray-200/60 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary hover:border-primary/30 shadow-sm hover:scale-105 active:scale-95'
               }`}
             >
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className={`w-4 h-4 transition-transform duration-300 ${currentPage !== totalPages - 1 ? 'group-hover:translate-x-0.5' : ''}`} />
             </button>
           </div>
         </div>

@@ -80,7 +80,7 @@ const About: React.FC = () => {
               />
               <span className="text-xs font-mono font-bold tracking-[0.4em] text-gray-400 uppercase">About Me</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl md:text-6xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter leading-none uppercase italic">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter leading-none uppercase italic">
               Solving complex problems <br />
               <span className="text-primary italic">through structured approaches.</span>
             </h2>
@@ -138,7 +138,6 @@ const About: React.FC = () => {
           </motion.p>
 
           <motion.div variants={itemVariants} className="flex items-center gap-4">
-            <span className="text-xs font-mono font-bold text-gray-400 uppercase tracking-widest">Building in Public // Learning from Feedback</span>
           </motion.div>
         </div>
       </motion.div>

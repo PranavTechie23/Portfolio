@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 import { mobileStaggerContainer, mobileViewport, desktopViewport, easeOutExpo } from '../utils/motion';
+import { ScrollProgressReveal } from './motion/MobileScrollReveal';
 
 const skillCategories = [
   {
@@ -135,32 +136,11 @@ const Skills: React.FC = () => {
       >
         {skillCategories.map((category, idx) => {
           const yDrift = idx % 2 === 0 ? yEven : yOdd;
-          return (
-            <motion.div
-              key={idx}
-              style={{ y: yDrift, willChange: 'transform' }}
-              className="w-full"
-            >
-              <motion.div
+          
+          const cardContent = (
+            <div
                 className="group relative flex flex-col p-7 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl cursor-default"
                 style={{ '--accent': category.accent } as React.CSSProperties}
-                initial={isMobile
-                  ? { opacity: 0, y: 50, scale: 0.92, filter: 'blur(8px)' }
-                  : { opacity: 0, y: 55, scale: 0.96, rotateX: 8 }
-                }
-                animate={cardsInView
-                  ? { opacity: 1, y: 0, scale: 1, rotateX: 0, filter: 'blur(0px)' }
-                  : isMobile
-                    ? { opacity: 0, y: 50, scale: 0.92, filter: 'blur(8px)' }
-                    : { opacity: 0, y: 55, scale: 0.96, rotateX: 8 }
-                }
-                transition={{
-                  duration: isMobile ? 0.7 : 0.65,
-                  delay: idx * (isMobile ? 0.1 : 0.14),
-                  ease: easeOutExpo,
-                }}
-                whileHover={{ y: -6, transition: { duration: 0.3 } }}
-                whileTap={isMobile ? { scale: 0.97, transition: { duration: 0.15 } } : {}}
               >
                 {/* Accent glow top bar */}
                 <div
@@ -245,10 +225,40 @@ const Skills: React.FC = () => {
                     {category.skills.length} skills
                   </span>
                 </div>
+              </div>
+            );
+
+            if (isMobile) {
+              return (
+                <motion.div
+                  key={`mobile-${idx}`}
+                  style={{ y: yDrift, willChange: 'transform' }}
+                  className="w-full"
+                >
+                  <ScrollProgressReveal offset={["start end", "center center"]}>
+                    {cardContent}
+                  </ScrollProgressReveal>
+                </motion.div>
+              );
+            }
+
+            return (
+              <motion.div
+                key={idx}
+                style={{ y: yDrift, willChange: 'transform' }}
+                className="w-full"
+              >
+              <motion.div
+                initial={{ opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
+                animate={cardsInView ? { opacity: 1, y: 0, scale: 1, rotateX: 0, filter: 'blur(0px)' } : { opacity: 0, y: 55, scale: 0.96, rotateX: 8 }}
+                transition={{ duration: 0.65, delay: idx * 0.14, ease: easeOutExpo }}
+                whileHover={{ y: -6, transition: { duration: 0.3 } }}
+              >
+                {cardContent}
               </motion.div>
-            </motion.div>
-          );
-        })}
+              </motion.div>
+            );
+          })}
       </div>
     </div>
   );
