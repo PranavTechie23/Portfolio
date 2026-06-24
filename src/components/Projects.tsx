@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView, AnimatePresence, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, ExternalLink, Building2, HeartPulse, Briefcase, CreditCard, CheckSquare, Train, Car, Grid2X2, BarChart2, Stethoscope } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ExternalLink, Building2, HeartPulse, Briefcase, CreditCard, CheckSquare, Train, Car, Grid2X2, BarChart2, Stethoscope, Github, Globe } from 'lucide-react';
 import TiltCard from './motion/TiltCard';
 import { easeOutExpo } from '../utils/motion';
 import { ScrollProgressReveal } from './motion/MobileScrollReveal';
@@ -41,7 +41,8 @@ const projects = [
     name: "Campus Career Platform",
     description: "Decision-support system for automated candidate-job matching based on CGPA, branch, and skill constraints. Designed scalable REST APIs.",
     stack: ["System Arch", "Backend", "REST APIs"],
-    url: "#",
+    githubUrl: "https://github.com/PranavTechie23/Next_Gen",
+    liveUrl: "https://pbl-nxt-gen.vercel.app/",
     icon: Building2,
     colorIdx: 0,
   },
@@ -49,7 +50,8 @@ const projects = [
     name: "OncoAI Treatment Plan",
     description: "ML-based clinical decision support system for personalised cancer treatment using risk prediction models. Integrated SHAP explainability.",
     stack: ["ML", "SHAP", "Healthcare AI"],
-    url: "https://github.com/PranavTechie23/OncoAI",
+    githubUrl: "https://github.com/PranavTechie23/OncoAI",
+    liveUrl: "https://oncoai-nine.vercel.app/",
     icon: HeartPulse,
     colorIdx: 1,
   },
@@ -57,7 +59,8 @@ const projects = [
     name: "Skills Connect Job Board",
     description: "Full-stack job matching platform with skill- and location-based candidate filtering. Designed backend services and relational data models.",
     stack: ["Full-Stack", "Database", "Web Dev"],
-    url: "https://github.com/PranavTechie23/Skill_Connect",
+    githubUrl: "https://github.com/PranavTechie23/Skill_Connect",
+    liveUrl: "https://skill-connect-alpha.vercel.app/",
     icon: Briefcase,
     colorIdx: 2,
   },
@@ -65,31 +68,35 @@ const projects = [
     name: "CrediNova",
     description: "Adaptive Credit Intelligence Engine for unbanked populations using alternative financial signals, explainable AI, fairness monitoring, and audit trails.",
     stack: ["FinTech AI", "Explainability", "Fairness"],
-    url: "https://github.com/PranavTechie23/CrediNova",
+    githubUrl: "https://github.com/PranavTechie23/CrediNova",
+    liveUrl: "",
     icon: CreditCard,
     colorIdx: 3,
-  },
-  {
-    name: "Voting Management System",
-    description: "Comprehensive C++ data structures project with 6 progressive versions (Arrays, Linked Lists, BST, Heap, Graph, and complete system) for election workflows.",
-    stack: ["C++", "Data Structures", "Algorithms"],
-    url: "https://github.com/PranavTechie23/DS_Mini_Project",
-    icon: CheckSquare,
-    colorIdx: 0,
   },
   {
     name: "ThroughputAI",
     description: "AI-powered railway control centre with real-time operations dashboard, train delay prediction, scheduling optimisation, and secure full-stack architecture.",
     stack: ["React", "Node.js", "ML"],
-    url: "https://github.com/PranavTechie23/ThroughputAI",
+    githubUrl: "https://github.com/PranavTechie23/ThroughputAI",
+    liveUrl: "",
     icon: Train,
     colorIdx: 1,
+  },
+  {
+    name: "Voting Management System",
+    description: "Comprehensive C++ data structures project with 6 progressive versions (Arrays, Linked Lists, BST, Heap, Graph, and complete system) for election workflows.",
+    stack: ["C++", "Data Structures", "Algorithms"],
+    githubUrl: "https://github.com/PranavTechie23/DS_Mini_Project",
+    liveUrl: "",
+    icon: CheckSquare,
+    colorIdx: 0,
   },
   {
     name: "Car Rental System",
     description: "Console-based C++ car rental workflow showcasing OOP principles with car inventory, booking and return management, billing, and persistent file handling.",
     stack: ["C++", "OOP", "File Handling"],
-    url: "https://github.com/PranavTechie23/OOPC_Mini_Project",
+    githubUrl: "https://github.com/PranavTechie23/OOPC_Mini_Project",
+    liveUrl: "",
     icon: Car,
     colorIdx: 2,
   },
@@ -97,7 +104,8 @@ const projects = [
     name: "FrontEnd — Tic Tac Toe",
     description: "Frontend-focused Tic-Tac-Toe game built with core web technologies, featuring interactive gameplay logic and responsive UI styling.",
     stack: ["HTML", "CSS", "JavaScript"],
-    url: "https://github.com/PranavTechie23/Tic-Tac-Toe",
+    githubUrl: "https://github.com/PranavTechie23/Tic-Tac-Toe",
+    liveUrl: "",
     icon: Grid2X2,
     colorIdx: 3,
   },
@@ -105,7 +113,8 @@ const projects = [
     name: "Loan Approval Prediction",
     description: "Intelligent system for loan approval prediction using advanced machine learning models and data analytics to streamline financial decisions.",
     stack: ["Machine Learning", "Data Analytics", "Python"],
-    url: "https://github.com/PranavTechie23/Loan-Approval-Intelligence",
+    githubUrl: "https://github.com/PranavTechie23/Loan-Approval-Intelligence",
+    liveUrl: "",
     icon: BarChart2,
     colorIdx: 0,
   },
@@ -113,13 +122,15 @@ const projects = [
     name: "Multi-Clinic Management",
     description: "Comprehensive software solution for managing multiple clinics, streamlining patient records, scheduling, and medical workflows.",
     stack: ["Software Dev", "Management", "Healthcare"],
-    url: "https://github.com/PranavTechie23/multi-clinic-system",
+    githubUrl: "https://github.com/PranavTechie23/multi-clinic-system",
+    liveUrl: "",
     icon: Stethoscope,
     colorIdx: 1,
   },
 ];
 
-const PROJECTS_PER_PAGE = 4;
+const PROJECTS_PER_PAGE_DESKTOP = 4;
+const PROJECTS_PER_PAGE_MOBILE = 2;
 
 const Projects: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -129,7 +140,10 @@ const Projects: React.FC = () => {
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
     setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    const handler = (e: MediaQueryListEvent) => {
+      setIsMobile(e.matches);
+      setCurrentPage(0);
+    };
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, []);
@@ -160,17 +174,19 @@ const Projects: React.FC = () => {
   const yEven = useSpring(yEvenTransform, { damping: 22, stiffness: 100 });
   const yOdd  = useSpring(yOddTransform,  { damping: 22, stiffness: 100 });
 
-  const totalPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
+  const projectsPerPage = isMobile ? PROJECTS_PER_PAGE_MOBILE : PROJECTS_PER_PAGE_DESKTOP;
+  const totalPages = Math.ceil(projects.length / projectsPerPage);
   const currentProjects = projects.slice(
-    currentPage * PROJECTS_PER_PAGE,
-    (currentPage + 1) * PROJECTS_PER_PAGE
+    currentPage * projectsPerPage,
+    (currentPage + 1) * projectsPerPage
   );
 
   const scrollToSection = () => {
     setTimeout(() => {
       const section = document.getElementById('projects');
       if (section) {
-        const top = section.getBoundingClientRect().top + window.scrollY - 96;
+        const offset = window.innerWidth < 768 ? -72 : -96;
+        const top = section.getBoundingClientRect().top + window.scrollY + offset;
         window.scrollTo({ top, behavior: 'smooth' });
       }
     }, 50);
@@ -257,11 +273,7 @@ const Projects: React.FC = () => {
             const cardContent = (
                   <TiltCard
                     key={item.name}
-                    as="a"
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`View project: ${item.name}`}
+                    as="div"
                     className={`group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-150 dark:border-slate-800/80 rounded-3xl overflow-hidden flex flex-col min-h-[280px] h-full w-full transition-all duration-500 hover:shadow-2xl ${color.borderHover}`}
                     intensity={6}
                   >
@@ -275,14 +287,44 @@ const Projects: React.FC = () => {
                     <div className={`h-[4px] w-full bg-gradient-to-r ${color.accent} flex-shrink-0`} />
 
                     <div className="flex flex-col flex-grow p-7 sm:p-8 relative z-10">
-                      {/* Icon & Index Row */}
-                      <div className="flex items-center justify-between mb-6">
+                      {/* Icon & Top Actions Row */}
+                      <div className="flex items-start justify-between mb-6 gap-4">
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${color.iconBg} border border-black/5 dark:border-white/5 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6`}>
                           <Icon className="w-6 h-6" strokeWidth={1.5} />
                         </div>
-                        <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-lg bg-gray-50 dark:bg-slate-800/80 text-gray-400 dark:text-slate-500 border border-gray-100 dark:border-slate-800 uppercase tracking-widest transition-colors duration-300">
-                          Project #{String(idx + 1 + currentPage * PROJECTS_PER_PAGE).padStart(2, '0')}
-                        </span>
+                        
+                        <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center relative z-20">
+                          {((item.githubUrl && item.githubUrl !== "#") || (item.liveUrl && item.liveUrl !== "#")) && (
+                            <div className="flex items-center gap-2">
+                              {item.githubUrl && item.githubUrl !== "#" && (
+                                <a
+                                  href={item.githubUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-[10px] sm:text-xs font-mono font-bold text-gray-600 dark:text-slate-400 hover:bg-primary hover:border-primary hover:text-white dark:hover:bg-primary dark:hover:border-primary dark:hover:text-white transition-all duration-300"
+                                >
+                                  <Github className="w-3.5 h-3.5" />
+                                  <span>Code</span>
+                                </a>
+                              )}
+                              
+                              {item.liveUrl && item.liveUrl !== "#" && (
+                                <a
+                                  href={item.liveUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-[10px] sm:text-xs font-mono font-bold text-gray-600 dark:text-slate-400 hover:bg-primary hover:border-primary hover:text-white dark:hover:bg-primary dark:hover:border-primary dark:hover:text-white transition-all duration-300"
+                                >
+                                  <Globe className="w-3.5 h-3.5" />
+                                  <span>Live</span>
+                                </a>
+                              )}
+                            </div>
+                          )}
+                          <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-lg bg-gray-50 dark:bg-slate-800/80 text-gray-400 dark:text-slate-500 border border-gray-100 dark:border-slate-800 uppercase tracking-widest transition-colors duration-300 hidden sm:flex">
+                            Project #{String(idx + 1 + currentPage * projectsPerPage).padStart(2, '0')}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Title & External Link Icon */}
@@ -290,10 +332,6 @@ const Projects: React.FC = () => {
                         <h3 className={`text-lg sm:text-xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tight leading-snug ${color.textHover} transition-colors duration-300`}>
                           {item.name}
                         </h3>
-                        <ExternalLink
-                          className="w-4.5 h-4.5 text-gray-400 dark:text-slate-500 opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all duration-300 mt-1 flex-shrink-0"
-                          strokeWidth={1.5}
-                        />
                       </div>
 
                       {/* Description */}
@@ -302,7 +340,7 @@ const Projects: React.FC = () => {
                       </p>
 
                       {/* Stack Tags */}
-                      <div className="flex flex-wrap gap-2 mb-6 mt-auto">
+                      <div className="flex flex-wrap gap-2 mt-auto">
                         {item.stack.map((tech) => (
                           <span
                             key={tech}
@@ -311,16 +349,6 @@ const Projects: React.FC = () => {
                             {tech}
                           </span>
                         ))}
-                      </div>
-
-                      {/* Explore Action Button */}
-                      <div className="pt-5 mt-auto flex items-center justify-between border-t border-gray-100 dark:border-slate-800/60">
-                        <span className={`text-[10px] font-mono font-black uppercase tracking-[0.25em] text-gray-400 dark:text-slate-500 ${color.textHover} transition-colors duration-300`}>
-                          Explore Project
-                        </span>
-                        <div className={`w-8 h-8 rounded-full border border-gray-200 dark:border-slate-700 flex items-center justify-center text-gray-400 dark:text-slate-500 group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5`}>
-                          <ArrowRight className="w-4 h-4" />
-                        </div>
                       </div>
                     </div>
                   </TiltCard>
@@ -382,7 +410,7 @@ const Projects: React.FC = () => {
               onClick={handlePrev}
               disabled={currentPage === 0}
               aria-label="Previous projects"
-              className={`group w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-300 ${
+              className={`group min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border transition-all duration-300 ${
                 currentPage === 0
                   ? 'border-transparent text-gray-300 dark:text-slate-700 cursor-not-allowed'
                   : 'border-gray-200/60 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary hover:border-primary/30 shadow-sm hover:scale-105 active:scale-95'
@@ -424,7 +452,7 @@ const Projects: React.FC = () => {
               onClick={handleNext}
               disabled={currentPage === totalPages - 1}
               aria-label="Next projects"
-              className={`group w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-300 ${
+              className={`group min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border transition-all duration-300 ${
                 currentPage === totalPages - 1
                   ? 'border-transparent text-gray-300 dark:text-slate-700 cursor-not-allowed'
                   : 'border-gray-200/60 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary hover:border-primary/30 shadow-sm hover:scale-105 active:scale-95'

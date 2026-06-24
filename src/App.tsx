@@ -21,6 +21,7 @@ import Preloader from './components/Preloader';
 const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [isLoading, setIsLoading] = useState(true);
+  const [useSmoothScroll, setUseSmoothScroll] = useState(false);
 
   // Disable browser scroll restoration and force top scroll on mount
   useEffect(() => {
@@ -33,6 +34,18 @@ const App: React.FC = () => {
     if (window.location.hash) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
+  }, []);
+
+  // Lenis smooth scroll fights native touch momentum — keep it desktop-only
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px) and (pointer: fine)');
+    const update = () => {
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      setUseSmoothScroll(mq.matches && !reduced);
+    };
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
   }, []);
 
   // Lock body scroll during preloader
@@ -91,13 +104,7 @@ const App: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (
-    <>
-      <AnimatePresence>
-        {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
-      </AnimatePresence>
-
-      <ReactLenis root options={{ lerp: 0.08, duration: 1.2, syncTouch: false, smoothWheel: true }}>
+  const mainContent = (
         <div className="relative selection:bg-blue-500/30 selection:text-blue-200 bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
         <motion.div
           style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}
@@ -109,56 +116,56 @@ const App: React.FC = () => {
         <Navbar activeSection={activeSection} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode((prev) => !prev)} />
 
         <main>
-          <section id="hero" className="w-full h-screen relative">
+          <section id="hero" className="w-full min-h-[100dvh] h-[100dvh] relative">
             <Hero isDarkMode={isDarkMode} />
           </section>
 
           <TechMarquee />
 
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 lg:px-16 space-y-20 sm:space-y-28 lg:space-y-32 py-16 sm:py-24 lg:py-32">
-            <section id="about" className="scroll-mt-32">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 lg:px-16 space-y-14 sm:space-y-28 lg:space-y-32 py-12 sm:py-24 lg:py-32">
+            <section id="about" className="scroll-mt-20 sm:scroll-mt-32">
               <About />
             </section>
 
-            <section id="achievements" className="scroll-mt-32">
+            <section id="achievements" className="scroll-mt-20 sm:scroll-mt-32">
               <Achievements />
             </section>
 
-            <section id="skills" className="scroll-mt-32">
+            <section id="skills" className="scroll-mt-20 sm:scroll-mt-32">
               <Skills />
             </section>
 
-            <section id="projects" className="scroll-mt-32">
+            <section id="projects" className="scroll-mt-20 sm:scroll-mt-32">
               <Projects />
             </section>
 
-            <section id="build" className="scroll-mt-32">
+            <section id="build" className="scroll-mt-20 sm:scroll-mt-32">
               <BuildInPublic />
             </section>
 
-            <section id="platforms" className="scroll-mt-32">
+            <section id="platforms" className="scroll-mt-20 sm:scroll-mt-32">
               <Platforms />
             </section>
 
-            <section id="journey" className="scroll-mt-32">
+            <section id="journey" className="scroll-mt-20 sm:scroll-mt-32">
               <Journey />
             </section>
 
-            <section id="contact" className="scroll-mt-[100px]">
+            <section id="contact" className="scroll-mt-24 sm:scroll-mt-[100px]">
               <Contact />
             </section>
           </div>
 
           <motion.footer
-            className="py-20 border-t border-gray-100 dark:border-slate-800 bg-gray-50/30 dark:bg-slate-900/40 transition-colors duration-300"
+            className="py-12 sm:py-20 border-t border-gray-100 dark:border-slate-800 bg-gray-50/30 dark:bg-slate-900/40 transition-colors duration-300 pb-safe"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10%' }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="max-w-7xl mx-auto px-6 text-center space-y-6">
-               <p className="text-gray-400 dark:text-slate-400 font-mono text-sm uppercase tracking-[0.3em]">&copy; {new Date().getFullYear()} / Built with intention</p>
-               <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter italic uppercase">PRANAV SANJAY OSWAL</h3>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-4 sm:space-y-6">
+               <p className="text-gray-400 dark:text-slate-400 font-mono text-xs sm:text-sm uppercase tracking-[0.3em]">&copy; {new Date().getFullYear()} / Built with intention</p>
+               <h3 className="text-xl sm:text-3xl lg:text-4xl font-black font-heading text-gray-950 dark:text-slate-100 tracking-tighter italic uppercase">PRANAV SANJAY OSWAL</h3>
                <motion.div
                  className="h-1.5 bg-primary mx-auto"
                  initial={{ width: 0 }}
@@ -170,7 +177,21 @@ const App: React.FC = () => {
           </motion.footer>
         </main>
       </div>
-    </ReactLenis>
+  );
+
+  return (
+    <>
+      <AnimatePresence>
+        {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+      </AnimatePresence>
+
+      {useSmoothScroll ? (
+        <ReactLenis root options={{ lerp: 0.08, duration: 1.2, syncTouch: false, smoothWheel: true }}>
+          {mainContent}
+        </ReactLenis>
+      ) : (
+        mainContent
+      )}
     </>
   );
 };

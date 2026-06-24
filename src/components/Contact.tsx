@@ -20,7 +20,7 @@ const Contact: React.FC = () => {
   const isInView = useInView(ref, { once: true, margin: isMobile ? '-4%' : '-20%' });
 
   return (
-    <div ref={ref} className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center relative py-16 sm:py-20 px-8 sm:px-12 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl border border-gray-200/60 dark:border-slate-800/60 shadow-2xl rounded-[2.5rem]">
+    <div ref={ref} className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center relative py-12 sm:py-20 px-5 sm:px-12 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl border border-gray-200/60 dark:border-slate-800/60 shadow-2xl rounded-[2rem] sm:rounded-[2.5rem]">
       
       {/* Background glowing blob */}
       <motion.div
@@ -49,7 +49,7 @@ const Contact: React.FC = () => {
           <div className="h-[2px] w-6 bg-primary" />
         </div>
         
-        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-heading tracking-tighter leading-none text-gray-950 dark:text-slate-100 uppercase selection:bg-primary selection:text-white">
+        <h2 className="text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-heading tracking-tighter leading-none text-gray-950 dark:text-slate-100 uppercase selection:bg-primary selection:text-white">
           <RevealWords text="LET'S CONNECT" />
         </h2>
 
@@ -61,7 +61,7 @@ const Contact: React.FC = () => {
           <Magnetic strength={0.25}>
           <motion.a 
             href="mailto:pranavoswal21@gmail.com"
-            className="group relative inline-flex items-center gap-3 px-8 py-3.5 bg-white dark:bg-slate-950 border border-gray-900 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-[6px_6px_0_rgba(33,150,243,1)] rounded-xl"
+            className="group relative inline-flex items-center gap-3 px-6 sm:px-8 py-3.5 bg-white dark:bg-slate-950 border border-gray-900 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-[6px_6px_0_rgba(33,150,243,1)] rounded-xl min-h-[44px]"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >

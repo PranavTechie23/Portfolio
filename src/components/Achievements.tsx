@@ -83,7 +83,7 @@ const Achievements: React.FC = () => {
             Background
           </span>
         </div>
-        <h2 className="text-4xl sm:text-6xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase leading-none">
+        <h2 className="text-3xl sm:text-6xl font-black tracking-tighter text-gray-950 dark:text-slate-100 uppercase leading-none">
           <span className="text-primary italic">Academic</span>{' '}
           <span className="italic">Excellence</span>
         </h2>
@@ -125,8 +125,8 @@ const Achievements: React.FC = () => {
               {/* Card */}
               <div className="flex-1 mb-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl p-5 sm:p-7 hover:border-primary/40 hover:-translate-y-1 transition-all duration-300">
                 {/* Top row */}
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                  <div className="space-y-1.5">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-3 mb-4">
+                  <div className="space-y-1.5 flex-1 min-w-0">
                     <div className="flex flex-wrap gap-2">
                       <span className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-mono font-bold text-[10px] tracking-wider uppercase">
                         {item.period}
@@ -144,7 +144,7 @@ const Achievements: React.FC = () => {
                   </div>
 
                   {/* Score chip */}
-                  <div className="flex-shrink-0 flex flex-col items-end px-4 py-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700">
+                  <div className="flex-shrink-0 flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-0 px-4 py-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700 self-start">
                     <span className="text-2xl font-black text-primary tabular-nums leading-none">
                       <CountUp {...item.countUpProps} />
                     </span>

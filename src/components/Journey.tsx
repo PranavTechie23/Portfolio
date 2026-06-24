@@ -154,7 +154,7 @@ const Journey: React.FC = () => {
 
                 <div className="relative z-10 flex flex-col gap-3">
                   <a
-                    href="https://drive.google.com/drive/u/0/folders/16Hda7UxTbH9JNndZKd_bfvm-vgM6a9S_"
+                    href="https://drive.google.com/file/d/1m6kvLT5L15G-tWVNYnZ0BMpe7HwEx74X/view?usp=sharing"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-6 py-4 bg-gray-950 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-black font-heading tracking-[0.2em] uppercase hover:bg-primary hover:text-white transition-all duration-300 shadow-lg inline-flex items-center justify-center gap-2 rounded-xl"

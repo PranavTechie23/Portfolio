@@ -94,7 +94,7 @@ const Platforms: React.FC = () => {
   const yOdd  = useSpring(yOddTransform,  { damping: 22, stiffness: 100 });
 
   return (
-    <div ref={ref} className="relative w-full flex flex-col space-y-8 bg-gray-50/50 dark:bg-slate-900/60 p-6 sm:p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[2rem]">
+    <div ref={ref} className="relative w-full flex flex-col space-y-8 bg-gray-50/50 dark:bg-slate-900/60 p-4 sm:p-8 md:p-16 border border-gray-100 dark:border-slate-800 rounded-[1.5rem] sm:rounded-[2rem]">
       <motion.div
         className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
         initial={{ opacity: 0, y: 30 }}

@@ -567,12 +567,12 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
       {/* ENGINEER Watermark with Cyber-Glaze effect */}
       {isMobile ? (
         <div
-          className="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden"
+          className="absolute top-[22%] sm:top-[28%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden px-2"
         >
           {/* Mobile: static ENGINEER watermark — no JS parallax, pure CSS */}
           <div className="relative inline-block w-full">
             <span
-              className="relative text-[22vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap text-transparent bg-clip-text block"
+              className="relative text-[18vw] sm:text-[20vw] font-black leading-none tracking-[-0.05em] select-none text-transparent bg-clip-text block mx-auto max-w-full"
               style={{
                 backgroundImage: isDarkMode
                   ? 'linear-gradient(135deg, rgba(34,211,238,0.55) 0%, rgba(34,211,238,0.15) 40%, rgba(99,102,241,0.25) 70%, rgba(34,211,238,0.4) 100%)'
@@ -682,8 +682,8 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
         </div>
       )}
 
-      {/* Top Left Status */}
-      <div className="absolute top-20 sm:top-24 left-4 sm:left-6 z-30 pointer-events-none">
+      {/* Top Left Status — hidden on mobile to reduce clutter */}
+      <div className="absolute top-20 sm:top-24 left-4 sm:left-6 z-30 pointer-events-none hidden sm:block">
         <div className="flex items-center gap-2 px-2.5 py-1 dark:bg-[#0A0C10]/80 bg-white/85 dark:backdrop-blur-sm backdrop-blur-md border-l-2 dark:border-cyan-400 border-primary shadow-sm rounded-r">
           <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
           <span className="text-[8px] sm:text-[9px] font-mono dark:text-cyan-400 text-primary tracking-[0.2em] font-bold">
@@ -700,9 +700,9 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
 
 
       {/* Main Nameplate */}
-      <div className="absolute inset-0 pointer-events-none z-40 flex items-end justify-center pb-2 sm:pb-6">
+      <div className="absolute inset-0 pointer-events-none z-40 flex items-center sm:items-end justify-center px-3 sm:px-0 pt-16 sm:pt-0 pb-safe sm:pb-6">
         <motion.div
-          className="w-full max-w-[92vw] sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-2xl px-0 sm:px-6 origin-bottom"
+          className="w-full max-w-[94vw] sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-2xl px-0 sm:px-6 origin-bottom"
           style={isMobile ? {} : { y: reactiveYSpring }}
         >
           <motion.div
@@ -722,7 +722,8 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
             <div
               className="relative dark:bg-[#0A0C10]/90 bg-white/90 dark:backdrop-blur-2xl backdrop-blur-2xl border dark:border-cyan-500/30 border-blue-200/80 shadow-2xl dark:shadow-cyan-500/20 shadow-blue-500/5 rounded-2xl overflow-hidden"
             >
-              {/* Premium Corner Slider / Sweep Effect */}
+              {/* Premium Corner Slider / Sweep Effect — desktop only for perf */}
+              {!isMobile && (
               <svg className="absolute inset-0 w-full h-full pointer-events-none rounded-2xl" style={{ overflow: 'visible' }}>
                 <rect
                   x="0"
@@ -739,6 +740,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
                   }}
                 />
               </svg>
+              )}
 
               {/* Corner Accents */}
               <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 dark:border-cyan-400/60 border-primary/40 rounded-tl-2xl" />
@@ -752,7 +754,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
-                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black font-heading tracking-tighter leading-tight"
+                  className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black font-heading tracking-tighter leading-tight"
                 >
                   <span className="dark:text-gray-200 text-slate-800">PRANAV SANJAY </span>
                   <span className="dark:text-cyan-400 text-primary relative">
@@ -771,7 +773,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
                   {['PROBLEM SOLVER', 'FULL-STACK DEVELOPER', 'AI ENGINEER'].map((role, i) => (
                     <span
                       key={i}
-                      className="px-2 sm:px-3 py-0.5 sm:py-1 text-[7px] sm:text-[10px] font-mono font-bold tracking-[0.15em] sm:tracking-[0.2em] dark:text-cyan-400 text-primary border dark:border-cyan-500/30 border-blue-200/80 rounded dark:bg-cyan-500/5 bg-primary/5"
+                      className="px-2.5 sm:px-3 py-1 sm:py-1 text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.12em] sm:tracking-[0.2em] dark:text-cyan-400 text-primary border dark:border-cyan-500/30 border-blue-200/80 rounded dark:bg-cyan-500/5 bg-primary/5"
                     >
                       {role}
                     </span>
@@ -799,7 +801,16 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
                   <a
                     href="#about"
                     data-interactive="true"
-                    className="group relative inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[10px] sm:text-[11px] font-black font-mono tracking-[0.22em] uppercase rounded-lg overflow-hidden shadow-lg shadow-cyan-500/35 hover:shadow-cyan-500/50 transition-all duration-300"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const target = document.getElementById('about');
+                      if (target) {
+                        const offset = window.innerWidth < 768 ? -72 : -96;
+                        const top = target.getBoundingClientRect().top + window.scrollY + offset;
+                        window.scrollTo({ top, behavior: 'smooth' });
+                      }
+                    }}
+                    className="group relative inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[11px] sm:text-[11px] font-black font-mono tracking-[0.18em] sm:tracking-[0.22em] uppercase rounded-lg overflow-hidden shadow-lg shadow-cyan-500/35 hover:shadow-cyan-500/50 transition-all duration-300 min-h-[44px]"
                   >
                     <span className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 

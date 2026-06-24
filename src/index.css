@@ -40,6 +40,20 @@
     -webkit-overflow-scrolling: touch;
     /* Smooth tap feedback on mobile */
     -webkit-tap-highlight-color: transparent;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Safe-area helpers for fixed UI (notch / home indicator) */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .px-safe {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   /* GPU-promote sections and reduce reflow scope during scroll */
@@ -186,6 +200,17 @@
     }
     .animate-scan {
       display: none;
+    }
+
+    /* Lighter marquee on small screens */
+    .marquee-track {
+      animation-duration: 55s;
+    }
+
+    /* Minimum touch target for icon buttons */
+    .touch-target {
+      min-width: 44px;
+      min-height: 44px;
     }
   }
 
