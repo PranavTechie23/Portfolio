@@ -9,9 +9,9 @@ const education = [
     degree: "B.Tech in Computer Engineering",
     period: "Aug 2022 – Jun 2028",
     badge: "Current",
-    score: 9.1,
+    score: 9.03,
     scoreLabel: "CGPA",
-    countUpProps: { to: 9.1, decimals: 1 },
+    countUpProps: { to: 9.03, decimals: 2 },
     description:
       "Pursuing Bachelor of Technology with a focus on core computer science, data structures, algorithms, and advanced software engineering principles.",
     highlight:

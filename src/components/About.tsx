@@ -89,7 +89,7 @@ const About: React.FC = () => {
           {/* Impact Stats — with scroll-parallax drift on mobile */}
           <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
-              { to: 9.1, decimals: 1, suffix: '', label: 'CGPA (Current)', ySpring: yLeftSpring },
+              { to: 9.03, decimals: 2, suffix: '', label: 'CGPA (Current)', ySpring: yLeftSpring },
               { to: 10, decimals: 0, suffix: '+', label: 'Major Projects', ySpring: yRightSpring },
             ].map((stat, i) => (
               <motion.div
