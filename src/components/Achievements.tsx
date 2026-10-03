@@ -108,22 +108,28 @@ const Achievements: React.FC = () => {
               key={i}
               className="relative flex gap-6"
               initial={isMobile
-                ? { opacity: 0, x: -40, filter: 'blur(6px)' }
+                ? { opacity: 0, x: -30, filter: 'blur(4px)' }
                 : { opacity: 0, x: -32 }
               }
-              animate={timelineInView
+              whileInView={isMobile
                 ? { opacity: 1, x: 0, filter: 'blur(0px)' }
-                : {}
+                : { opacity: 1, x: 0 }
               }
-              transition={{ duration: dur, delay: i * (isMobile ? 0.1 : 0.15), ease: easeOutExpo }}
+              viewport={{ once: true, margin: isMobile ? "-20px" : "-40px" }}
+              transition={{ duration: dur, delay: isMobile ? 0.05 : 0.1, ease: easeOutExpo }}
             >
               {/* Dot */}
               <div className="flex flex-col items-center pt-7 flex-shrink-0">
-                <div className="w-[10px] h-[10px] rounded-full bg-primary ring-2 ring-white dark:ring-slate-900 ring-offset-1 ring-offset-primary/30 z-10" />
+                <motion.div
+                  initial={{ scale: 0.7, opacity: 0.5 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  className="w-[12px] h-[12px] rounded-full bg-primary ring-4 ring-white dark:ring-slate-900 ring-offset-2 ring-offset-primary/40 z-10 shadow-[0_0_10px_rgba(33,150,243,0.8)]"
+                />
               </div>
 
               {/* Card */}
-              <div className="flex-1 mb-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl p-5 sm:p-7 hover:border-primary/40 hover:-translate-y-1 transition-all duration-300">
+              <div className="flex-1 mb-6 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-5 sm:p-7 hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-xl">
                 {/* Top row */}
                 <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-3 mb-4">
                   <div className="space-y-1.5 flex-1 min-w-0">
@@ -144,7 +150,7 @@ const Achievements: React.FC = () => {
                   </div>
 
                   {/* Score chip */}
-                  <div className="flex-shrink-0 flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-0 px-4 py-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700 self-start">
+                  <div className="flex-shrink-0 flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-0 px-4 py-2 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 self-start shadow-inner">
                     <span className="text-2xl font-black text-primary tabular-nums leading-none">
                       <CountUp {...item.countUpProps} />
                     </span>
@@ -161,7 +167,7 @@ const Achievements: React.FC = () => {
                 </p>
 
                 {/* Highlight */}
-                <div className="flex gap-3 p-3.5 bg-gray-50 dark:bg-slate-800/80 rounded-lg border-l-[3px] border-primary">
+                <div className="flex gap-3 p-3.5 bg-gray-50 dark:bg-slate-800/80 rounded-xl border-l-[3px] border-primary">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse mt-1.5 flex-shrink-0" />
                   <p className="text-sm text-gray-700 dark:text-slate-300 leading-relaxed">
                     {item.highlight}

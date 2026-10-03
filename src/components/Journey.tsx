@@ -80,27 +80,28 @@ const Journey: React.FC = () => {
             const itemContent = (
               <>
                 <motion.div
-                  className="absolute left-[-5px] top-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(33,150,243,0.3)]"
+                  className="absolute left-[-6px] top-4 w-3 h-3 rounded-full bg-primary shadow-[0_0_12px_rgba(33,150,243,0.8)] ring-4 ring-white dark:ring-slate-900"
                   initial={{ scale: 0 }}
-                  animate={timelineInView ? { scale: 1 } : { scale: 0 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 15, delay: (isMobile ? 0.15 : 0.3) + idx * (isMobile ? 0.08 : 0.15) }}
-                  whileHover={{ scale: 1.6, boxShadow: '0 0 20px rgba(33,150,243,0.6)' }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.1 }}
+                  whileHover={{ scale: 1.6, boxShadow: '0 0 20px rgba(33,150,243,0.8)' }}
                 />
 
-                <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-6">
-                  <h4 className="text-xl sm:text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tighter">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+                  <h4 className="text-xl sm:text-2xl lg:text-3xl font-black font-heading text-gray-950 dark:text-slate-100 uppercase tracking-tight">
                     {item.title}
                   </h4>
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-mono font-black uppercase tracking-widest italic border ${
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-mono font-black uppercase tracking-widest italic border self-start ${
                     item.status === 'Learning' ? 'bg-primary/5 border-primary/20 text-primary' :
                     item.status === 'Exploring' ? 'bg-cyan-500/5 border-cyan-500/20 text-cyan-600' :
-                    'bg-orange-500/5 border-orange-500/20 text-orange-600'
+                    'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                   }`}>
                     {item.status}
                   </span>
                 </div>
                 
-                <p className="text-base sm:text-xl text-gray-500 dark:text-slate-400 leading-relaxed font-medium max-w-2xl italic">
+                <p className="text-base sm:text-lg text-gray-500 dark:text-slate-400 leading-relaxed font-normal max-w-2xl">
                   {item.description}
                 </p>
               </>
@@ -108,7 +109,7 @@ const Journey: React.FC = () => {
 
             if (isMobile) {
               return (
-                <ScrollProgressReveal key={idx} offset={["start end", "center center"]} className={`relative pl-12 group ${idx < journeyItems.length - 1 ? 'pb-16' : 'pb-0'}`}>
+                <ScrollProgressReveal key={idx} offset={["start end", "center center"]} className={`relative pl-10 group ${idx < journeyItems.length - 1 ? 'pb-14' : 'pb-0'}`}>
                   {itemContent}
                 </ScrollProgressReveal>
               );
@@ -117,11 +118,12 @@ const Journey: React.FC = () => {
             return (
               <motion.div 
                 key={idx} 
-                className={`relative pl-12 group ${idx < journeyItems.length - 1 ? 'pb-16' : 'pb-0'}`}
-                initial={{ opacity: 0, x: -40 }}
-                animate={timelineInView ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: -40 }}
-                transition={{ duration: 0.7, delay: 0.2 + idx * 0.15, ease: easeOutExpo }}
-                whileHover={{ x: 8 }}
+                className={`relative pl-10 group ${idx < journeyItems.length - 1 ? 'pb-14' : 'pb-0'}`}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.65, delay: idx * 0.1, ease: easeOutExpo }}
+                whileHover={{ x: 6 }}
               >
                 {itemContent}
               </motion.div>
