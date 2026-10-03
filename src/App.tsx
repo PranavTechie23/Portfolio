@@ -12,11 +12,23 @@ import Platforms from './components/Platforms';
 import Journey from './components/Journey';
 import Contact from './components/Contact';
 import BackgroundSystem from './components/BackgroundSystem';
+import CustomCursor from './components/CustomCursor';
 
 import ScrollToTop from './components/ScrollToTop';
 import TechMarquee from './components/motion/TechMarquee';
 import { motion, useScroll, AnimatePresence } from 'framer-motion';
 import Preloader from './components/Preloader';
+
+const MemoizedAbout = React.memo(About);
+const MemoizedAchievements = React.memo(Achievements);
+const MemoizedSkills = React.memo(Skills);
+const MemoizedProjects = React.memo(Projects);
+const MemoizedBuildInPublic = React.memo(BuildInPublic);
+const MemoizedPlatforms = React.memo(Platforms);
+const MemoizedJourney = React.memo(Journey);
+const MemoizedContact = React.memo(Contact);
+const MemoizedTechMarquee = React.memo(TechMarquee);
+const MemoizedBackgroundSystem = React.memo(BackgroundSystem);
 
 const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState('hero');
@@ -77,11 +89,15 @@ const App: React.FC = () => {
 
   const { scrollYProgress } = useScroll();
 
-  // Keep DOM class and localStorage in sync on every toggle
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
-    window.localStorage.setItem('portfolio-theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
+  // Instant synchronous toggle — 0ms delay before CSS classes apply
+  const handleToggleTheme = () => {
+    setIsDarkMode((prev) => {
+      const next = !prev;
+      document.documentElement.classList.toggle('dark', next);
+      window.localStorage.setItem('portfolio-theme', next ? 'dark' : 'light');
+      return next;
+    });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -110,49 +126,50 @@ const App: React.FC = () => {
           style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}
           className="fixed top-0 left-0 right-0 h-1 bg-primary z-[9999] shadow-[0_0_12px_rgba(33,150,243,0.8)]"
         />
-        <BackgroundSystem />
+        <MemoizedBackgroundSystem />
+        <CustomCursor />
         <ScrollToTop />
         
-        <Navbar activeSection={activeSection} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode((prev) => !prev)} />
+        <Navbar activeSection={activeSection} isDarkMode={isDarkMode} onToggleTheme={handleToggleTheme} />
 
         <main>
-          <section id="hero" className="w-full min-h-[100dvh] h-[100dvh] relative">
+          <section id="hero" className="w-full min-h-[100dvh] lg:h-[100dvh] relative">
             <Hero isDarkMode={isDarkMode} />
           </section>
 
-          <TechMarquee />
+          <MemoizedTechMarquee />
 
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 lg:px-16 space-y-14 sm:space-y-28 lg:space-y-32 py-12 sm:py-24 lg:py-32">
             <section id="about" className="scroll-mt-20 sm:scroll-mt-32">
-              <About />
+              <MemoizedAbout />
             </section>
 
             <section id="achievements" className="scroll-mt-20 sm:scroll-mt-32">
-              <Achievements />
+              <MemoizedAchievements />
             </section>
 
             <section id="skills" className="scroll-mt-20 sm:scroll-mt-32">
-              <Skills />
+              <MemoizedSkills />
             </section>
 
             <section id="projects" className="scroll-mt-20 sm:scroll-mt-32">
-              <Projects />
+              <MemoizedProjects />
             </section>
 
             <section id="build" className="scroll-mt-20 sm:scroll-mt-32">
-              <BuildInPublic />
+              <MemoizedBuildInPublic />
             </section>
 
             <section id="platforms" className="scroll-mt-20 sm:scroll-mt-32">
-              <Platforms />
+              <MemoizedPlatforms />
             </section>
 
             <section id="journey" className="scroll-mt-20 sm:scroll-mt-32">
-              <Journey />
+              <MemoizedJourney />
             </section>
 
             <section id="contact" className="scroll-mt-24 sm:scroll-mt-[100px]">
-              <Contact />
+              <MemoizedContact />
             </section>
           </div>
 

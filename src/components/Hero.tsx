@@ -1,262 +1,14 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   motion,
   useScroll,
   useTransform,
   useSpring,
   useMotionValue,
-  useMotionValueEvent,
-  useMotionTemplate,
   useReducedMotion,
 } from 'framer-motion';
 import BlueprintCanvas from './BlueprintCanvas';
 
-// ─────────────────────────────────────────────
-// Custom Cursor
-// ─────────────────────────────────────────────
-const CustomCursor = () => {
-  const cursorX = useMotionValue(0);
-  const cursorY = useMotionValue(0);
-  const [isHovering, setIsHovering] = useState(false);
-
-  useEffect(() => {
-    const moveCursor = (e: MouseEvent) => {
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
-    };
-    window.addEventListener('mousemove', moveCursor);
-
-    const interactiveElements = document.querySelectorAll('a, button, [data-interactive]');
-    const handleMouseEnter = () => setIsHovering(true);
-    const handleMouseLeave = () => setIsHovering(false);
-
-    interactiveElements.forEach((el) => {
-      el.addEventListener('mouseenter', handleMouseEnter);
-      el.addEventListener('mouseleave', handleMouseLeave);
-    });
-
-    return () => {
-      window.removeEventListener('mousemove', moveCursor);
-      interactiveElements.forEach((el) => {
-        el.removeEventListener('mouseenter', handleMouseEnter);
-        el.removeEventListener('mouseleave', handleMouseLeave);
-      });
-    };
-  }, [cursorX, cursorY]);
-
-  const cursorXSpring = useSpring(cursorX, { damping: 25, stiffness: 300 });
-  const cursorYSpring = useSpring(cursorY, { damping: 25, stiffness: 300 });
-
-  return (
-    <>
-      <motion.div
-        className="fixed top-0 left-0 w-3 h-3 rounded-full bg-cyan-400 pointer-events-none z-[100] mix-blend-difference"
-        style={{
-          x: cursorXSpring,
-          y: cursorYSpring,
-          translateX: '-50%',
-          translateY: '-50%',
-        }}
-      />
-      <motion.div
-        className="fixed top-0 left-0 w-6 h-6 rounded-full border border-cyan-400 pointer-events-none z-[100]"
-        style={{
-          x: cursorXSpring,
-          y: cursorYSpring,
-          translateX: '-50%',
-          translateY: '-50%',
-          scale: isHovering ? 1.5 : 1,
-          transition: 'scale 0.2s ease',
-        }}
-      />
-    </>
-  );
-};
-
-// ─────────────────────────────────────────────
-// Shared type for terminal logs
-// ─────────────────────────────────────────────
-interface ConsoleLog {
-  id: number;
-  text: string;
-  type: 'info' | 'success' | 'warning';
-}
-
-// ─────────────────────────────────────────────
-// Compiler Console
-// ─────────────────────────────────────────────
-interface CompilerConsoleProps {
-  logs: ConsoleLog[];
-}
-
-const CompilerConsole: React.FC<CompilerConsoleProps> = ({ logs }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-      className="w-[280px] dark:bg-[#0A0C10]/95 bg-white/95 backdrop-blur-xl border dark:border-[#00ffff]/20 border-slate-200 rounded-lg overflow-hidden shadow-2xl dark:shadow-cyan-500/10 shadow-blue-500/5"
-    >
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b dark:border-[#00ffff]/15 border-slate-100 dark:bg-[#00ffff]/5 bg-slate-50">
-        <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
-          <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
-          <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
-        </div>
-        <span className="text-[10px] font-mono dark:text-[#00ffff]/70 text-slate-800 ml-2 tracking-wide">
-          COMPILER.SH
-        </span>
-        <span className="ml-auto text-[8px] font-mono dark:text-[#00ffff]/40 text-slate-400">zsh</span>
-      </div>
-      <div className="p-3 space-y-1.5 font-mono text-[10px]">
-        {/* key={line.id} — stable ID prevents re-animating existing lines on trim */}
-        {logs.map((line) => (
-          <motion.div
-            key={line.id}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2 }}
-            className={`flex items-start gap-2 ${line.type === 'success'
-                ? 'dark:text-cyan-400 text-cyan-600 font-semibold'
-                : line.type === 'warning'
-                  ? 'dark:text-amber-400 text-amber-600 font-semibold'
-                  : 'dark:text-blue-400 text-blue-600'
-              }`}
-          >
-            <span className="dark:text-[#00ffff]/40 text-slate-400 select-none">$</span>
-            <span className="dark:text-slate-100 text-slate-900 break-words max-w-[240px]">
-              {line.text}
-            </span>
-          </motion.div>
-        ))}
-        <motion.div
-          animate={{ opacity: [1, 0.3, 1] }}
-          transition={{ duration: 1, repeat: Infinity }}
-          className="flex items-center gap-2 dark:text-[#00ffff]/40 text-slate-400 mt-2 pt-1 border-t dark:border-[#00ffff]/10 border-slate-100"
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-          <span className="text-[8px] dark:text-cyan-400/80 text-slate-700">system_ready</span>
-          <span className="animate-blink text-[10px] dark:text-slate-100 text-slate-900">█</span>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-};
-
-// ─────────────────────────────────────────────
-// Matrix Panel
-// ─────────────────────────────────────────────
-interface MatrixPanelProps {
-  coords: { x: number; y: number };
-  scrollPercent: number;
-  fps: number;
-  coreActivity: number;
-}
-
-const MatrixPanel: React.FC<MatrixPanelProps> = ({ coords, scrollPercent, fps, coreActivity }) => {
-  const metrics = [
-    { label: 'MOUSE_INPUT', value: `${coords.x}% / ${coords.y}%` },
-    { label: 'PAGE_SCROLL', value: `${scrollPercent}%` },
-    { label: 'ENGINE_FREQ', value: `${fps} FPS` },
-    { label: 'PORTFOLIO_NODE', value: 'LIVE_RUNNING' },
-  ];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="w-[260px] dark:bg-[#0A0C10]/95 bg-white/95 backdrop-blur-xl border dark:border-[#00ffff]/20 border-slate-200 rounded-lg overflow-hidden shadow-2xl dark:shadow-cyan-500/10 shadow-blue-500/5"
-    >
-      <div className="px-3 py-2 border-b dark:border-[#00ffff]/15 border-slate-100 dark:bg-[#00ffff]/5 bg-slate-50">
-        <span className="text-[9px] font-mono dark:text-[#00ffff]/80 text-primary tracking-wider font-bold">
-          SYSTEM MATRIX
-        </span>
-      </div>
-      <div className="p-3 space-y-2">
-        {metrics.map((metric, i) => (
-          <div key={i} className="flex justify-between items-center font-mono text-[9px]">
-            <span className="text-gray-500 tracking-wide">{metric.label}</span>
-            <span
-              className={`${metric.label === 'PORTFOLIO_NODE'
-                  ? 'dark:text-cyan-400 text-cyan-700'
-                  : 'dark:text-[#00ffff] text-primary'
-                } font-bold`}
-            >
-              {metric.value}
-            </span>
-          </div>
-        ))}
-        <div className="mt-2 pt-2 border-t dark:border-[#00ffff]/10 border-slate-100">
-          <div className="flex justify-between items-center">
-            <span className="text-[9px] font-mono text-gray-500">CORE ACTIVITY</span>
-            <span className="text-[11px] font-mono dark:text-cyan-400 text-cyan-700 font-bold">
-              {coreActivity} ms
-            </span>
-          </div>
-          <div className="mt-1.5 h-1 dark:bg-gray-800 bg-slate-100 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
-              animate={{ width: `${Math.min(100, (coreActivity / 80) * 100)}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-// ─────────────────────────────────────────────
-// Sparkline Graph
-// ─────────────────────────────────────────────
-interface SparklineGraphProps {
-  data: number[];
-  memAlloc: string;
-}
-
-const SparklineGraph: React.FC<SparklineGraphProps> = ({ data, memAlloc }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className="w-[220px] dark:bg-[#0A0C10]/95 bg-white/95 backdrop-blur-xl border dark:border-[#00ffff]/20 border-slate-200 rounded-lg overflow-hidden shadow-2xl dark:shadow-cyan-500/10 shadow-blue-500/5"
-    >
-      <div className="px-3 py-2 border-b dark:border-[#00ffff]/15 border-slate-100 dark:bg-[#00ffff]/5 bg-slate-50 flex justify-between items-center">
-        <span className="text-[9px] font-mono dark:text-[#00ffff]/80 text-primary tracking-wider font-bold">
-          INPUT MATRIX
-        </span>
-        <span className="text-[8px] font-mono dark:text-cyan-400 text-cyan-700">LIVE</span>
-      </div>
-      <div className="p-3">
-        <div className="h-[60px] flex items-end gap-1">
-          {data.map((h, i) => (
-            <motion.div
-              key={i}
-              className="flex-1 bg-cyan-500/60 dark:hover:bg-cyan-400 hover:bg-primary rounded-sm transition-all"
-              animate={{ height: `${h}%` }}
-              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-            />
-          ))}
-        </div>
-        <div className="flex justify-between mt-2 text-[8px] font-mono dark:text-gray-600 text-slate-400">
-          <span>48%</span>
-          <span className="dark:text-[#00ffff] text-primary">●</span>
-          <span>62%</span>
-        </div>
-        <div className="mt-2 pt-2 border-t dark:border-[#00ffff]/10 border-slate-100 flex justify-between text-[8px] font-mono">
-          <span className="text-gray-500">MEM_ALLOC:</span>
-          <span className="dark:text-cyan-400 text-cyan-700">{memAlloc}</span>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-// ─────────────────────────────────────────────
-// Hero
-// ─────────────────────────────────────────────
 interface HeroProps {
   isDarkMode?: boolean;
 }
@@ -264,620 +16,395 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [matrixCoords, setMatrixCoords] = useState({ x: 48, y: 62 });
 
-  // ── Scroll percent (ref — no re-render on scroll) ──────────────────────────
-  const scrollPercentRef = useRef(0);
-  const [scrollPercent, setScrollPercent] = useState(0);
   useEffect(() => {
-    const handleScroll = () => {
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight > 0) {
-        scrollPercentRef.current = Math.round((window.scrollY / docHeight) * 100);
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const checkMobile = () =>
+      setIsMobile(window.innerWidth < 1024 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // ── FPS tracker (Desktop only) ───────────────────────────────────────────────
-  const [fps, setFps] = useState(60);
-  useEffect(() => {
-    if (isMobile) return;
-    let lastTime = performance.now();
-    let frames = 0;
-    let frameId: number;
-    const calcFps = () => {
-      const now = performance.now();
-      frames++;
-      if (now > lastTime + 1000) {
-        setFps(Math.round((frames * 1000) / (now - lastTime)));
-        frames = 0;
-        lastTime = now;
-      }
-      frameId = requestAnimationFrame(calcFps);
-    };
-    frameId = requestAnimationFrame(calcFps);
-    return () => cancelAnimationFrame(frameId);
-  }, [isMobile]);
+  const prefersReducedMotion = useReducedMotion();
 
-  // ── Shared activity timestamp ref ────────────────────────────────────────────
-  // Shared between the input-listener effect and the 500ms ticker effect.
-  const lastActivityTime = useRef(performance.now());
+  // Mouse parallax on portrait
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { damping: 30, stiffness: 120 });
+  const springY = useSpring(mouseY, { damping: 30, stiffness: 120 });
 
   useEffect(() => {
     if (isMobile) return;
-    const recordActivity = () => { lastActivityTime.current = performance.now(); };
-    window.addEventListener('mousemove', recordActivity, { passive: true });
-    window.addEventListener('scroll', recordActivity, { passive: true });
-    window.addEventListener('click', recordActivity, { passive: true });
-    return () => {
-      window.removeEventListener('mousemove', recordActivity);
-      window.removeEventListener('scroll', recordActivity);
-      window.removeEventListener('click', recordActivity);
+    const handleMouseMove = (e: MouseEvent) => {
+      const { innerWidth, innerHeight } = window;
+      mouseX.set((e.clientX / innerWidth - 0.5) * 14);
+      mouseY.set((e.clientY / innerHeight - 0.5) * 14);
     };
-  }, [isMobile]);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isMobile, mouseX, mouseY]);
 
-  // ── Core activity + sparkline + memAlloc (500ms ticker, Desktop only) ─────────
-  const [coreActivity, setCoreActivity] = useState(14);
-  const [activityData, setActivityData] = useState<number[]>([
-    24, 28, 22, 25, 20, 23, 19, 21, 18, 20, 22, 25,
-  ]);
-  const [memAlloc, setMemAlloc] = useState('42.8MB');
-
-  useEffect(() => {
-    if (isMobile) return;
-    const interval = setInterval(() => {
-      const isActive = performance.now() - lastActivityTime.current < 250;
-
-      const baseLatency = 10 + Math.floor(Math.random() * 8);
-      const activityOffset = isActive ? 15 + Math.floor(Math.random() * 25) : 0;
-      setCoreActivity(baseLatency + activityOffset);
-
-      setMemAlloc((42.5 + Math.random() * 1.5).toFixed(1) + 'MB');
-
-      setActivityData((prev) => {
-        const nextVal = isActive
-          ? 55 + Math.floor(Math.random() * 35)  // spike 55-90%
-          : 15 + Math.floor(Math.random() * 12); // idle  15-27%
-        return [...prev.slice(1), nextVal];
-      });
-
-      // Batch-sync the scroll percent ref into state (avoids per-scroll re-render)
-      setScrollPercent(scrollPercentRef.current);
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, [isMobile]);
-
-  // ── Terminal logs ────────────────────────────────────────────────────────────
-  // logIdRef lives outside the render cycle so IDs are always unique and stable.
-  const logIdRef = useRef(100);
-
-  const [consoleLogs, setConsoleLogs] = useState<ConsoleLog[]>([
-    { id: 1, text: 'dependencies resolved.', type: 'success' },
-    { id: 2, text: 'server active on port 3000', type: 'info' },
-    { id: 3, text: 'system state: fully functional', type: 'success' },
-    { id: 4, text: 'synced projects count: 18+', type: 'info' },
-    { id: 5, text: 'system_ready: listening...', type: 'success' },
-  ]);
-
-  // useCallback → stable reference → safe in effect dependency arrays
-  const addLog = useCallback((text: string, type: ConsoleLog['type'] = 'info') => {
-    setConsoleLogs((prev) => {
-      const next = [...prev, { id: logIdRef.current++, text, type }];
-      return next.length > 5 ? next.slice(-5) : next;
-    });
-  }, []);
-
-  // Hover / click → terminal (Desktop only)
-  const lastHoverRef = useRef('');
-  useEffect(() => {
-    if (isMobile) return;
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const interactive = target.closest('a, button, [data-interactive], span');
-      if (!interactive) return;
-
-      const raw =
-        (interactive as HTMLElement).getAttribute('data-label') ||
-        interactive.textContent?.trim().substring(0, 24) ||
-        interactive.tagName.toLowerCase();
-
-      const label = (raw ?? '')
-        .replace(/[^a-zA-Z0-9_\-\s]/g, '')
-        .trim()
-        .toLowerCase();
-
-      if (label && label.length > 1 && label !== lastHoverRef.current) {
-        lastHoverRef.current = label;
-        addLog(`hover: [${label.substring(0, 16)}]`, 'info');
-        // Reset dedup after 800ms so re-hovering the same element re-logs
-        setTimeout(() => {
-          if (lastHoverRef.current === label) lastHoverRef.current = '';
-        }, 800);
-      }
-    };
-
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const interactive = target.closest('a, button, [data-interactive]');
-      if (!interactive) return;
-
-      const raw =
-        (interactive as HTMLElement).getAttribute('data-label') ||
-        interactive.textContent?.trim().substring(0, 20) ||
-        interactive.tagName.toLowerCase();
-
-      const label = (raw ?? '')
-        .replace(/[^a-zA-Z0-9_\-\s]/g, '')
-        .trim()
-        .toLowerCase();
-      addLog(`invoke: click [${label}]`, 'success');
-    };
-
-    window.addEventListener('mouseover', handleMouseOver, { passive: true });
-    window.addEventListener('click', handleClick, { passive: true });
-    return () => {
-      window.removeEventListener('mouseover', handleMouseOver);
-      window.removeEventListener('click', handleClick);
-    };
-  }, [isMobile, addLog]);
-
-  // Periodic background system task messages (Desktop only)
-  useEffect(() => {
-    if (isMobile) return;
-    const systemTasks: Array<{ text: string; type: ConsoleLog['type'] }> = [
-      { text: 'gc tick: memory cleanup ok', type: 'info' },
-      { text: 'db node sync: completed in 4ms', type: 'success' },
-      { text: 'toolkit cache hit: 98.4%', type: 'info' },
-      { text: 're-evaluating systems topology...', type: 'info' },
-      { text: 'network status: optimized latency', type: 'success' },
-      { text: 'watchdog: all nodes active', type: 'success' },
-    ];
-    let idx = 0;
-
-    const interval = setInterval(() => {
-      if (Math.random() > 0.4) {
-        const task = systemTasks[idx % systemTasks.length];
-        addLog(task.text, task.type);
-        idx++;
-      }
-    }, 6000);
-
-    return () => clearInterval(interval);
-  }, [isMobile, addLog]);
-
-  // ── Framer Motion: scroll progress + mouse tracking ──────────────────────────
+  // Scroll parallax exit
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end start'],
   });
 
-  const mouseX = useMotionValue(50);
-  const mouseY = useMotionValue(50);
-  const smoothX = useSpring(mouseX, { damping: 40, stiffness: 100 });
-  const smoothY = useSpring(mouseY, { damping: 40, stiffness: 100 });
+  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
+  const portraitY = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
+  // Scroll-left parallax: portrait drifts left as user scrolls (like neelshingavi.in)
+  const portraitX = useTransform(scrollYProgress, [0, 1], ['0%', '-18%']);
+  const opacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
-  useEffect(() => {
-    const checkMobile = () =>
-      setIsMobile(
-        window.innerWidth < 1024 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-      );
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      mouseX.set(((e.clientX - rect.left) / rect.width) * 100);
-      mouseY.set(((e.clientY - rect.top) / rect.height) * 100);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [mouseX, mouseY]);
-
-  useMotionValueEvent(smoothX, 'change', (v) =>
-    setMatrixCoords((prev) => ({ ...prev, x: Math.round(v) }))
-  );
-  useMotionValueEvent(smoothY, 'change', (v) =>
-    setMatrixCoords((prev) => ({ ...prev, y: Math.round(v) }))
-  );
-
-  // ── Derived motion values — MUST live at component top level, never in JSX ──
-  // Calling useTransform() inside JSX return is a Rules-of-Hooks violation.
-  const hudOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
-  const prefersReducedMotion = useReducedMotion();
-  const bgY = useTransform(scrollYProgress, (v) => {
-    if (prefersReducedMotion) return '0%';
-    const shiftPercent = isMobile ? 18 : 40;
-    return `${v * shiftPercent}%`;
-  });
-  const reactiveY = useTransform(scrollYProgress, (v) => {
-    if (prefersReducedMotion) return '0%';
-    const shiftPercent = isMobile ? 10 : 25;
-    return `${v * shiftPercent}%`;
-  });
-  const reactiveYSpring = useSpring(reactiveY, { damping: 35, stiffness: 90 });
-
-  // HUD parallax — each panel drifts in a different direction with the mouse
-  const hudXTop = useTransform(smoothX, [0, 100], [10, -10]);
-  const hudYTop = useTransform(smoothY, [0, 100], [12, -12]);
-  const hudXLeft = useTransform(smoothX, [0, 100], [-12, 12]);
-  const hudYLeft = useTransform(smoothY, [0, 100], [8, -8]);
-  const hudXRight = useTransform(smoothX, [0, 100], [12, -12]);
-  const hudYRight = useTransform(smoothY, [0, 100], [-8, 8]);
-
-  // ── Safe viewport size for particle initial positions ────────────────────────
-  // Captured once at mount; avoids direct window access during render (SSR-safe).
-  const [viewportSize] = useState(() => ({
-    w: typeof window !== 'undefined' ? window.innerWidth : 1440,
-    h: typeof window !== 'undefined' ? window.innerHeight : 900,
-  }));
-
-  // Interactive background layers for the glazed watermark
-  const watermarkBgDark = useMotionTemplate`
-    radial-gradient(circle 350px at ${smoothX}% ${smoothY}%, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0.08) 50%, transparent 100%),
-    linear-gradient(110deg, transparent 35%, rgba(34, 211, 238, 0.25) 45%, rgba(255, 255, 255, 0.6) 50%, rgba(34, 211, 238, 0.25) 55%, transparent 65%),
-    radial-gradient(rgba(34, 211, 238, 0.15) 1.5px, transparent 1.5px)
-  `;
-
-  const watermarkBgLight = useMotionTemplate`
-    radial-gradient(circle 350px at ${smoothX}% ${smoothY}%, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 100%),
-    linear-gradient(110deg, transparent 35%, rgba(59, 130, 246, 0.25) 45%, rgba(59, 130, 246, 0.5) 50%, rgba(59, 130, 246, 0.25) 55%, transparent 65%),
-    radial-gradient(rgba(59, 130, 246, 0.18) 1.5px, transparent 1.5px)
-  `;
-
-  const watermarkBg = isDarkMode ? watermarkBgDark : watermarkBgLight;
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Render
-  // ─────────────────────────────────────────────────────────────────────────────
   return (
     <div
       ref={containerRef}
-      className="relative w-full min-h-screen bg-gradient-to-br dark:from-[#0A0C10] dark:via-[#0F1219] dark:to-[#050608] from-[#F4F3F1] via-[#EAE9E6] to-[#E0DFDC] overflow-hidden"
+      className="relative w-full min-h-[100dvh] flex items-center justify-center overflow-hidden bg-gradient-to-br dark:from-[#0A0C10] dark:via-[#0D1117] dark:to-[#050608] from-[#F0F4FF] via-[#F1F3F5] to-[#E8EDF7] text-slate-900 dark:text-slate-100 transition-colors duration-500 pt-16 sm:pt-20 lg:pt-16 pb-6"
     >
-      {/* Blueprint Grid Background: Light static CSS pattern for mobile (0% CPU), dynamic canvas for desktop */}
+      {/* Blueprint Grid Background: Canvas on Desktop, Static Grid on Mobile */}
       <div className="absolute inset-0 z-0 opacity-40 dark:opacity-30 pointer-events-none">
         {isMobile ? (
           <div
-            className="w-full h-full"
-            style={{
-              backgroundImage: isDarkMode
-                ? 'radial-gradient(rgba(100, 116, 139, 0.4) 1.5px, transparent 1.5px), linear-gradient(to right, rgba(51, 65, 85, 0.16) 1px, transparent 1px), linear-gradient(to bottom, rgba(51, 65, 85, 0.16) 1px, transparent 1px)'
-                : 'radial-gradient(rgba(148, 163, 184, 0.4) 1.5px, transparent 1.5px), linear-gradient(to right, rgba(148, 163, 184, 0.16) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.16) 1px, transparent 1px)',
-              backgroundSize: '140px 140px, 140px 140px, 140px 140px',
-            }}
+            className="w-full h-full hero-mobile-grid"
           />
         ) : (
           <BlueprintCanvas isDarkMode={isDarkMode} />
         )}
       </div>
 
-      {/* Scanline Effect */}
-      <div className="absolute inset-0 pointer-events-none z-[60] bg-gradient-to-b from-transparent via-transparent to-transparent opacity-5">
-        <div className="w-full h-[2px] dark:bg-cyan-400/20 bg-blue-500/10 absolute animate-scan" />
-      </div>
-
-      {/* ENGINEER Watermark with Cyber-Glaze effect */}
-      {isMobile ? (
-        <div
-          className="absolute top-[22%] sm:top-[28%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden px-2"
-        >
-          {/* Mobile: static ENGINEER watermark — no JS parallax, pure CSS */}
-          <div className="relative inline-block w-full">
-            <span
-              className="relative text-[18vw] sm:text-[20vw] font-black leading-none tracking-[-0.05em] select-none text-transparent bg-clip-text block mx-auto max-w-full"
-              style={{
-                backgroundImage: isDarkMode
-                  ? 'linear-gradient(135deg, rgba(34,211,238,0.55) 0%, rgba(34,211,238,0.15) 40%, rgba(99,102,241,0.25) 70%, rgba(34,211,238,0.4) 100%)'
-                  : 'linear-gradient(135deg, rgba(59,130,246,0.6) 0%, rgba(59,130,246,0.2) 40%, rgba(99,102,241,0.3) 70%, rgba(59,130,246,0.5) 100%)',
-                WebkitTextStroke: isDarkMode
-                  ? "1.5px rgba(34,211,238,0.3)"
-                  : "1.5px rgba(59,130,246,0.4)"
-              }}
-            >
-              ENGINEER
-            </span>
-          </div>
-        </div>
-      ) : (
-        <motion.div
-          className="absolute top-[44%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden"
-          style={{ y: bgY }}
-        >
-          <div className="relative inline-block w-full">
-            {/* Layer 1: Under-Glow (Soft backing bloom) */}
-            <motion.h1
-              className="text-[18vw] md:text-[20vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap absolute inset-0 text-transparent opacity-60 blur-md dark:drop-shadow-[0_0_20px_rgba(34,211,238,0.25)] drop-shadow-[0_0_20px_rgba(59,130,246,0.18)]"
-              style={{
-                WebkitTextStroke: isDarkMode
-                  ? "1px rgba(34, 211, 238, 0.08)"
-                  : "1px rgba(59, 130, 246, 0.12)"
-              }}
-            >
-              ENGINEER
-            </motion.h1>
-
-            {/* Layer 2: Main Interactive Watermark text with Glaze, Grid Mesh & Shimmer Sweep */}
-            <motion.h1
-              className="relative text-[18vw] md:text-[20vw] font-black leading-none tracking-[-0.05em] select-none whitespace-nowrap text-transparent bg-clip-text text-glaze-shimmer"
-              style={{
-                backgroundImage: watermarkBg,
-                WebkitTextStroke: isDarkMode
-                  ? "1.5px rgba(34, 211, 238, 0.25)"
-                  : "1.5px rgba(59, 130, 246, 0.35)",
-                textShadow: isDarkMode
-                  ? "0 0 10px rgba(34, 211, 238, 0.05)"
-                  : "0 0 10px rgba(59, 130, 246, 0.04)"
-              }}
-            >
-              ENGINEER
-            </motion.h1>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Telemetry HUD — fades on scroll, hidden on mobile */}
-      <motion.div
-        style={{ opacity: hudOpacity }}
-        className="fixed inset-0 z-20 pointer-events-none hidden md:block"
-      >
-        <div className="relative w-full max-w-[1440px] h-full mx-auto">
-
-          {/* Top-right: Compiler Console */}
-          <motion.div
-            style={{ x: hudXTop, y: hudYTop }}
-            className="absolute right-6 top-6 pointer-events-auto origin-top-right transition-colors duration-300 scale-75 xl:scale-90 2xl:scale-100"
-          >
-            <CompilerConsole logs={consoleLogs} />
-          </motion.div>
-
-          {/* Bottom-left: System Matrix */}
-          <motion.div
-            style={{ x: hudXLeft, y: hudYLeft }}
-            className="absolute left-6 bottom-6 pointer-events-auto origin-bottom-left transition-colors duration-300 scale-75 xl:scale-90 2xl:scale-100"
-          >
-            <MatrixPanel
-              coords={matrixCoords}
-              scrollPercent={scrollPercent}
-              fps={fps}
-              coreActivity={coreActivity}
-            />
-          </motion.div>
-
-          {/* Bottom-right: Sparkline */}
-          <motion.div
-            style={{ x: hudXRight, y: hudYRight }}
-            className="absolute right-6 bottom-6 pointer-events-auto origin-bottom-right transition-colors duration-300 scale-75 xl:scale-90 2xl:scale-100"
-          >
-            <SparklineGraph data={activityData} memAlloc={memAlloc} />
-          </motion.div>
-
-        </div>
-      </motion.div>
-
-      {/* Mobile-only: a single static ambient glow + CSS corner brackets — zero JS overhead */}
-      {isMobile && (
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          {/* Ambient glow orb — pure CSS, no animation */}
-          <div
-            className="absolute top-[32%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full"
-            style={{
-              background: isDarkMode
-                ? 'radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 70%)'
-                : 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)',
-            }}
-          />
-          {/* CSS-only corner brackets */}
-          <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2" style={{ borderColor: isDarkMode ? 'rgba(34,211,238,0.25)' : 'rgba(59,130,246,0.25)' }} />
-          <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2" style={{ borderColor: isDarkMode ? 'rgba(34,211,238,0.25)' : 'rgba(59,130,246,0.25)' }} />
-          <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2" style={{ borderColor: isDarkMode ? 'rgba(34,211,238,0.25)' : 'rgba(59,130,246,0.25)' }} />
-          <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2" style={{ borderColor: isDarkMode ? 'rgba(34,211,238,0.25)' : 'rgba(59,130,246,0.25)' }} />
-        </div>
-      )}
-
-      {/* Top Left Status — hidden on mobile to reduce clutter */}
-      <div className="absolute top-20 sm:top-24 left-4 sm:left-6 z-30 pointer-events-none hidden sm:block">
-        <div className="flex items-center gap-2 px-2.5 py-1 dark:bg-[#0A0C10]/80 bg-white/85 dark:backdrop-blur-sm backdrop-blur-md border-l-2 dark:border-cyan-400 border-primary shadow-sm rounded-r">
-          <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-[8px] sm:text-[9px] font-mono dark:text-cyan-400 text-primary tracking-[0.2em] font-bold">
-            ONLINE
-          </span>
-        </div>
-        <div className="mt-1.5 pl-2.5">
-          <h3 className="text-sm sm:text-lg font-black font-mono dark:text-gray-300 text-slate-700 tracking-tighter">
-            LIVE FEED
-          </h3>
-        </div>
-      </div>
-
-
-
-      {/* Main Nameplate */}
-      <div className="absolute inset-0 pointer-events-none z-40 flex items-center sm:items-end justify-center px-3 sm:px-0 pt-16 sm:pt-0 pb-safe sm:pb-6">
-        <motion.div
-          className="w-full max-w-[94vw] sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-2xl px-0 sm:px-6 origin-bottom"
-          style={isMobile ? {} : { y: reactiveYSpring }}
-        >
-          <motion.div
-            initial={{ y: isMobile ? 40 : -200, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.7, delay: isMobile ? 0.3 : 0.8, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {/* Top sweep line */}
-            <motion.div
-              className="h-[2px] bg-gradient-to-r from-transparent dark:via-cyan-400 via-primary to-transparent"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            />
-
-            {/* Main Card — no float animation on mobile (saves CPU) */}
+      {/* Floating Particle Dots — decorative ambient animation */}
+      {!isMobile && (
+        <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
+          {[
+            { w: 3, h: 3, top: '18%', left: '12%', delay: '0s', dur: '7s' },
+            { w: 2, h: 2, top: '72%', left: '8%',  delay: '1.5s', dur: '9s' },
+            { w: 4, h: 4, top: '34%', left: '22%', delay: '3s',   dur: '6s' },
+            { w: 2, h: 2, top: '58%', left: '40%', delay: '0.8s', dur: '11s' },
+            { w: 3, h: 3, top: '80%', left: '55%', delay: '2s',   dur: '8s' },
+            { w: 2, h: 2, top: '25%', left: '68%', delay: '4s',   dur: '10s' },
+            { w: 3, h: 3, top: '62%', left: '78%', delay: '1s',   dur: '7.5s' },
+            { w: 2, h: 2, top: '45%', left: '88%', delay: '2.5s', dur: '9.5s' },
+          ].map((p, i) => (
             <div
-              className="relative dark:bg-[#0A0C10]/90 bg-white/90 dark:backdrop-blur-2xl backdrop-blur-2xl border dark:border-cyan-500/30 border-blue-200/80 shadow-2xl dark:shadow-cyan-500/20 shadow-blue-500/5 rounded-2xl overflow-hidden"
+              key={i}
+              className="absolute rounded-full dark:bg-cyan-400/50 bg-primary/40"
+              style={{
+                width: p.w, height: p.h,
+                top: p.top, left: p.left,
+                animation: `heroParticleFade ${p.dur} ease-in-out ${p.delay} infinite`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Cybernetic Ambient Light Glows */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Cyan Ambient Aura behind the portrait */}
+        <div className="absolute top-1/4 right-1/12 w-[500px] sm:w-[700px] h-[500px] sm:h-[700px] rounded-full dark:bg-cyan-500/15 bg-blue-400/10 blur-3xl pointer-events-none" />
+        {/* Purple tint accent top-left */}
+        <div className="absolute -top-20 -left-20 w-[300px] h-[300px] rounded-full dark:bg-violet-600/8 bg-indigo-400/8 blur-3xl pointer-events-none" />
+        {/* Blue Ambient Glow in bottom-left */}
+        <div className="absolute bottom-1/6 left-1/12 w-[400px] sm:w-[550px] h-[400px] sm:h-[550px] rounded-full dark:bg-blue-600/12 bg-sky-400/8 blur-3xl pointer-events-none" />
+
+        {/* Scanline Effect */}
+        <div className="absolute inset-0 pointer-events-none z-[5] opacity-5">
+          <div className="w-full h-[2px] dark:bg-cyan-400/20 bg-blue-500/10 absolute animate-scan" />
+        </div>
+      </div>
+
+      {/* Subtle "ENGINEER" Watermark in Background */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none select-none overflow-hidden opacity-[0.18] dark:opacity-[0.12]">
+        <span
+          className="text-[18vw] font-black font-heading leading-none tracking-[-0.05em] select-none text-transparent hero-engineer-watermark"
+        >
+          ENGINEER
+        </span>
+      </div>
+
+      {/* Main Content Container */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-4 sm:py-8 lg:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[calc(100dvh-130px)]">
+          
+          {/* Left Column: Hero Narrative, Name & Actions */}
+          <motion.div
+            style={prefersReducedMotion ? {} : { y: contentY, opacity }}
+            className="lg:col-span-7 flex flex-col justify-center space-y-4 sm:space-y-5 lg:space-y-6 z-20"
+          >
+            {/* Location & Role Status Tag */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="flex items-center gap-3"
             >
-              {/* Premium Corner Slider / Sweep Effect — desktop only for perf */}
-              {!isMobile && (
-              <svg className="absolute inset-0 w-full h-full pointer-events-none rounded-2xl" style={{ overflow: 'visible' }}>
-                <rect
-                  x="0"
-                  y="0"
-                  width="100%"
-                  height="100%"
-                  rx="16"
-                  fill="none"
-                  className="dark:stroke-cyan-400 stroke-primary stroke-[2px] opacity-75"
-                  pathLength="100"
-                  style={{
-                    strokeDasharray: "15 85",
-                    animation: "borderSweep 4s linear infinite"
-                  }}
-                />
-              </svg>
-              )}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full dark:bg-cyan-500/10 bg-primary/8 border dark:border-cyan-500/20 border-primary/15 backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                </span>
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] dark:text-cyan-400 text-primary uppercase">
+                  Pune, India
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full dark:bg-slate-800/60 bg-white/70 border dark:border-slate-700/50 border-gray-200/80 backdrop-blur-sm">
+                <svg className="w-3 h-3 dark:text-slate-400 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+                  <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                </svg>
+                
+              </div>
+            </motion.div>
 
-              {/* Corner Accents */}
-              <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 dark:border-cyan-400/60 border-primary/40 rounded-tl-2xl" />
-              <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 dark:border-cyan-400/60 border-primary/40 rounded-tr-2xl" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 dark:border-cyan-400/60 border-primary/40 rounded-bl-2xl" />
-              <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 dark:border-cyan-400/60 border-primary/40 rounded-br-2xl" />
-
-              <div className="p-4 sm:p-6 md:p-8 lg:p-10 text-center">
-                {/* Name */}
-                <motion.h1
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black font-heading tracking-tighter leading-tight"
-                >
-                  <span className="dark:text-gray-200 text-slate-800">PRANAV SANJAY </span>
-                  <span className="dark:text-cyan-400 text-primary relative">
-                    OSWAL
-                    <span className="absolute -bottom-2 left-0 w-full h-0.5 dark:bg-cyan-400/50 bg-primary/40" />
+            {/* Name Headline (Space Grotesk - Our Theme Font) */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] xl:text-[5.4rem] font-black font-heading tracking-tighter uppercase leading-[0.94] text-gray-950 dark:text-slate-100 select-none">
+                PRANAV SANJAY <br />
+                <span className="relative inline-block">
+                  <span
+                    className="bg-clip-text text-transparent animate-name-shimmer"
+                    style={{
+                      backgroundImage: isDarkMode
+                        ? 'linear-gradient(90deg, #22d3ee 0%, #60a5fa 35%, #a78bfa 55%, #22d3ee 75%, #60a5fa 100%)'
+                        : 'linear-gradient(90deg, #2196F3 0%, #0ea5e9 35%, #3b82f6 55%, #2196F3 75%, #0ea5e9 100%)',
+                      backgroundSize: '250% auto',
+                    }}
+                  >OSWAL</span>
+                  <span className="absolute -bottom-1 left-0 w-full h-[3px] sm:h-1 rounded-full overflow-hidden">
+                    <span className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 animate-gradient-x" />
                   </span>
-                </motion.h1>
+                </span>
+              </h1>
+            </motion.div>
 
-                {/* Role Tags */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="mt-2 sm:mt-3 flex flex-wrap justify-center gap-1.5 sm:gap-3"
+            {/* Role Pills with staggered entrance */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex flex-wrap gap-2 pt-0.5"
+            >
+              {[
+                { label: 'PROBLEM SOLVER', icon: '⚡' },
+                { label: 'FULL-STACK DEV', icon: '{ }' },
+                { label: 'AI SYSTEMS', icon: '◈' },
+              ].map((role, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 + i * 0.08, duration: 0.4 }}
+                  className="px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.14em] dark:text-cyan-400 text-primary border dark:border-cyan-500/30 border-primary/20 rounded-md dark:bg-cyan-500/5 bg-primary/5 uppercase flex items-center gap-1.5"
                 >
-                  {['PROBLEM SOLVER', 'FULL-STACK DEVELOPER', 'AI ENGINEER'].map((role, i) => (
-                    <span
-                      key={i}
-                      className="px-2.5 sm:px-3 py-1 sm:py-1 text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.12em] sm:tracking-[0.2em] dark:text-cyan-400 text-primary border dark:border-cyan-500/30 border-blue-200/80 rounded dark:bg-cyan-500/5 bg-primary/5"
-                    >
-                      {role}
-                    </span>
-                  ))}
-                </motion.div>
+                  <span className="opacity-70">{role.icon}</span>
+                  {role.label}
+                </motion.span>
+              ))}
+            </motion.div>
 
-                {/* Divider */}
-                <div className="my-3 flex items-center justify-center gap-3">
-                  <div className="w-12 h-px bg-gradient-to-r from-transparent dark:to-cyan-500 to-primary" />
-                  <div className="w-1.5 h-1.5 rounded-full dark:bg-cyan-400 bg-primary" />
-                  <div className="w-12 h-px bg-gradient-to-l from-transparent dark:to-cyan-500 to-primary" />
+            {/* Summary Narrative */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.35 }}
+              className="text-sm sm:text-base md:text-base lg:text-[1.05rem] text-gray-600 dark:text-slate-300 leading-relaxed font-normal max-w-xl"
+            >
+              Computer Engineering student specializing in building high-performance web applications,
+              distributed systems, and AI-driven architectures. Proficient across C++, Python,
+              TypeScript, React, and PostgreSQL, with strong foundations in Data Structures and Algorithms.
+            </motion.p>
+
+            {/* Actions & Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.45 }}
+              className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1"
+            >
+              {/* Primary: Enter Experience / Explore */}
+              <div className="relative inline-block rounded-lg">
+                {/* Spinning conic-gradient border — dark mode only */}
+                <div className="absolute -inset-[2px] rounded-[10px] overflow-hidden hero-explore-spin-ring pointer-events-none">
+                  <div className="hero-explore-spin-inner" />
+                </div>
+                {/* Outer diffuse glow */}
+                <div className="absolute -inset-1 rounded-xl dark:bg-cyan-500/20 bg-primary/10 blur-md pointer-events-none hero-explore-glow-pulse" />
+                <a
+                  href="#projects"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const target = document.getElementById('projects');
+                    if (target) {
+                      const offset = window.innerWidth < 768 ? -72 : -96;
+                      const top = target.getBoundingClientRect().top + window.scrollY + offset;
+                      window.scrollTo({ top, behavior: 'smooth' });
+                    }
+                  }}
+                  className="group relative z-10 px-6 sm:px-7 py-3 sm:py-3.5 text-white font-mono font-bold text-xs uppercase tracking-[0.18em] rounded-lg transition-all duration-300 hover:-translate-y-0.5 inline-flex items-center gap-2 overflow-hidden hero-explore-btn"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    EXPLORE WORK
+                    <svg
+                      className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-200"
+                      fill="none"
+                      viewBox="0 0 14 14"
+                      stroke="currentColor"
+                      strokeWidth={2.2}
+                    >
+                      <path d="M2 7h10M8 3l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                </a>
+              </div>
+
+
+              {/* Secondary: LinkedIn Connect */}
+              <a
+                href="https://www.linkedin.com/in/pranav-oswal"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group px-6 sm:px-7 py-3 sm:py-3.5 border dark:border-cyan-400/40 border-primary/40 dark:hover:border-cyan-400 hover:border-primary dark:bg-[#0A0C10]/60 bg-white/70 hover:bg-primary/5 dark:hover:bg-cyan-500/10 text-gray-900 dark:text-cyan-300 font-mono font-bold text-xs uppercase tracking-[0.18em] rounded-lg transition-all duration-300 backdrop-blur-md inline-flex items-center gap-2 shadow-sm hover:-translate-y-0.5"
+              >
+                {/* LinkedIn logo icon */}
+                <svg
+                  className="w-4 h-4 text-[#0A66C2] dark:text-[#38bdf8] flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+                <span>CONNECT</span>
+                {/* Animated arrow */}
+                <svg
+                  className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 14 14"
+                  strokeWidth={2.2}
+                >
+                  <path d="M2 7h10M8 3l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+            </motion.div>
+
+            {/* Quick Metrics Bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.6 }}
+              className="pt-4 sm:pt-5 border-t border-gray-200 dark:border-slate-800 max-w-lg"
+            >
+              <div className="grid grid-cols-3 gap-0 divide-x divide-gray-200 dark:divide-slate-800">
+                {[
+                  { value: '9.03', label: 'CGPA', sub: 'Current', color: 'text-emerald-500 dark:text-emerald-400' },
+                  { value: '1000+', label: 'Problem Solved', sub: 'LeetCode', color: 'text-primary dark:text-cyan-400' },
+                  { value: '10+',  label: 'Projects', sub: 'Shipped', color: 'text-violet-500 dark:text-violet-400' },
+                ].map((m, i) => (
+                  <div key={i} className={`${i === 0 ? 'pr-4' : i === 1 ? 'px-4' : 'pl-4'} group`}>
+                    <div className={`text-2xl sm:text-3xl font-black font-heading ${m.color} tabular-nums transition-transform duration-200 group-hover:scale-105 origin-left`}>{m.value}</div>
+                    <div className="text-[11px] font-mono font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mt-0.5">{m.label}</div>
+                    <div className="text-[9px] font-mono text-gray-400 dark:text-slate-500 uppercase tracking-wider">{m.sub}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Right Column: Executive Professional Portrait for HR & Tech Recruiters */}
+          <motion.div
+            style={prefersReducedMotion ? {} : { y: portraitY, x: portraitX, opacity }}
+            className="lg:col-span-5 relative flex items-center justify-center lg:justify-end"
+          >
+            {/* Portrait Wrapper with Subtle Mouse Parallax */}
+            <motion.div
+              style={prefersReducedMotion ? {} : { x: springX, y: springY }}
+              initial={{ opacity: 0, scale: 0.95, y: 25 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-full max-w-[300px] sm:max-w-[380px] lg:max-w-[470px] xl:max-w-[490px] flex flex-col items-center"
+            >
+              {/* Soft Ambient Glow Halo behind card */}
+              <div
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] sm:w-[440px] h-[360px] sm:h-[440px] rounded-full blur-3xl pointer-events-none -z-10 hero-portrait-glow"
+              />
+
+              {/* Executive Bento Portrait Card */}
+              <div
+                className="relative w-full max-w-[300px] sm:max-w-[370px] lg:max-w-[460px] rounded-3xl overflow-hidden shadow-2xl border transition-all duration-300 hero-portrait-card"
+              >
+                {/* Subtle top rim highlight line */}
+                <div
+                  className="absolute top-0 inset-x-0 h-[1px] z-20 hero-portrait-rimlight"
+                />
+
+                {/* Soft inner studio spotlight behind head */}
+                <div
+                  className="absolute top-[20%] left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-2xl pointer-events-none hero-portrait-spotlight"
+                />
+
+                {/* Subject Portrait Image - Contained naturally */}
+                <div className="relative w-full h-[340px] sm:h-[430px] lg:h-[500px] xl:h-[520px] flex items-end justify-center pt-6">
+                  <img
+                    src="/PranavOswal_Pic_nobg.webp"
+                    alt="Pranav Sanjay Oswal - Software Engineer"
+                    className="relative z-10 w-auto h-full max-h-[500px] object-contain object-bottom select-none pointer-events-none hero-portrait-img"
+                    loading="eager"
+                  />
                 </div>
 
-                {/* CTA Button */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="pointer-events-auto relative inline-block"
+                {/* Integrated Executive Footer Strip for Recruiters */}
+                <div
+                  className="relative z-20 px-4 py-3 flex items-center justify-between border-t backdrop-blur-md hero-portrait-footer"
                 >
-                  {/* Glowing Radar Rings behind button */}
-                  <div className="absolute inset-0 rounded-lg bg-cyan-500/20 dark:bg-cyan-400/25 blur-sm pointer-events-none animate-pulse-ring" />
-                  <div className="absolute inset-0 rounded-lg bg-cyan-500/20 dark:bg-cyan-400/25 blur-sm pointer-events-none animate-pulse-ring" style={{ animationDelay: '1.5s' }} />
-
-                  <a
-                    href="#about"
-                    data-interactive="true"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const target = document.getElementById('about');
-                      if (target) {
-                        const offset = window.innerWidth < 768 ? -72 : -96;
-                        const top = target.getBoundingClientRect().top + window.scrollY + offset;
-                        window.scrollTo({ top, behavior: 'smooth' });
-                      }
-                    }}
-                    className="group relative inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[11px] sm:text-[11px] font-black font-mono tracking-[0.18em] sm:tracking-[0.22em] uppercase rounded-lg overflow-hidden shadow-lg shadow-cyan-500/35 hover:shadow-cyan-500/50 transition-all duration-300 min-h-[44px]"
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                    {/* Shimmer sweep line */}
-                    <span className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -left-full animate-shimmer pointer-events-none" />
-
-                    <span className="relative z-10 flex items-center gap-2">
-                      ENTER EXPERIENCE
-                      <svg
-                        className="w-3 h-3 group-hover:translate-x-1 transition-transform"
-                        fill="none"
-                        viewBox="0 0 12 12"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path d="M2 6h8M6 2l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                  <div className="flex flex-col">
+                    <span className="text-[12px] font-mono font-bold tracking-tight dark:text-slate-100 text-slate-900">
+                      Pranav Sanjay Oswal
                     </span>
-                  </a>
-                </motion.div>
+                    <span className="text-[10px] font-mono font-medium dark:text-cyan-400 text-primary">
+                      Software Engineer • Pune, IN
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full dark:bg-emerald-500/10 bg-emerald-50 border dark:border-emerald-500/30 border-emerald-200">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                  
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* Bottom sweep line */}
-            <motion.div
-              className="h-px bg-gradient-to-r from-transparent dark:via-cyan-500/50 via-primary/30 to-transparent"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            />
+              {/* Sub-card role tag */}
+              
+            </motion.div>
           </motion.div>
+
+        </div>
+      </div>
+
+      {/* Scroll-down cue */}
+      {!isMobile && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.4, duration: 0.8 }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 z-20 pointer-events-none"
+        >
+          <span className="text-[9px] font-mono tracking-[0.3em] dark:text-slate-500 text-gray-400 uppercase">Scroll</span>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            className="w-[1px] h-8 dark:bg-gradient-to-b dark:from-cyan-400/60 dark:to-transparent bg-gradient-to-b from-primary/60 to-transparent"
+          />
         </motion.div>
-      </div>
+      )}
 
-      {/* Floating particles — CSS-only on mobile, JS-animated on desktop */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        {isMobile ? (
-          // 4 static dots with CSS animation — zero JS overhead
-          [{ x: '20%', y: '25%', size: 4, delay: '0s' }, { x: '75%', y: '60%', size: 3, delay: '1.5s' }, { x: '50%', y: '15%', size: 5, delay: '3s' }, { x: '85%', y: '35%', size: 3, delay: '0.8s' }].map((p, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full hero-particle"
-              style={{
-                left: p.x, top: p.y,
-                width: p.size, height: p.size,
-                backgroundColor: i % 2 === 0 ? 'rgba(34,211,238,0.55)' : 'rgba(99,102,241,0.45)',
-                animationDelay: p.delay,
-              }}
-            />
-          ))
-        ) : (
-          [...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-0.5 h-0.5 bg-cyan-400/30 rounded-full"
-              initial={{ x: Math.random() * viewportSize.w, y: Math.random() * viewportSize.h }}
-              animate={{ y: [null, -(40 + Math.random() * 60)], opacity: [0, 0.8, 0] }}
-              transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 6, ease: 'easeOut' }}
-            />
-          ))
-        )}
-      </div>
-
-      {/* Custom Cursor (desktop only) */}
-      {!isMobile && <CustomCursor />}
-
-      {/* Keyframe styles */}
+      {/* Keyframe Styles */}
       <style>{`
         @keyframes scan {
           0%   { transform: translateY(-100%); }
@@ -885,25 +412,6 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
         }
         .animate-scan {
           animation: scan 8s linear infinite;
-        }
-        .animate-blink {
-          animation: blink 1.2s step-end infinite;
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1;   }
-          50%       { opacity: 0.3; }
-        }
-        @keyframes borderSweep {
-          0%   { stroke-dashoffset: 100; }
-          100% { stroke-dashoffset: 0;   }
-        }
-        @keyframes shimmer {
-          0%   { left: -150%; }
-          50%  { left: 150%;  }
-          100% { left: 150%;  }
-        }
-        .animate-shimmer {
-          animation: shimmer 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
         @keyframes pulse-ring {
           0% {
@@ -917,6 +425,35 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode = false }) => {
         }
         .animate-pulse-ring {
           animation: pulse-ring 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes spinSlow {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spinSlow 32s linear infinite;
+        }
+        @keyframes nameShinmer {
+          0%   { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
+        .animate-name-shimmer {
+          animation: nameShinmer 4s linear infinite;
+        }
+        @keyframes gradientX {
+          0%, 100% { background-position: 0% 50%; }
+          50%       { background-position: 100% 50%; }
+        }
+        .animate-gradient-x {
+          background-size: 200% 200%;
+          animation: gradientX 3s ease infinite;
+        }
+        @keyframes borderGlow {
+          0%, 100% { box-shadow: 0 0 12px rgba(34,211,238,0.15), inset 0 0 12px rgba(34,211,238,0.06); }
+          50%       { box-shadow: 0 0 28px rgba(34,211,238,0.28), inset 0 0 18px rgba(34,211,238,0.10); }
+        }
+        .animate-border-glow {
+          animation: borderGlow 3.5s ease-in-out infinite;
         }
       `}</style>
     </div>

@@ -16,6 +16,13 @@ interface Node {
 const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: -1000, y: -1000, active: false });
+  const isDarkModeRef = useRef(isDarkMode);
+  const wakeUpRef = useRef<() => void>(() => {});
+
+  useEffect(() => {
+    isDarkModeRef.current = isDarkMode;
+    wakeUpRef.current();
+  }, [isDarkMode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -71,6 +78,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
         animationId = requestAnimationFrame(render);
       }
     };
+    wakeUpRef.current = wakeUp;
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -148,7 +156,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
 
       // 2. Draw Grid Mesh Lines — BATCHED into a single path for performance
       ctx.lineWidth = 0.75;
-      ctx.strokeStyle = isDarkMode
+      ctx.strokeStyle = isDarkModeRef.current
         ? 'rgba(51, 65, 85, 0.16)'
         : 'rgba(148, 163, 184, 0.16)';
 
@@ -175,7 +183,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
       ctx.stroke();
 
       // 3. Draw Grid Nodes — BATCHED into a single fill path
-      ctx.fillStyle = isDarkMode
+      ctx.fillStyle = isDarkModeRef.current
         ? 'rgba(100, 116, 139, 0.4)'
         : 'rgba(148, 163, 184, 0.4)';
 
@@ -226,7 +234,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
         ctx.stroke();
 
         ctx.font = 'bold 11px JetBrains Mono, monospace';
-        ctx.fillStyle = isDarkMode ? 'rgba(33, 150, 243, 0.95)' : 'rgba(33, 150, 243, 1.0)';
+        ctx.fillStyle = isDarkModeRef.current ? 'rgba(33, 150, 243, 0.95)' : 'rgba(33, 150, 243, 1.0)';
         ctx.fillText(`SYS.X: ${Math.round(m.x)}px`, m.x + 18, m.y - 18);
         ctx.fillText(`SYS.Y: ${Math.round(m.y)}px`, m.x + 18, m.y - 6);
       }
@@ -264,7 +272,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ isDarkMode }) => {
       window.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [isDarkMode]);
+  }, []);
 
   return (
     <canvas

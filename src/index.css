@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 /* ============================================================
@@ -19,6 +19,8 @@
   --color-text-secondary: #7F8177;
   
   --font-heading: 'Space Grotesk', sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-display: 'Instrument Serif', Georgia, serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
@@ -40,8 +42,24 @@
     -webkit-overflow-scrolling: touch;
     /* Smooth tap feedback on mobile */
     -webkit-tap-highlight-color: transparent;
+    /* Premium font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+  }
+
+  /* Premium focus ring */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Smooth interactive transitions on all clickable elements */
+  a, button {
+    transition: opacity 0.15s ease, transform 0.15s ease;
   }
 
   /* Safe-area helpers for fixed UI (notch / home indicator) */
@@ -228,4 +246,166 @@
     background-size: 100% 100%, 200% 100%, 14px 14px;
     animation: glaze-sweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
+
+  /* ============================================================
+     Hero CSS-only theming — avoids re-rendering Hero on toggle
+     ============================================================ */
+
+  /* Mobile blueprint grid */
+  .hero-mobile-grid {
+    background-image: radial-gradient(rgba(148, 163, 184, 0.4) 1.5px, transparent 1.5px),
+      linear-gradient(to right, rgba(148, 163, 184, 0.16) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.16) 1px, transparent 1px);
+    background-size: 140px 140px, 140px 140px, 140px 140px;
+  }
+  :where(.dark, .dark *) .hero-mobile-grid {
+    background-image: radial-gradient(rgba(100, 116, 139, 0.4) 1.5px, transparent 1.5px),
+      linear-gradient(to right, rgba(51, 65, 85, 0.16) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(51, 65, 85, 0.16) 1px, transparent 1px);
+    background-size: 140px 140px, 140px 140px, 140px 140px;
+  }
+
+  /* ENGINEER watermark text stroke */
+  .hero-engineer-watermark {
+    -webkit-text-stroke: 1.5px rgba(33, 150, 243, 0.3);
+  }
+  :where(.dark, .dark *) .hero-engineer-watermark {
+    -webkit-text-stroke: 1.5px rgba(34, 211, 238, 0.35);
+  }
+
+  /* Portrait ambient glow halo */
+  .hero-portrait-glow {
+    background: radial-gradient(circle, rgba(37,99,235,0.1) 0%, rgba(14,165,233,0.06) 50%, transparent 70%);
+  }
+  :where(.dark, .dark *) .hero-portrait-glow {
+    background: radial-gradient(circle, rgba(34,211,238,0.12) 0%, rgba(59,130,246,0.08) 50%, transparent 70%);
+  }
+
+  /* Portrait card background, border & shadow */
+  .hero-portrait-card {
+    background: linear-gradient(175deg,
+      rgba(224, 233, 255, 0.72) 0%,
+      rgba(210, 224, 255, 0.60) 45%,
+      rgba(196, 214, 252, 0.68) 100%
+    );
+    border-color: rgba(147, 179, 243, 0.4);
+    box-shadow:
+      0 20px 45px -10px rgba(66, 120, 220, 0.18),
+      0 0 0 1px rgba(147, 179, 243, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  :where(.dark, .dark *) .hero-portrait-card {
+    background: linear-gradient(175deg, #111a2e 0%, #0b1120 40%, #070a12 100%);
+    border-color: rgba(34, 211, 238, 0.18);
+    box-shadow: 0 20px 50px -10px rgba(0,0,0,0.8), 0 0 30px rgba(6,182,212,0.1);
+  }
+
+  /* Portrait rim highlight */
+  .hero-portrait-rimlight {
+    background: linear-gradient(90deg, transparent 0%, rgba(100, 150, 255, 0.3) 50%, transparent 100%);
+  }
+  :where(.dark, .dark *) .hero-portrait-rimlight {
+    background: linear-gradient(90deg, transparent 0%, rgba(34,211,238,0.6) 50%, transparent 100%);
+  }
+
+  /* Portrait studio spotlight */
+  .hero-portrait-spotlight {
+    background: radial-gradient(circle, rgba(180, 210, 255, 0.35) 0%, transparent 70%);
+  }
+  :where(.dark, .dark *) .hero-portrait-spotlight {
+    background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, transparent 70%);
+  }
+
+  /* Portrait image filter */
+  .hero-portrait-img {
+    filter: contrast(1.02) brightness(1.0) drop-shadow(0 10px 20px rgba(0,0,0,0.12));
+  }
+  :where(.dark, .dark *) .hero-portrait-img {
+    filter: contrast(1.03) brightness(0.98) drop-shadow(0 12px 24px rgba(0,0,0,0.6));
+  }
+
+  /* Portrait footer strip */
+  .hero-portrait-footer {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+  :where(.dark, .dark *) .hero-portrait-footer {
+    background: rgba(10, 14, 23, 0.85);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Explore Work button — distinct light vs dark */
+  .hero-explore-btn {
+    background: #2196F3;
+    box-shadow: 0 8px 24px -4px rgba(33, 150, 243, 0.45);
+  }
+  .hero-explore-btn:hover {
+    background: #1565C0;
+    box-shadow: 0 10px 28px -4px rgba(33, 150, 243, 0.6);
+  }
+  :where(.dark, .dark *) .hero-explore-btn {
+    background: rgba(8, 14, 28, 0.92);
+    box-shadow: 0 8px 28px -4px rgba(6, 182, 212, 0.3);
+    color: #e2e8f0;
+    text-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
+  }
+  :where(.dark, .dark *) .hero-explore-btn:hover {
+    background: rgba(12, 20, 40, 0.96);
+    box-shadow: 0 12px 32px -4px rgba(6, 182, 212, 0.55);
+    text-shadow: 0 0 18px rgba(34, 211, 238, 0.8);
+  }
+
+  /* ── Spinning conic-gradient border ring (dark mode only) ── */
+
+  /* The clip container: 2px outset from button, clips the spinning gradient */
+  .hero-explore-spin-ring {
+    opacity: 0;
+    z-index: 0;
+  }
+  :where(.dark, .dark *) .hero-explore-spin-ring {
+    opacity: 1;
+  }
+
+  /* The large rotating square with conic gradient — clipped by parent overflow:hidden */
+  .hero-explore-spin-inner {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: conic-gradient(
+      transparent   0deg,
+      #06b6d4      40deg,   /* cyan  */
+      #3b82f6     100deg,   /* blue  */
+      #8b5cf6     160deg,   /* violet */
+      #ec4899     200deg,   /* pink   */
+      transparent 240deg,
+      transparent 360deg
+    );
+    animation: explore-border-spin 2.2s linear infinite;
+  }
+
+  @keyframes explore-border-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Outer diffuse glow — breathes slowly in dark mode */
+  .hero-explore-glow-pulse {
+    animation: explore-glow-breathe 2.5s ease-in-out infinite;
+  }
+  :where(.dark, .dark *) .hero-explore-glow-pulse {
+    animation: explore-glow-breathe-dark 2.5s ease-in-out infinite;
+  }
+
+  @keyframes explore-glow-breathe {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50%       { opacity: 0.9; transform: scale(1.04); }
+  }
+  @keyframes explore-glow-breathe-dark {
+    0%, 100% { opacity: 0.4; transform: scale(1);    }
+    50%       { opacity: 1;   transform: scale(1.08); }
+  }
+
 }
